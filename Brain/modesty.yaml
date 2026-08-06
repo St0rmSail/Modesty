@@ -1,0 +1,21 @@
+name: Modesty
+
+owner: Drew
+
+brain:
+
+  provider: Ollama
+
+  model: llama3.1:latest
+
+internet:
+
+  enabled: false
+
+voice:
+
+  enabled: false
+
+vision:
+
+  enabled: false

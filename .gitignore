@@ -1,0 +1,12 @@
+# Python virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables (future API keys)
+.env
+
+# Windows thumbnail cache
+Thumbs.db

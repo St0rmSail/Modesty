@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "shadow_colour": [
+    40,
+    30,
+    18
+  ],
+  "shadow_opacity": 0.20,
+  "shadow_width": 0.58,
+  "shadow_height": 0.075,
+  "offset_x": 0.060,
+  "offset_y": -0.090,
+  "softness_layers": 18,
+  "_notes": {
+    "shadow_opacity": "Overall shadow strength. Suggested range: 0.10 to 0.25.",
+    "shadow_width": "Shadow width as a fraction of character height.",
+    "shadow_height": "Shadow depth as a fraction of character height.",
+    "offset_x": "Horizontal offset as a fraction of character height. Positive moves right.",
+    "offset_y": "Vertical offset as a fraction of character height. Positive moves down.",
+    "softness_layers": "More layers create a smoother edge but cost slightly more drawing time."
+  }
+}

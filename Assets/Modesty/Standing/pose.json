@@ -1,0 +1,10 @@
+{
+  "name": "standing_neutral_v1",
+  "pivot_x": 0.5,
+  "pivot_y": 0.965,
+  "loop": "idle",
+  "_notes": {
+    "pivot_x": "Horizontal pivot within Modesty's PNG.",
+    "pivot_y": "Vertical pivot near the floor between her feet."
+  }
+}

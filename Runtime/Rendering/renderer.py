@@ -23,17 +23,18 @@ Notes:
     to the Study when the window is resized or cropped.
 
 Build:
-    0.3.1 — Grounded
+    0.4.0 — First Breath
 ---------------------------------------------------------
 """
 
 import json
 from pathlib import Path
 
-from PySide6.QtCore import QRectF
+from PySide6.QtCore import QRectF, QTimer, Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtWidgets import QWidget
 
+from Runtime.Animation import AnimationEngine, BreathingAnimation
 from Runtime.Rendering.shadows import ShadowRenderer
 
 
@@ -98,6 +99,13 @@ class StudyRenderer(QWidget):
         self.lighting = load_json(LIGHTING_FILE)
 
         self.shadow_renderer = ShadowRenderer(self.lighting)
+        self.animation_engine = AnimationEngine(BreathingAnimation())
+
+        self.animation_timer = QTimer(self)
+        self.animation_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.animation_timer.setInterval(16)
+        self.animation_timer.timeout.connect(self.update)
+        self.animation_timer.start()
 
         self.setMinimumSize(640, 360)
 
@@ -182,8 +190,21 @@ class StudyRenderer(QWidget):
         )
 
     def _draw_characters(self, painter: QPainter, geometry: dict):
+        breath = self.animation_engine.current_frame()
+        character_width = geometry["character_width"] * breath.scale_x
+        character_height = geometry["character_height"] * breath.scale_y
+
+        # Scale around the configured pose pivot so the feet never leave the
+        # Study anchor while the rest of the character breathes.
+        character_rect = QRectF(
+            geometry["anchor_x"] - float(self.pose["pivot_x"]) * character_width,
+            geometry["anchor_y"] - float(self.pose["pivot_y"]) * character_height,
+            character_width,
+            character_height,
+        )
+
         painter.drawPixmap(
-            geometry["character_rect"],
+            character_rect,
             self.modesty,
             QRectF(self.modesty.rect()),
         )

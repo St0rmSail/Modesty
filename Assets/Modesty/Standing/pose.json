@@ -1,10 +1,10 @@
 {
   "name": "standing_neutral_v1",
   "pivot_x": 0.5,
-  "pivot_y": 0.965,
+  "pivot_y": 1.093,
   "loop": "idle",
   "_notes": {
     "pivot_x": "Horizontal pivot within Modesty's PNG.",
-    "pivot_y": "Vertical pivot near the floor between her feet."
+    "pivot_y": "Vertical pose pivot below the image, calibrated so her feet meet the Study shadow."
   }
 }

@@ -1,12 +1,12 @@
 {
   "anchor_x": 0.52,
   "anchor_y": 1.0,
-  "height": 0.72,
+  "height": 0.67,
   "depth": 10,
   "_notes": {
     "anchor_x": "Horizontal Study coordinate. Values are not restricted to 0.0\u20131.0.",
     "anchor_y": "Vertical floor coordinate. Values may exceed 1.0.",
-    "height": "Character image height relative to original Study image height.",
+    "height": "Character image height relative to original Study image height. Use 0.72 when Modesty stands toe-to-toe with the front edge of the window frame (the bottom of the window).",
     "depth": "Reserved for later layer ordering."
   }
 }

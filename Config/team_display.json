@@ -1,8 +1,9 @@
 {
   "lamp": {
-    "centre_x": 0.127,
-    "centre_y": 0.475,
-    "glow_radius": 0.075
+    "centre_x": 0.135,
+    "centre_y": 0.482,
+    "glow_radius": 0.075,
+    "angle_degrees": -10.0
   },
   "members": {
     "archivist": {

@@ -212,40 +212,46 @@ class StudyRenderer(QWidget):
         )
 
     def _draw_readiness_lamp(self, painter: QPainter, geometry: dict):
-        if not team_status.system_ready():
-            return
         settings = self.team_display["lamp"]
         study_rect = geometry["study_rect"]
         centre_x = study_rect.left() + float(settings["centre_x"]) * study_rect.width()
         centre_y = study_rect.top() + float(settings["centre_y"]) * study_rect.height()
         radius = float(settings["glow_radius"]) * study_rect.height()
-        glow = QRadialGradient(centre_x, centre_y, radius)
+        angle = float(settings["angle_degrees"])
+        bulb_width = study_rect.height() * 0.014
+        bulb_height = study_rect.height() * 0.008
+
+        painter.save()
+        painter.translate(centre_x, centre_y)
+        painter.rotate(angle)
+        painter.setPen(Qt.PenStyle.NoPen)
+
+        if not team_status.system_ready():
+            painter.setBrush(QColor(48, 40, 28, 238))
+            painter.drawEllipse(
+                QRectF(-bulb_width / 2, -bulb_height / 2, bulb_width, bulb_height)
+            )
+            painter.restore()
+            return
+
+        glow = QRadialGradient(0, 0, radius)
         glow.setColorAt(0.0, QColor(255, 239, 174, 220))
         glow.setColorAt(0.35, QColor(255, 205, 92, 110))
         glow.setColorAt(0.68, QColor(255, 183, 62, 42))
         glow.setColorAt(1.0, QColor(255, 170, 60, 0))
-        painter.save()
-        painter.setPen(Qt.PenStyle.NoPen)
-        bulb_width = study_rect.height() * 0.014
-        bulb_height = study_rect.height() * 0.008
         painter.setClipRect(
             QRectF(
-                study_rect.left(),
-                centre_y - bulb_height / 2,
-                study_rect.width(),
-                study_rect.bottom() - centre_y + bulb_height / 2,
+                -radius,
+                -bulb_height / 2,
+                radius * 2,
+                radius + bulb_height / 2,
             )
         )
         painter.setBrush(glow)
-        painter.drawEllipse(QRectF(centre_x - radius, centre_y - radius, radius * 2, radius * 2))
+        painter.drawEllipse(QRectF(-radius, -radius, radius * 2, radius * 2))
         painter.setBrush(QColor(255, 244, 184, 245))
         painter.drawEllipse(
-            QRectF(
-                centre_x - bulb_width / 2,
-                centre_y - bulb_height / 2,
-                bulb_width,
-                bulb_height,
-            )
+            QRectF(-bulb_width / 2, -bulb_height / 2, bulb_width, bulb_height)
         )
         painter.restore()
 

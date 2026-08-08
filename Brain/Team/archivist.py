@@ -61,7 +61,8 @@ class Archivist:
             raise ValueError("Choose the private Filing Cabinet or shared Bookshelf.")
 
         title = self._first_line_title(content)
-        slug = re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-").lower()[:60] or "note"
+        slug_words = re.findall(r"[A-Za-z0-9]+", title.casefold())[:8]
+        slug = "-".join(slug_words) or "note"
         inbox = roots[store] / "Inbox"
         inbox.mkdir(parents=True, exist_ok=True)
         path = self._unused_path(inbox, f"{datetime.now():%Y-%m-%d}-{slug}")
@@ -129,7 +130,19 @@ class Archivist:
     def _excerpt(text: str, terms: list[str], length: int = 280) -> str:
         plain = " ".join(
             line.strip() for line in text.splitlines()
-            if line.strip() and line.strip() != "---" and not line.lstrip().startswith(("type:", "title:", "created_by:", "verified:", "provenance:"))
+            if line.strip()
+            and line.strip() != "---"
+            and not line.lstrip().startswith(
+                (
+                    "#",
+                    "type:",
+                    "title:",
+                    "created_by:",
+                    "verified:",
+                    "provenance:",
+                    "_Source:",
+                )
+            )
         )
         folded = plain.casefold()
         positions = [folded.find(term) for term in terms if folded.find(term) >= 0]

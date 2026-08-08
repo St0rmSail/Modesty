@@ -50,6 +50,8 @@ class ArchivistDelegationTest(unittest.TestCase):
         self.assertTrue(result.handled)
         self.assertIn("Filing Cabinet/Inbox/", result.response)
         self.assertIn("blue drawer", result.response)
+        self.assertNotIn("# Boat keys", result.response)
+        self.assertNotIn("Source:", result.response)
 
     def test_ambiguous_filing_asks_for_destination(self):
         result = self.delegator.handle("Ask the Archivist to file this note")

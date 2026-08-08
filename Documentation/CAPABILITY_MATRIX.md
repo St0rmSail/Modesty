@@ -20,7 +20,8 @@
 | Filing Cabinet vault | Yes | Yes | Yes | Private Obsidian foundation created externally |
 | Living Bookshelf repository | Yes | Yes | Yes | Separate external collection and folders created |
 | OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
-| Bookshelf intake and curation | Yes | Partial | Partial | Inbox and Workbench exist; Archivist workflow remains unimplemented |
+| Knowledge filing and retrieval | Yes | Partial | Yes | Explicit Inbox filing and bounded local excerpt retrieval demonstrated |
+| Bookshelf intake and curation | Yes | Partial | Partial | Inbox exists; review and Workbench promotion remain unimplemented |
 | Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
 | Archivist | Yes | Partial | Partial | Read-only inventory demonstrated; curation and Bobblehead remain |

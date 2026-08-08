@@ -29,7 +29,8 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Record source store, path, hash, size, and modification timestamp.
 - [x] Validate structural Bookshelf metadata and surface gaps without automatic rewriting.
 - [ ] Implement the Inbox-to-Workbench review path.
-- [ ] Report results through Modesty in plain language.
+- [x] Demonstrate bounded private filing and retrieval reported through Modesty.
+- [ ] Expand plain-language reporting to the future review and curation workflow.
 - [ ] Create the Archivist's stern-librarian Bobblehead and Modesty's headset, tied to truthful Team state.
 
 ## Engineering housekeeping

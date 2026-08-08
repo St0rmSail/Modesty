@@ -226,10 +226,18 @@ class StudyRenderer(QWidget):
         glow.setColorAt(1.0, QColor(255, 170, 60, 0))
         painter.save()
         painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(glow)
-        painter.drawEllipse(QRectF(centre_x - radius, centre_y - radius, radius * 2, radius * 2))
         bulb_width = study_rect.height() * 0.014
         bulb_height = study_rect.height() * 0.008
+        painter.setClipRect(
+            QRectF(
+                study_rect.left(),
+                centre_y - bulb_height / 2,
+                study_rect.width(),
+                study_rect.bottom() - centre_y + bulb_height / 2,
+            )
+        )
+        painter.setBrush(glow)
+        painter.drawEllipse(QRectF(centre_x - radius, centre_y - radius, radius * 2, radius * 2))
         painter.setBrush(QColor(255, 244, 184, 245))
         painter.drawEllipse(
             QRectF(

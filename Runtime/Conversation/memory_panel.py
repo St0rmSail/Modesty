@@ -55,6 +55,8 @@ class ChatWorker(QThread):
 class ConversationPanel(QWidget):
     """Collect text input and persist local conversation history."""
 
+    hide_requested = Signal()
+
     def __init__(self, memory: ConversationMemory | None = None):
         super().__init__()
 
@@ -73,8 +75,7 @@ class ConversationPanel(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
         self.setMinimumWidth(380)
         self.setMaximumWidth(420)
-        self.setMinimumHeight(235)
-        self.setMaximumHeight(270)
+        self.setMinimumHeight(420)
         self.setStyleSheet(
             """
             QWidget#conversationPanel {
@@ -143,11 +144,16 @@ class ConversationPanel(QWidget):
         self.memories_button.setObjectName("smallButton")
         self.memories_button.clicked.connect(self._open_personal_memories)
         history_row.addWidget(self.memories_button)
+
+        self.hide_button = QPushButton("Hide")
+        self.hide_button.setObjectName("smallButton")
+        self.hide_button.setToolTip("Hide the conversation panel")
+        self.hide_button.clicked.connect(self.hide_requested.emit)
+        history_row.addWidget(self.hide_button)
         layout.addLayout(history_row)
 
         self.transcript = QPlainTextEdit()
         self.transcript.setReadOnly(True)
-        self.transcript.setMaximumHeight(135)
         layout.addWidget(self.transcript)
 
         input_row = QHBoxLayout()

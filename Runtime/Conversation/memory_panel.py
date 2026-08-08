@@ -1,5 +1,7 @@
 """A compact persistent conversation overlay for the Study View."""
 
+import sqlite3
+
 from PySide6.QtCore import QThread, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox,
@@ -14,6 +16,7 @@ from PySide6.QtWidgets import (
 )
 
 from Brain.Memory import ConversationMemory, MemoryStoreError
+from Brain.Team.delegation import TeamDelegator
 from Runtime.Conversation.client import DEFAULT_MODEL, OllamaChatClient
 from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
 
@@ -25,7 +28,10 @@ Merry are only named aspects of your single personality, never separate people,
 agents, or identities. Speak naturally, clearly, and concisely. You can retain
 conversation history and use personal memories that Drew has explicitly
 approved. You do not yet have document knowledge, internet, vision, voice, or
-tools. Never claim to have used capabilities you do not possess."""
+general tools. The Team are unseen functional specialists, not chat
+personalities; you alone speak to Drew. Explicit Archivist duties are handled
+by deterministic local code outside this model conversation. Never claim to
+have used capabilities you do not possess."""
 
 MODEL_CONTEXT_MESSAGES = 30
 
@@ -57,6 +63,7 @@ class ConversationPanel(QWidget):
         self.conversation_id = None
         self.messages: list[dict[str, str]] = []
         self.worker = None
+        self.team_delegator = None
 
         self._build_ui()
         self._open_memory()
@@ -297,6 +304,19 @@ class ConversationPanel(QWidget):
         self._refresh_history()
         self.status.setText("Modesty is thinking...")
         self._set_input_enabled(False)
+
+        try:
+            self.team_delegator = self.team_delegator or TeamDelegator()
+            delegated = self.team_delegator.handle(message)
+        except (OSError, RuntimeError, sqlite3.Error, UnicodeError, ValueError) as error:
+            self._receive(f"The Archivist could not complete that duty: {error}")
+            self._set_input_enabled(True)
+            return
+        if delegated.handled:
+            self._receive(delegated.response)
+            self._set_input_enabled(True)
+            self.input.setFocus()
+            return
 
         context = [{"role": "system", "content": self._system_context()}]
         context.extend(self.messages[-MODEL_CONTEXT_MESSAGES:])

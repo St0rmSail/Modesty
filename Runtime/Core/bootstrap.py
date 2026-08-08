@@ -21,6 +21,7 @@ import sqlite3
 
 from rich import print
 from Runtime.Core.noticeboard import NoticeBoard
+from Runtime.Core import team_status
 from Runtime.Knowledge import KnowledgeStores
 from Runtime.Knowledge.stores import KnowledgeStoreError
 from Brain.Team.archivist import Archivist
@@ -29,6 +30,8 @@ from Runtime.Core import config
 
 
 def startup():
+
+    team_status.reset()
 
     print()
     print("[bold cyan]STATUS : INITIALISING[/]")
@@ -55,6 +58,7 @@ def startup():
         except (OSError, sqlite3.Error, UnicodeError) as error:
             print(f"[yellow]Archivist could not complete her inventory: {error}[/]")
         else:
+            team_status.set_member_state("archivist", "ready")
             print(
                 f"[green]Archivist catalogued {report.documents} documents;[/] "
                 f"{report.warnings} need attention."
@@ -88,5 +92,6 @@ def startup():
     board.show()
 
     print()
+    team_status.set_core_ready(True)
     print("[bold green]STATUS : READY[/]")
 

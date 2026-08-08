@@ -31,16 +31,20 @@ import json
 from pathlib import Path
 
 from PySide6.QtCore import QRectF, QTimer, Qt
-from PySide6.QtGui import QPainter, QPixmap
+from PySide6.QtGui import QColor, QPainter, QPixmap, QRadialGradient
 from PySide6.QtWidgets import QWidget
 
 from Runtime.Animation import AnimationEngine, BlinkAnimation, BreathingAnimation
 from Runtime.Rendering.shadows import ShadowRenderer
+from Runtime.Core import team_status
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-STUDY_IMAGE = PROJECT_ROOT / "Assets" / "Study" / "study_master.png"
+STUDY_IMAGE = PROJECT_ROOT / "Assets" / "Study" / "study_team_roster_base_v1.png"
+ARCHIVIST_IMAGE = (
+    PROJECT_ROOT / "Assets" / "Team" / "Archivist" / "archivist_bobblehead_v1.png"
+)
 MODESTY_IMAGE = (
     PROJECT_ROOT
     / "Assets"
@@ -65,6 +69,7 @@ POSE_FILE = (
     / "pose.json"
 )
 LIGHTING_FILE = PROJECT_ROOT / "Config" / "study_lighting.json"
+TEAM_DISPLAY_FILE = PROJECT_ROOT / "Config" / "team_display.json"
 
 
 def load_json(path: Path) -> dict:
@@ -91,6 +96,7 @@ class StudyRenderer(QWidget):
         self.study = QPixmap(str(STUDY_IMAGE))
         self.modesty = QPixmap(str(MODESTY_IMAGE))
         self.modesty_blink = QPixmap(str(MODESTY_BLINK_IMAGE))
+        self.archivist = QPixmap(str(ARCHIVIST_IMAGE))
 
         if self.study.isNull():
             raise FileNotFoundError(
@@ -110,9 +116,15 @@ class StudyRenderer(QWidget):
         if self.modesty_blink.size() != self.modesty.size():
             raise ValueError("Blink image must match the standing image dimensions.")
 
+        if self.archivist.isNull():
+            raise FileNotFoundError(
+                f"Archivist Bobblehead could not be loaded:\n{ARCHIVIST_IMAGE}"
+            )
+
         self.position = load_json(POSITION_FILE)
         self.pose = load_json(POSE_FILE)
         self.lighting = load_json(LIGHTING_FILE)
+        self.team_display = load_json(TEAM_DISPLAY_FILE)
 
         self.shadow_renderer = ShadowRenderer(self.lighting)
         self.animation_engine = AnimationEngine(BreathingAnimation())
@@ -134,6 +146,8 @@ class StudyRenderer(QWidget):
         geometry = self._calculate_geometry()
 
         self._draw_background(painter, geometry)
+        self._draw_readiness_lamp(painter, geometry)
+        self._draw_team(painter, geometry)
         self._draw_ground_effects(painter, geometry)
         self._draw_characters(painter, geometry)
         self._draw_foreground(painter, geometry)
@@ -196,6 +210,106 @@ class StudyRenderer(QWidget):
             self.study,
             QRectF(self.study.rect()),
         )
+
+    def _draw_readiness_lamp(self, painter: QPainter, geometry: dict):
+        if not team_status.system_ready():
+            return
+        settings = self.team_display["lamp"]
+        study_rect = geometry["study_rect"]
+        centre_x = study_rect.left() + float(settings["centre_x"]) * study_rect.width()
+        centre_y = study_rect.top() + float(settings["centre_y"]) * study_rect.height()
+        radius = float(settings["glow_radius"]) * study_rect.height()
+        glow = QRadialGradient(centre_x, centre_y, radius)
+        glow.setColorAt(0.0, QColor(255, 224, 145, 115))
+        glow.setColorAt(0.45, QColor(255, 194, 85, 48))
+        glow.setColorAt(1.0, QColor(255, 170, 60, 0))
+        painter.save()
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(glow)
+        painter.drawEllipse(QRectF(centre_x - radius, centre_y - radius, radius * 2, radius * 2))
+        painter.restore()
+
+    def _draw_team(self, painter: QPainter, geometry: dict):
+        state = team_status.member_state("archivist")
+        settings = self.team_display["members"]["archivist"]
+        if state in {"offline", "attention"}:
+            message = "LATE FOR\nWORK" if state == "offline" else "NEEDS\nATTENTION"
+            self._draw_absence_sign(painter, geometry, settings, message)
+            return
+        if state not in {"ready", "working", "waiting"}:
+            return
+        study_rect = geometry["study_rect"]
+        height = float(settings["height"]) * study_rect.height()
+        width = height * self.archivist.width() / self.archivist.height()
+        anchor_x = study_rect.left() + float(settings["anchor_x"]) * study_rect.width()
+        anchor_y = study_rect.top() + float(settings["anchor_y"]) * study_rect.height()
+        destination = QRectF(anchor_x - width / 2, anchor_y - height, width, height)
+        painter.drawPixmap(destination, self.archivist, QRectF(self.archivist.rect()))
+
+    @staticmethod
+    def _draw_absence_sign(painter: QPainter, geometry: dict, settings: dict, message: str):
+        study_rect = geometry["study_rect"]
+        anchor_x = study_rect.left() + float(settings["anchor_x"]) * study_rect.width()
+        anchor_y = study_rect.top() + float(settings["anchor_y"]) * study_rect.height()
+        sign_width = study_rect.width() * 0.047
+        sign_height = study_rect.height() * 0.046
+        sign_rect = QRectF(
+            anchor_x - sign_width / 2,
+            anchor_y - sign_height - study_rect.height() * 0.018,
+            sign_width,
+            sign_height,
+        )
+        painter.save()
+        painter.setPen(QColor(63, 38, 20, 235))
+        painter.setBrush(QColor(194, 143, 76, 245))
+        painter.drawRoundedRect(sign_rect, 4, 4)
+        painter.drawLine(
+            int(anchor_x),
+            int(sign_rect.bottom()),
+            int(anchor_x),
+            int(anchor_y),
+        )
+        StudyRenderer._draw_pixel_text(painter, sign_rect, message)
+        painter.restore()
+
+    @staticmethod
+    def _draw_pixel_text(painter: QPainter, rect: QRectF, message: str):
+        glyphs = {
+            "A": ("01110", "10001", "10001", "11111", "10001", "10001", "10001"),
+            "D": ("11110", "10001", "10001", "10001", "10001", "10001", "11110"),
+            "E": ("11111", "10000", "10000", "11110", "10000", "10000", "11111"),
+            "F": ("11111", "10000", "10000", "11110", "10000", "10000", "10000"),
+            "I": ("11111", "00100", "00100", "00100", "00100", "00100", "11111"),
+            "K": ("10001", "10010", "10100", "11000", "10100", "10010", "10001"),
+            "L": ("10000", "10000", "10000", "10000", "10000", "10000", "11111"),
+            "N": ("10001", "11001", "11001", "10101", "10011", "10011", "10001"),
+            "O": ("01110", "10001", "10001", "10001", "10001", "10001", "01110"),
+            "R": ("11110", "10001", "10001", "11110", "10100", "10010", "10001"),
+            "S": ("01111", "10000", "10000", "01110", "00001", "00001", "11110"),
+            "T": ("11111", "00100", "00100", "00100", "00100", "00100", "00100"),
+            "W": ("10001", "10001", "10001", "10101", "10101", "11011", "10001"),
+        }
+        lines = message.splitlines()
+        unit_widths = [sum(3 if char == " " else 6 for char in line) - 1 for line in lines]
+        pixel = max(1, int(min(rect.width() / max(unit_widths), rect.height() / (len(lines) * 8 - 1))))
+        total_height = (len(lines) * 8 - 1) * pixel
+        y = rect.top() + (rect.height() - total_height) / 2
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(53, 31, 17, 255))
+        for line, units in zip(lines, unit_widths):
+            x = rect.left() + (rect.width() - units * pixel) / 2
+            for char in line:
+                if char == " ":
+                    x += 3 * pixel
+                    continue
+                for row, pattern in enumerate(glyphs[char]):
+                    for column, filled in enumerate(pattern):
+                        if filled == "1":
+                            painter.drawRect(
+                                QRectF(x + column * pixel, y + row * pixel, pixel, pixel)
+                            )
+                x += 6 * pixel
+            y += 8 * pixel
 
     def _draw_ground_effects(self, painter: QPainter, geometry: dict):
         self.shadow_renderer.draw_ground_shadow(

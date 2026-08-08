@@ -1,0 +1,15 @@
+{
+  "lamp": {
+    "centre_x": 0.123,
+    "centre_y": 0.468,
+    "glow_radius": 0.075
+  },
+  "members": {
+    "archivist": {
+      "pedestal": 1,
+      "anchor_x": 0.119,
+      "anchor_y": 0.592,
+      "height": 0.070
+    }
+  }
+}

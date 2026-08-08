@@ -66,3 +66,35 @@ Current status:
 Next milestone:
 
 Idle Animation Framework
+
+2026-08-07
+
+Build 0.4.0 - First Breath
+
+Modesty began breathing through a lightweight elapsed-time animation engine. Her feet remain anchored to the standing-pose pivot and the existing Study placement and shadow are preserved.
+
+Build 0.4.1 - Clear Eyes
+
+The canonical standing asset was replaced with the approved clear-eyed render. Placement was retuned to anchor_x 0.52, anchor_y 1.0, and height 0.67. Height 0.72 remains the reference when she stands at the front edge of the window frame.
+
+2026-08-08
+
+Build 0.5.0 - First Blink
+
+Modesty gained a natural elapsed-time blink using a matched closed-eye asset. Visual testing confirmed the result.
+
+Build 0.6.0 - First Words
+
+The Study gained a conversation panel and a local Ollama connection using gemma4:e2b. Bidirectional conversation was demonstrated.
+
+Build 0.7.0 - Yesterday
+
+SQLite conversation history was added. Conversations, messages, selection, creation, deletion, daily backup, and restoration across restart were demonstrated.
+
+Build 0.8.0 - Personal Memory
+
+Explicit personal memories were added with category, source, creation and update timestamps, and visible add, edit, and delete controls. Restart and recall behaviour were demonstrated.
+
+Build 0.8.1 - The Ledger
+
+The three available project histories, repository history through Build 0.8.0, and current source were reconciled into concise canon, architecture, Team, capability, decision, and roadmap documents. No runtime behaviour or assets changed.

@@ -98,3 +98,7 @@ Explicit personal memories were added with category, source, creation and update
 Build 0.8.1 - The Ledger
 
 The three available project histories, repository history through Build 0.8.0, and current source were reconciled into concise canon, architecture, Team, capability, decision, and roadmap documents. No runtime behaviour or assets changed.
+
+Build 0.8.2 - The Living Bookshelf
+
+The knowledge architecture was clarified and canonised. The Filing Cabinet is private local memory, the Bookshelf is a living curated shared repository, and the Grand Library is the explicitly invoked online exchange mode. Bookshelf growth proceeds through staged, sourced contributions and proportionate trust rules rather than direct external writes or static read-only storage.

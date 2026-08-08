@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.8.1 - The Ledger
+**Current marker:** Build 0.8.2 - The Living Bookshelf
 **Reviewed:** 2026-08-08
 
 ## Completed build line
@@ -17,17 +17,19 @@
 | 0.7.0 | Yesterday | Persistent conversation history across restart |
 | 0.8.0 | Personal Memory | Explicit personal facts with source/edit/delete controls |
 | 0.8.1 | The Ledger | Project-wide design and implementation record aligned |
+| 0.8.2 | The Living Bookshelf | Filing Cabinet, Bookshelf growth, and Grand Library mode canonised |
 
 ## Immediate sequence
 
-### 0.9.0 - Grand Library Foundations
+### 0.9.0 - Cabinet and Bookshelf Foundations
 
 Definition of done:
 
-- Create new Private and Shared local roots outside the repository.
+- Create the private Filing Cabinet Obsidian vault outside the repository.
+- Create the separate living Bookshelf repository with Inbox, Workbench, collections, and Archive.
 - Register both roots in configuration without assuming `Data/Obsidian` is the live vault.
-- Establish OKF-compatible `index.md` and note templates.
-- Define default-private promotion rules and provenance fields.
+- Establish OKF-compatible Bookshelf indexes and templates.
+- Encode provenance and the Routine, Normal, Important, and Protected trust levels.
 - Add no online access.
 
 ### 0.10.0 - The Archivist
@@ -36,8 +38,9 @@ Definition of done:
 
 - Implement the first bounded Team-member contract.
 - Ingest Markdown without rewriting source notes unexpectedly.
-- Validate metadata, hashes, visibility, and provenance.
+- Validate metadata, hashes, store identity, and provenance.
 - Propose classifications and links for Drew's approval.
+- Curate returned material from Inbox through Workbench onto the Bookshelf.
 - Report work and failure plainly through Modesty.
 
 ### 0.11.0 - Ask the Library
@@ -45,7 +48,7 @@ Definition of done:
 Definition of done:
 
 - Build a local index, starting with SQLite FTS5.
-- Retrieve from both zones locally while preserving zone on every result.
+- Retrieve from both stores locally while preserving origin on every result.
 - Give Modesty source-linked passages rather than unsourced summaries.
 - Support re-index, deletion, and stale-file detection.
 
@@ -53,11 +56,13 @@ Definition of done:
 
 Definition of done:
 
-- Export bounded packets from Shared only.
-- Preview and approve outbound knowledge.
+- Explicitly open and close Grand Library online mode.
+- Export bounded loans from the Bookshelf only.
+- Preview consequential outbound knowledge.
 - Apply redaction and size limits.
-- Record an audit trail of what was shared and why.
-- Provide no direct online-agent vault access.
+- Receive sourced returns into the Bookshelf Inbox.
+- Record an audit trail of what was borrowed, returned, and why.
+- Provide no direct online-agent access to either local store.
 
 ## Later functional milestones
 

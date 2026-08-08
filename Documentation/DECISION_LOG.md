@@ -20,12 +20,14 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-012 | The chosen local conversation model is Ollama `gemma4:e2b`. | Implemented |
 | D-013 | Conversation history and approved personal facts use local SQLite storage with user-visible controls. | Implemented |
 | D-014 | The repository is authoritative for project canon, architecture, status, and contracts. | Canonical |
-| D-015 | The Grand Library holds operational knowledge and begins with physically separate Private and Shared roots. | Approved direction |
-| D-016 | New Library material is Private by default; only Drew can approve promotion to Shared. | Approved direction |
-| D-017 | Adopt OKF-compatible Markdown from the Library foundation; OKF does not enforce permissions. | Approved direction |
-| D-018 | Modesty fronts Library interactions; the Archivist performs curation and retrieval work. | Canonical boundary |
-| D-019 | Online agents receive bounded, auditable Shared knowledge packets, never direct vault access. | Approved direction |
+| D-015 | The Filing Cabinet is Modesty's locked, local-only personal memory and private Obsidian vault. | Canonical |
+| D-016 | The Bookshelf is a separate, living local repository of curated shared knowledge and resources; it contains more than books. | Canonical |
+| D-017 | The Grand Library is an explicitly invoked online exchange mode, not a storage directory. | Canonical |
+| D-018 | Adopt OKF-compatible Markdown primarily for the Bookshelf; OKF does not enforce permissions. | Canonical |
+| D-019 | Modesty fronts knowledge interactions; the Archivist maintains both stores and curates Bookshelf growth. | Canonical boundary |
 | D-020 | Raw design conversations are evidence, not repository documentation; commit curated conclusions only. | Canonical |
+| D-021 | Online agents borrow bounded read-only Bookshelf packets and return sourced contributions to Inbox; they never receive direct local access or silently rewrite established knowledge. | Canonical |
+| D-022 | Bookshelf changes use Routine, Normal, Important, and Protected trust levels; only Drew may approve movement from Filing Cabinet to Bookshelf. | Canonical |
 
 ## Superseded decisions and names
 
@@ -34,3 +36,4 @@ This compact register records settled decisions. Create a separate detailed deci
 - Early standing placement `height: 0.72` at `anchor_y: 1.10` was superseded after the clear-eyed asset changed scale and grounding.
 - Early proposed model names were superseded by `gemma4:e2b`.
 - Early milestone numbering that placed blinking at 0.4.1 was superseded by the Clear Eyes correction and Build 0.5.0 First Blink.
+- The earlier design placing Private and Shared roots inside the Grand Library was superseded: Filing Cabinet and Bookshelf are stores; Grand Library is the online mode connecting the Bookshelf outward.

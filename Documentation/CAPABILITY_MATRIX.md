@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** GitHub `main` at Build 0.8.0 plus documentation-only Build 0.8.1
+**Baseline:** GitHub `main` at Build 0.8.0 plus documentation-only Builds 0.8.1 and 0.8.2
 **Reviewed:** 2026-08-08
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -17,13 +17,15 @@
 | Conversation history controls | Yes | Yes | Yes | Open, create, and delete conversations |
 | Approved personal memories | Yes | Yes | Yes | Visible source, add, edit, delete |
 | Automatic identity recognition | Partial | No | No | One Windows account does not itself identify the typist |
-| Grand Library vault | Yes | No | No | New vault required |
-| OKF knowledge structure | Yes | No | No | Adopt from Library foundation onward |
-| Private/Shared Library zones | Yes | No | No | Physical separation and default-private policy required |
+| Filing Cabinet vault | Yes | No | No | New private Obsidian vault required |
+| Living Bookshelf repository | Yes | No | No | Separate local shared collection required |
+| OKF knowledge structure | Yes | No | No | Apply primarily to the Bookshelf |
+| Bookshelf intake and curation | Yes | No | No | Inbox, Workbench, provenance, and trust rules required |
+| Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
 | Archivist | Partial | No | No | Contract and first bounded workflow required |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
-| Web research gateway | Partial | No | No | Shared-only packet boundary required |
+| Web research gateway | Partial | No | No | Bookshelf-loan and returned-contribution boundary required |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |

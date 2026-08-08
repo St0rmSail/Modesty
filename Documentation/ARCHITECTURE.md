@@ -30,29 +30,50 @@ main.py
 | Approved personal facts | `personal_memories` table and memory dialogs | Implemented and tested |
 | Noticeboard | `Runtime/Core/noticeboard.py` | Prototype only |
 | The Team | `Brain/Team/` | Package placeholder only |
-| Grand Library | no active implementation | Designed, not implemented |
+| Filing Cabinet vault | no active implementation beyond SQLite memory | Designed, not implemented |
+| Bookshelf repository | no active implementation | Designed, not implemented |
+| Grand Library gateway | no active implementation | Designed, not implemented |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
 
 - `Data/modesty.db` is local generated state and is excluded from Git.
-- Conversation history and approved personal memories are structured data, not the Grand Library.
+- Conversation history and approved personal memories are structured parts of the Filing Cabinet domain.
 - The repository stores Modesty's design, contracts, schemas, and implementation record.
-- The Grand Library will store knowledge used by Modesty and the Team.
+- The Filing Cabinet stores private personal and working knowledge.
+- The Bookshelf stores curated shared knowledge used by Modesty and the authorized Team.
 
-## Grand Library boundary
+## Knowledge boundary
 
-The approved direction is two physically distinct local roots:
+The approved direction is two physically distinct local stores and one connection mode:
 
 ```text
-Grand Library/
-  Private/   # available to Modesty and authorized local services only
-  Shared/    # eligible for bounded, approved use by online agents
+Filing Cabinet/   # private Obsidian vault; local access only
+Bookshelf/        # living shared repository; local and curated
+Grand Library     # explicit online gateway state; not a directory
 ```
 
-New material is Private by default. Labels are useful metadata but are not the sole security boundary. Modesty may search both through the Archivist; online agents receive only selected packets from Shared. They do not receive direct filesystem or vault access.
+New and returned material enters a staging area before becoming established Bookshelf knowledge. Modesty may use both local stores through the Archivist. Online agents may borrow selected, read-only packets from the Bookshelf and return sourced contributions, but receive no filesystem or vault access. Returned contributions land in the Bookshelf Inbox and cannot silently rewrite established knowledge.
 
-The Library should use Markdown compatible with Open Knowledge Format (OKF). OKF is an authoring/interchange convention, not the permission system. Modesty-specific metadata may add visibility and provenance fields, but deterministic code must enforce the physical boundary.
+The Bookshelf should use Markdown compatible with Open Knowledge Format (OKF). The Filing Cabinet may use natural Obsidian Markdown with lighter metadata. OKF is an authoring/interchange convention, not the permission system. Deterministic code must enforce the physical boundary.
+
+## Bookshelf growth pipeline
+
+```text
+Create, discover, or receive knowledge
+  -> Bookshelf Inbox
+  -> Archivist validation and provenance check
+  -> Workbench for linking, reconciliation, and curation
+  -> established Bookshelf collection
+  -> later revision, supersession, or Archive
+```
+
+Trust levels prevent both uncontrolled growth and needless approval friction:
+
+- **Routine:** formatting, indexes, links, and clear metadata repair; Archivist may apply automatically.
+- **Normal:** sourced, non-destructive additions; Archivist may integrate and report.
+- **Important:** replacing established knowledge or changing a project decision; Drew approves.
+- **Protected:** moving anything from the Filing Cabinet to the Bookshelf; Drew explicitly approves.
 
 ## Engineering boundaries
 

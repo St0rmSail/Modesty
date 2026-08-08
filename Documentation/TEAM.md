@@ -24,8 +24,8 @@ Every implemented member needs:
 | Member | Responsibility | Boundary | Status |
 |---|---|---|---|
 | **Modesty / Executive** | Understand intent, converse, obtain consent, route work, and report results | Does not replace every specialist | Role canonical; orchestration not implemented |
-| **Archivist** | Curate, classify, link, index, retrieve, and preserve provenance in the Grand Library | Cannot promote Private knowledge to Shared without Drew's approval | Role boundary confirmed; detailed contract not yet implemented |
-| **Researcher** | Conduct explicit online research and return sourced findings | Receives only task-relevant Shared packets; no Library filesystem access | Conceptual |
+| **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Role boundary confirmed; detailed contract not yet implemented |
+| **Researcher** | Conduct explicit online research and return sourced findings | Borrows task-relevant Bookshelf packets; no local filesystem access | Conceptual |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |
 | **Vision** | Webcam, screen, screenshot, and OCR perception | Explicit indicators and hard-off controls required | Conceptual |
@@ -39,7 +39,7 @@ Artist, briefing/courier, and fishing-oriented specialists appeared in brainstor
 
 Early project documents used **Librarian** for the knowledge role. The current term is **Archivist**. This is a terminology evolution, not evidence of two Team members.
 
-Modesty is small by design and should not curate the Grand Library herself. She asks the Archivist to perform bounded archival work and presents the result. The Archivist may use deterministic tooling and a stronger authorized model for individual curation tasks, while all security decisions remain in code and under Drew's control.
+Modesty is small by design and should not curate these collections herself. She asks the Archivist to perform bounded archival work and presents the result. The Archivist maintains the private Filing Cabinet, grows the Bookshelf, prepares loans when the Grand Library is online, and processes returned contributions through Inbox and Workbench stages. The Archivist may use deterministic tooling and a stronger authorized model for individual curation tasks, while all security decisions remain in code and under Drew's control.
 
 ## Bobbleheads
 

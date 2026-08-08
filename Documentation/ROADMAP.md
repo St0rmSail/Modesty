@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.8.2 - The Living Bookshelf
+**Current marker:** Build 0.9.0 - Cabinet and Bookshelf Foundations
 **Reviewed:** 2026-08-08
 
 ## Completed build line
@@ -18,10 +18,11 @@
 | 0.8.0 | Personal Memory | Explicit personal facts with source/edit/delete controls |
 | 0.8.1 | The Ledger | Project-wide design and implementation record aligned |
 | 0.8.2 | The Living Bookshelf | Filing Cabinet, Bookshelf growth, and Grand Library mode canonised |
+| 0.9.0 | Cabinet and Bookshelf Foundations | Both external stores safely initialized and demonstrated |
 
 ## Immediate sequence
 
-### 0.9.0 - Cabinet and Bookshelf Foundations
+### 0.9.0 - Cabinet and Bookshelf Foundations - Complete
 
 Definition of done:
 
@@ -31,6 +32,8 @@ Definition of done:
 - Establish OKF-compatible Bookshelf indexes and templates.
 - Encode provenance and the Routine, Normal, Important, and Protected trust levels.
 - Add no online access.
+
+Demonstrated on 2026-08-08 at `E:\Modesty Filing Cabinet` and `E:\Modesty Bookshelf`.
 
 ### 0.10.0 - The Archivist
 

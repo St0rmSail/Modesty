@@ -18,6 +18,6 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.8.2 - The Living Bookshelf**
+**0.9.0 - Cabinet and Bookshelf Foundations**
 
-Build 0.8.0 provides local conversation through Ollama, persistent SQLite conversation history, and explicit personal memories with visible source, edit, and delete controls. Builds 0.8.1 and 0.8.2 consolidate the project record and knowledge architecture without changing runtime behaviour.
+Modesty now initializes a private Obsidian Filing Cabinet and a separate living, OKF-compatible Bookshelf at their configured external locations. Existing material is preserved and unsafe or overlapping paths are rejected.

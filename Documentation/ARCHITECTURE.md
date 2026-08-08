@@ -30,8 +30,8 @@ main.py
 | Approved personal facts | `personal_memories` table and memory dialogs | Implemented and tested |
 | Noticeboard | `Runtime/Core/noticeboard.py` | Prototype only |
 | The Team | `Brain/Team/` | Package placeholder only |
-| Filing Cabinet vault | no active implementation beyond SQLite memory | Designed, not implemented |
-| Bookshelf repository | no active implementation | Designed, not implemented |
+| Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
+| Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Grand Library gateway | no active implementation | Designed, not implemented |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
@@ -56,6 +56,8 @@ Grand Library     # explicit online gateway state; not a directory
 New and returned material enters a staging area before becoming established Bookshelf knowledge. Modesty may use both local stores through the Archivist. Online agents may borrow selected, read-only packets from the Bookshelf and return sourced contributions, but receive no filesystem or vault access. Returned contributions land in the Bookshelf Inbox and cannot silently rewrite established knowledge.
 
 The Bookshelf should use Markdown compatible with Open Knowledge Format (OKF). The Filing Cabinet may use natural Obsidian Markdown with lighter metadata. OKF is an authoring/interchange convention, not the permission system. Deterministic code must enforce the physical boundary.
+
+The configured roots are currently `E:\Modesty Filing Cabinet` and `E:\Modesty Bookshelf`. They are initialized idempotently during startup. Initialization creates only missing foundations and never replaces an existing file.
 
 ## Bookshelf growth pipeline
 

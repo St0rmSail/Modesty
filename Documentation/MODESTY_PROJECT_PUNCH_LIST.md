@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.8.2 - The Living Bookshelf
-**Current focus:** 0.9.0 - Cabinet and Bookshelf Foundations
+**Current build:** 0.9.0 - Cabinet and Bookshelf Foundations
+**Current focus:** 0.10.0 - The Archivist
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -10,19 +10,26 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Reconcile three project conversations with current `main`.
 - [x] Separate canon, architecture, Team roles, status, decisions, and roadmap.
 - [x] Record Builds 0.4.0 through 0.8.0 that were missing from documentation.
-- [ ] Drew reviews the Ledger for misinterpreted or missing canon.
-- [ ] Resolve any corrections before writing Library code.
+- [x] Drew reviews the Ledger for misinterpreted or missing canon.
+- [x] Resolve the Filing Cabinet, Bookshelf, and Grand Library distinction before writing knowledge code.
 
-## Build 0.9.0
+## Build 0.9.0 - Complete
 
-- [ ] Confirm physical locations for the Filing Cabinet and Bookshelf.
-- [ ] Create the private Filing Cabinet Obsidian vault.
-- [ ] Create the living Bookshelf with Inbox, Workbench, collections, and Archive.
-- [ ] Add OKF-compatible Bookshelf indexes and note templates.
-- [ ] Add a source registry, provenance, and deterministic trust rules.
-- [ ] Define the Archivist's initial input/output and approval contract.
-- [ ] Test paths containing spaces and restart behaviour.
-- [ ] Update the Ledger and Buildlog after demonstration.
+- [x] Confirm physical locations for the Filing Cabinet and Bookshelf.
+- [x] Create the private Filing Cabinet Obsidian vault.
+- [x] Create the living Bookshelf with Inbox, Workbench, collections, and Archive.
+- [x] Add OKF-compatible Bookshelf indexes and note templates.
+- [x] Add deterministic path validation and preserve existing files.
+- [x] Demonstrate first-run initialization on Drew's E: drive.
+
+## Build 0.10.0
+
+- [ ] Define the Archivist's first executable contract.
+- [ ] Inventory Markdown in both stores without modifying it.
+- [ ] Record source store, path, hash, timestamps, and provenance.
+- [ ] Validate Bookshelf metadata and surface gaps without automatic rewriting.
+- [ ] Implement the Inbox-to-Workbench review path.
+- [ ] Report results through Modesty in plain language.
 
 ## Engineering housekeeping
 

@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** GitHub `main` at Build 0.8.0 plus documentation-only Builds 0.8.1 and 0.8.2
+**Baseline:** Build 0.9.0, demonstrated 2026-08-08
 **Reviewed:** 2026-08-08
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -17,10 +17,10 @@
 | Conversation history controls | Yes | Yes | Yes | Open, create, and delete conversations |
 | Approved personal memories | Yes | Yes | Yes | Visible source, add, edit, delete |
 | Automatic identity recognition | Partial | No | No | One Windows account does not itself identify the typist |
-| Filing Cabinet vault | Yes | No | No | New private Obsidian vault required |
-| Living Bookshelf repository | Yes | No | No | Separate local shared collection required |
-| OKF knowledge structure | Yes | No | No | Apply primarily to the Bookshelf |
-| Bookshelf intake and curation | Yes | No | No | Inbox, Workbench, provenance, and trust rules required |
+| Filing Cabinet vault | Yes | Yes | Yes | Private Obsidian foundation created externally |
+| Living Bookshelf repository | Yes | Yes | Yes | Separate external collection and folders created |
+| OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
+| Bookshelf intake and curation | Yes | Partial | Partial | Inbox and Workbench exist; Archivist workflow remains unimplemented |
 | Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
 | Archivist | Partial | No | No | Contract and first bounded workflow required |

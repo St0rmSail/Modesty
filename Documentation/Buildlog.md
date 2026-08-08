@@ -102,3 +102,14 @@ The three available project histories, repository history through Build 0.8.0, a
 Build 0.8.2 - The Living Bookshelf
 
 The knowledge architecture was clarified and canonised. The Filing Cabinet is private local memory, the Bookshelf is a living curated shared repository, and the Grand Library is the explicitly invoked online exchange mode. Bookshelf growth proceeds through staged, sourced contributions and proportionate trust rules rather than direct external writes or static read-only storage.
+
+Build 0.9.0 - Cabinet and Bookshelf Foundations
+
+Modesty gained two physically separate external knowledge stores. Startup safely initializes the private Obsidian Filing Cabinet and the living OKF-compatible Bookshelf without overwriting existing files. Deterministic checks reject repository-internal, identical, nested, or unsafe root paths.
+
+The first real initialization was demonstrated successfully on Drew's machine at:
+
+    E:\Modesty Filing Cabinet
+    E:\Modesty Bookshelf
+
+The Filing Cabinet contains its private drawers and Obsidian configuration. The Bookshelf contains Inbox, Workbench, working collections, Archive, index, log, and concept template. Grand Library online mode remains deliberately unimplemented.

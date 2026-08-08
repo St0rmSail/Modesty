@@ -59,6 +59,13 @@ MODESTY_BLINK_IMAGE = (
     / "Standing"
     / "modesty_standing_blink_v1.png"
 )
+MODESTY_HEADSET_IMAGE = (
+    PROJECT_ROOT
+    / "Assets"
+    / "Modesty"
+    / "Accessories"
+    / "modesty_headset_overlay_v1.png"
+)
 
 POSITION_FILE = PROJECT_ROOT / "Config" / "modesty_position.json"
 POSE_FILE = (
@@ -96,6 +103,7 @@ class StudyRenderer(QWidget):
         self.study = QPixmap(str(STUDY_IMAGE))
         self.modesty = QPixmap(str(MODESTY_IMAGE))
         self.modesty_blink = QPixmap(str(MODESTY_BLINK_IMAGE))
+        self.modesty_headset = QPixmap(str(MODESTY_HEADSET_IMAGE))
         self.archivist = QPixmap(str(ARCHIVIST_IMAGE))
 
         if self.study.isNull():
@@ -115,6 +123,14 @@ class StudyRenderer(QWidget):
 
         if self.modesty_blink.size() != self.modesty.size():
             raise ValueError("Blink image must match the standing image dimensions.")
+
+        if self.modesty_headset.isNull():
+            raise FileNotFoundError(
+                f"Modesty's headset could not be loaded:\n{MODESTY_HEADSET_IMAGE}"
+            )
+
+        if self.modesty_headset.size() != self.modesty.size():
+            raise ValueError("Headset overlay must match the standing image dimensions.")
 
         if self.archivist.isNull():
             raise FileNotFoundError(
@@ -368,6 +384,13 @@ class StudyRenderer(QWidget):
             character_image,
             QRectF(character_image.rect()),
         )
+
+        if team_status.member_state("archivist") in {"ready", "working", "waiting"}:
+            painter.drawPixmap(
+                character_rect,
+                self.modesty_headset,
+                QRectF(self.modesty_headset.rect()),
+            )
 
     def _draw_foreground(self, painter: QPainter, geometry: dict):
         # Reserved for desk edges, transient furniture, and other occluders.

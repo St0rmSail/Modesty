@@ -24,7 +24,8 @@
 | Bookshelf intake and curation | Yes | Yes | Yes | Approval-gated Inbox, Workbench, and established-collection lifecycle demonstrated |
 | Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
-| Archivist | Yes | Partial | Partial | Functional contract demonstrated; Bobblehead and headset remain |
+| Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
+| Team readiness display | Yes | Partial | Yes | Archivist presence, absence sign, and readiness lamp demonstrated; headset remains |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Partial | No | No | Bookshelf-loan and returned-contribution boundary required |
 | Voice | Partial | No | No | Config disabled |

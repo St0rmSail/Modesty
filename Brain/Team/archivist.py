@@ -25,6 +25,16 @@ class RetrievedDocument:
     excerpt: str
 
 
+@dataclass(frozen=True)
+class InboxReview:
+    filename: str
+    title: str
+    document_type: str | None
+    verified: str | None
+    metadata_ok: bool
+    excerpt: str
+
+
 class Archivist:
     """Observe the two stores and report their catalogue health."""
 
@@ -111,6 +121,50 @@ class Archivist:
             if len(matches) >= limit:
                 break
         return matches
+
+    def review_bookshelf_inbox(self, query: str) -> list[InboxReview]:
+        """Inspect matching shared Inbox notes without moving or editing them."""
+
+        terms = [term.casefold() for term in re.findall(r"[\w'-]+", query) if len(term) > 1]
+        if not terms:
+            raise ValueError("Tell me which Bookshelf Inbox item to review.")
+        inbox = self.paths.bookshelf / "Inbox"
+        reviews = []
+        for path in sorted(inbox.glob("*.md")):
+            text = path.read_text(encoding="utf-8-sig", errors="replace")
+            metadata, metadata_error = self._frontmatter(text)
+            title = metadata.get("title") or self._heading(text) or path.stem
+            haystack = f"{path.name}\n{title}\n{text}".casefold()
+            if all(term in haystack for term in terms):
+                reviews.append(
+                    InboxReview(
+                        filename=path.name,
+                        title=str(title),
+                        document_type=metadata.get("type"),
+                        verified=metadata.get("verified"),
+                        metadata_ok=metadata_error is None and bool(metadata.get("type")),
+                        excerpt=self._excerpt(text, terms),
+                    )
+                )
+        return reviews
+
+    def promote_to_workbench(self, filename: str) -> Path:
+        """Move one explicitly named Bookshelf Inbox note after Drew approves."""
+
+        filename = filename.strip()
+        if Path(filename).name != filename or not filename.casefold().endswith(".md"):
+            raise ValueError("Approval must name one Markdown file from the Bookshelf Inbox.")
+        source = self.paths.bookshelf / "Inbox" / filename
+        if not source.is_file():
+            raise ValueError(f"The Bookshelf Inbox does not contain {filename}.")
+        workbench = self.paths.bookshelf / "Workbench"
+        workbench.mkdir(parents=True, exist_ok=True)
+        destination = workbench / filename
+        if destination.exists():
+            raise ValueError(f"Workbench already contains {filename}; nothing was moved.")
+        source.rename(destination)
+        self.inventory()
+        return destination
 
     @staticmethod
     def _first_line_title(content: str) -> str:

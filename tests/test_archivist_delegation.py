@@ -59,6 +59,34 @@ class ArchivistDelegationTest(unittest.TestCase):
         self.assertIn("privately", result.response)
         self.assertEqual(list((self.filing / "Inbox").glob("*.md")), [])
 
+    def test_reviews_without_moving_then_moves_only_after_explicit_approval(self):
+        filed = self.delegator.handle(
+            "Ask the Archivist to file on the Bookshelf: Telescope lens cleaning procedure"
+        )
+        filename = filed.response.rsplit(": ", 1)[1]
+
+        review = self.delegator.handle("Ask the Archivist to review: telescope lens")
+
+        self.assertTrue(review.handled)
+        self.assertIn("metadata is structurally complete", review.response)
+        self.assertIn("promote to Workbench", review.response)
+        self.assertTrue((self.bookshelf / "Inbox" / filename).is_file())
+        self.assertFalse((self.bookshelf / "Workbench" / filename).exists())
+
+        approved = self.delegator.handle(
+            f"Approve the Archivist to move to Workbench: {filename}"
+        )
+
+        self.assertIn("Approved", approved.response)
+        self.assertFalse((self.bookshelf / "Inbox" / filename).exists())
+        self.assertTrue((self.bookshelf / "Workbench" / filename).is_file())
+
+    def test_workbench_approval_rejects_paths(self):
+        with self.assertRaisesRegex(ValueError, "one Markdown file"):
+            self.delegator.handle(
+                "Approve the Archivist to move to Workbench: ../private.md"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

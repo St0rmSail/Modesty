@@ -33,6 +33,14 @@ class TeamDelegator:
         r"(?:retrieve|find|look\s+for)\s*:\s*(?P<query>.+)$",
         re.IGNORECASE | re.DOTALL,
     )
+    REVIEW_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?archivist\s+to\s+review\s*:\s*(?P<query>.+)$",
+        re.IGNORECASE | re.DOTALL,
+    )
+    WORKBENCH_APPROVAL_PATTERN = re.compile(
+        r"^approve\s+(?:the\s+)?archivist\s+to\s+move\s+to\s+workbench\s*:\s*(?P<filename>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
 
     def __init__(self, archivist: Archivist | None = None):
         if archivist is None:
@@ -41,6 +49,35 @@ class TeamDelegator:
         self.archivist = archivist
 
     def handle(self, message: str) -> DelegationResult:
+        approval_match = self.WORKBENCH_APPROVAL_PATTERN.match(message.strip())
+        if approval_match:
+            path = self.archivist.promote_to_workbench(approval_match.group("filename"))
+            return DelegationResult(
+                True,
+                f"Approved. The Archivist moved {path.name} from the Bookshelf Inbox to Workbench.",
+            )
+
+        review_match = self.REVIEW_PATTERN.match(message.strip())
+        if review_match:
+            query = review_match.group("query").strip()
+            reviews = self.archivist.review_bookshelf_inbox(query)
+            if not reviews:
+                return DelegationResult(True, f"The Archivist found no Bookshelf Inbox item matching '{query}'.")
+            lines = [f"The Archivist reviewed {len(reviews)} matching Inbox item{'s' if len(reviews) != 1 else ''}:"]
+            for review in reviews:
+                metadata = "metadata is structurally complete" if review.metadata_ok else "metadata needs attention"
+                verification = review.verified or "not stated"
+                lines.append(
+                    f"\n{review.title}\nFile: {review.filename}\n"
+                    f"Type: {review.document_type or 'not stated'}; verification: {verification}; {metadata}.\n"
+                    f"{review.excerpt}\nRecommendation: promote to Workbench for evaluation."
+                )
+            if len(reviews) == 1:
+                lines.append(
+                    f"\nTo approve, say: Approve the Archivist to move to Workbench: {reviews[0].filename}"
+                )
+            return DelegationResult(True, "\n".join(lines))
+
         file_match = self.FILE_PATTERN.match(message.strip())
         if file_match:
             destination = file_match.group("destination").casefold()

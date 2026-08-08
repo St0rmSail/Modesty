@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.10.0 in progress, inventory demonstrated 2026-08-08
+**Baseline:** Build 0.10.0 complete; Build 0.11.0 in progress
 **Reviewed:** 2026-08-08
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -25,7 +25,7 @@
 | Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
-| Team readiness display | Yes | Partial | Yes | Archivist presence, absence sign, and readiness lamp demonstrated; headset remains |
+| Team readiness display | Yes | Yes | Yes | Archivist presence, absence sign, readiness lamp, and Team headset demonstrated |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Partial | No | No | Bookshelf-loan and returned-contribution boundary required |
 | Voice | Partial | No | No | Config disabled |

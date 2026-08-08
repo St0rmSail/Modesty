@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.10.0 - The Archivist (in progress)
+**Current marker:** Build 0.11.0 - Ask the Library (in progress)
 **Reviewed:** 2026-08-08
 
 ## Completed build line
@@ -19,6 +19,7 @@
 | 0.8.1 | The Ledger | Project-wide design and implementation record aligned |
 | 0.8.2 | The Living Bookshelf | Filing Cabinet, Bookshelf growth, and Grand Library mode canonised |
 | 0.9.0 | Cabinet and Bookshelf Foundations | Both external stores safely initialized and demonstrated |
+| 0.10.0 | The Archivist | Approval-gated local knowledge curation and truthful Team representation |
 
 ## Immediate sequence
 
@@ -35,13 +36,13 @@ Definition of done:
 
 Demonstrated on 2026-08-08 at `E:\Modesty Filing Cabinet` and `E:\Modesty Bookshelf`.
 
-### 0.10.0 - The Archivist
+### 0.10.0 - The Archivist - Complete
 
-Read-only inventory, origin tracking, content hashing, stale-record cleanup, and structural Bookshelf metadata warnings were demonstrated on 2026-08-08. The catalogue remains local and ignored by Git. The Archivist Bobblehead and Modesty's headset are now required visual work because the first Team backend exists.
+Read-only inventory, origin tracking, content hashing, stale-record cleanup, and structural Bookshelf metadata warnings were demonstrated on 2026-08-08. The catalogue remains local and ignored by Git.
 
-Private filing and retrieval, shared Inbox filing, review, Workbench promotion, collection proposal, and final filing were also demonstrated through Modesty. Every consequential Bookshelf move waited for Drew's explicit approval. The functional contract is complete; the build remains open only for its truthful Study representation.
+Private filing and retrieval, shared Inbox filing, review, Workbench promotion, collection proposal, and final filing were also demonstrated through Modesty. Every consequential Bookshelf move waited for Drew's explicit approval.
 
-The Archivist Bobblehead, `LATE FOR WORK` state, desk-lamp readiness indication, and full-height dismissible right-side conversation panel were demonstrated and accepted. Modesty's Team headset remains the final open visual item before Build 0.10 closes.
+The Archivist Bobblehead, `LATE FOR WORK` state, desk-lamp readiness indication, full-height dismissible right-side conversation panel, and Modesty's Team headset were demonstrated and accepted. Build 0.10.0 is complete.
 
 Definition of done:
 

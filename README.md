@@ -18,6 +18,6 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.10.0 - The Archivist (in progress)**
+**0.11.0 - Ask the Library (in progress)**
 
-Modesty now initializes her separate Filing Cabinet and Bookshelf, while the unseen Archivist maintains a local read-only catalogue of their Markdown documents. The first inventory workflow has been demonstrated; curation and its truthful Study representation remain in progress.
+Build 0.10.0 is complete. The unseen Archivist can inventory, file, retrieve, review, classify, and curate local knowledge through explicit approval gates. Her truthful Bobblehead presence, readiness lamp, and Modesty's Team headset have been demonstrated and accepted. The next build adds source-linked local retrieval across both stores.

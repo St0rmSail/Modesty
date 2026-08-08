@@ -114,11 +114,11 @@ The first real initialization was demonstrated successfully on Drew's machine at
 
 The Filing Cabinet contains its private drawers and Obsidian configuration. The Bookshelf contains Inbox, Workbench, working collections, Archive, index, log, and concept template. Grand Library online mode remains deliberately unimplemented.
 
-Build 0.10.0 - The Archivist (in progress)
+Build 0.10.0 - The Archivist
 
 The unseen Archivist gained a deterministic, read-only inventory of both knowledge stores. Her local SQLite catalogue records store origin, relative path, content hash, size, modification time, title, document type, and validation status without storing document contents. She detects removed or changed Markdown and reports structural Bookshelf metadata gaps without rewriting source material. Automated tests passed and `python main.py` reached `STATUS : READY` on Drew's machine.
 
-The Team boundary was clarified: Team members are not chat personalities. Modesty alone communicates with Drew and consults the unseen Team through a future headset. Each tested Team member earns a truthful Bookshelf Bobblehead; the Archivist's approved visual identity is a stern librarian in a tweed pencil skirt and oversized glasses.
+The Team boundary was clarified: Team members are not chat personalities. Modesty alone communicates with Drew and consults the unseen Team through a headset, which had not yet been built at this stage. Each tested Team member earns a truthful Bookshelf Bobblehead; the Archivist's approved visual identity is a stern librarian in a tweed pencil skirt and oversized glasses.
 
 The Archivist's first actual delegated duty was demonstrated on Drew's machine. Through Modesty's existing conversation interface, Drew filed a private telescope note into the Filing Cabinet Inbox and then retrieved it by subject. Modesty returned its title, private-store origin, relative path, and excerpt. These explicit duties bypass the language model and use bounded deterministic code; ambiguous filing destinations are not guessed.
 
@@ -126,4 +126,6 @@ Shared filing and the first approval-gated curation step were then demonstrated.
 
 The complete curation lifecycle was subsequently demonstrated. From Workbench, the Archivist proposed the `Procedures` collection and explained that the note described a repeatable care instruction. The note remained untouched until Drew explicitly approved the named file and destination, after which Drew verified it physically in `E:\Modesty Bookshelf\Procedures`. Build 0.10's functional contract is complete; its earned Bobblehead and Modesty's Team headset remain visual completion work.
 
-The Archivist then earned her truthful Study presence: a stern adult librarian Bobblehead with oversized glasses, tweed pencil skirt, ruler, and archival folder. She appears only after her backend reports ready; otherwise her pedestal displays `LATE FOR WORK`. The desk lamp now indicates readiness with a bulb, angled cast light, and restrained reflected glow aligned to its tilted shade. The conversation panel moved to a full-height right-side dock with Hide and Chat restore controls so it no longer obscures Modesty. Drew accepted the combined result visually and aesthetically. Modesty's Team headset remains separate future visual work.
+The Archivist then earned her truthful Study presence: a stern adult librarian Bobblehead with oversized glasses, tweed pencil skirt, ruler, and archival folder. She appears only after her backend reports ready; otherwise her pedestal displays `LATE FOR WORK`. The desk lamp now indicates readiness with a bulb, angled cast light, and restrained reflected glow aligned to its tilted shade. The conversation panel moved to a full-height right-side dock with Hide and Chat restore controls so it no longer obscures Modesty. Drew accepted the combined result visually and aesthetically. Modesty's Team headset was the remaining visual work at this stage.
+
+Modesty's elegant black single-ear wireless Team headset completed the build's visible communication contract. Its green status light, cheek boom, and near-ear illumination remain present across open-eye and blink states without changing her established proportions, pivot, placement, opposite earring, hair, cheek, or neck. Drew accepted the final corrected headset on 2026-08-08. Build 0.10.0 is complete.

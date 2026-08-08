@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.9.0 - Cabinet and Bookshelf Foundations
+**Current marker:** Build 0.10.0 - The Archivist (in progress)
 **Reviewed:** 2026-08-08
 
 ## Completed build line
@@ -37,6 +37,8 @@ Demonstrated on 2026-08-08 at `E:\Modesty Filing Cabinet` and `E:\Modesty Booksh
 
 ### 0.10.0 - The Archivist
 
+Read-only inventory, origin tracking, content hashing, stale-record cleanup, and structural Bookshelf metadata warnings were demonstrated on 2026-08-08. The catalogue remains local and ignored by Git. The Archivist Bobblehead and Modesty's headset are now required visual work because the first Team backend exists.
+
 Definition of done:
 
 - Implement the first bounded Team-member contract.
@@ -45,6 +47,7 @@ Definition of done:
 - Propose classifications and links for Drew's approval.
 - Curate returned material from Inbox through Workbench onto the Bookshelf.
 - Report work and failure plainly through Modesty.
+- Add the Archivist's stern-librarian Bobblehead and Modesty's Team headset, driven by truthful subsystem state.
 
 ### 0.11.0 - Ask the Library
 

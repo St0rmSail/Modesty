@@ -1,6 +1,6 @@
 # Modesty Project Punch List
 
-**Current build:** 0.9.0 - Cabinet and Bookshelf Foundations
+**Current build:** 0.10.0 - The Archivist (in progress)
 **Current focus:** 0.10.0 - The Archivist
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
@@ -24,12 +24,13 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 
 ## Build 0.10.0
 
-- [ ] Define the Archivist's first executable contract.
-- [ ] Inventory Markdown in both stores without modifying it.
-- [ ] Record source store, path, hash, timestamps, and provenance.
-- [ ] Validate Bookshelf metadata and surface gaps without automatic rewriting.
+- [x] Define and demonstrate the Archivist's first executable contract.
+- [x] Inventory Markdown in both stores without modifying it.
+- [x] Record source store, path, hash, size, and modification timestamp.
+- [x] Validate structural Bookshelf metadata and surface gaps without automatic rewriting.
 - [ ] Implement the Inbox-to-Workbench review path.
 - [ ] Report results through Modesty in plain language.
+- [ ] Create the Archivist's stern-librarian Bobblehead and Modesty's headset, tied to truthful Team state.
 
 ## Engineering housekeeping
 

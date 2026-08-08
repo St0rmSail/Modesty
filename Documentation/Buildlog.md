@@ -113,3 +113,9 @@ The first real initialization was demonstrated successfully on Drew's machine at
     E:\Modesty Bookshelf
 
 The Filing Cabinet contains its private drawers and Obsidian configuration. The Bookshelf contains Inbox, Workbench, working collections, Archive, index, log, and concept template. Grand Library online mode remains deliberately unimplemented.
+
+Build 0.10.0 - The Archivist (in progress)
+
+The unseen Archivist gained a deterministic, read-only inventory of both knowledge stores. Her local SQLite catalogue records store origin, relative path, content hash, size, modification time, title, document type, and validation status without storing document contents. She detects removed or changed Markdown and reports structural Bookshelf metadata gaps without rewriting source material. Automated tests passed and `python main.py` reached `STATUS : READY` on Drew's machine.
+
+The Team boundary was clarified: Team members are not chat personalities. Modesty alone communicates with Drew and consults the unseen Team through a future headset. Each tested Team member earns a truthful Bookshelf Bobblehead; the Archivist's approved visual identity is a stern librarian in a tweed pencil skirt and oversized glasses.

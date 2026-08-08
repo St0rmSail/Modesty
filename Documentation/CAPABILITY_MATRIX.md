@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.9.0, demonstrated 2026-08-08
+**Baseline:** Build 0.10.0 in progress, inventory demonstrated 2026-08-08
 **Reviewed:** 2026-08-08
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -23,7 +23,7 @@
 | Bookshelf intake and curation | Yes | Partial | Partial | Inbox and Workbench exist; Archivist workflow remains unimplemented |
 | Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
-| Archivist | Partial | No | No | Contract and first bounded workflow required |
+| Archivist | Yes | Partial | Partial | Read-only inventory demonstrated; curation and Bobblehead remain |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Partial | No | No | Bookshelf-loan and returned-contribution boundary required |
 | Voice | Partial | No | No | Config disabled |
@@ -37,7 +37,7 @@
 - `README.md`, the old punch list, and Buildlog had fallen behind Builds 0.4 through 0.8; Build 0.8.1 repairs the record.
 - Dependency installation is not captured in a committed `requirements.txt` or equivalent.
 - `modesty.py` and duplicate boot/config paths require a non-destructive audit.
-- There is no automated test suite.
+- Automated coverage currently protects knowledge-store initialization and Archivist inventory; other systems still lack focused tests.
 - Configuration duplicates the Ollama model in YAML and Python.
 - Window placement/settings persistence remains unimplemented.
 - Generated `Backup/` snapshots and historic scaffolding should be reviewed, not casually deleted.

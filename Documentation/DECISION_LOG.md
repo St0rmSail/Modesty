@@ -28,6 +28,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-020 | Raw design conversations are evidence, not repository documentation; commit curated conclusions only. | Canonical |
 | D-021 | Online agents borrow bounded read-only Bookshelf packets and return sourced contributions to Inbox; they never receive direct local access or silently rewrite established knowledge. | Canonical |
 | D-022 | Bookshelf changes use Routine, Normal, Important, and Protected trust levels; only Drew may approve movement from Filing Cabinet to Bookshelf. | Canonical |
+| D-023 | Team members are unseen functional specialists, never chat personalities. Modesty alone speaks to Drew, consults them through a headset, and their tested state is represented by individual Bookshelf Bobbleheads. | Canonical |
 
 ## Superseded decisions and names
 

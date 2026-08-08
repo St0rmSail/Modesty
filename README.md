@@ -18,6 +18,6 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.9.0 - Cabinet and Bookshelf Foundations**
+**0.10.0 - The Archivist (in progress)**
 
-Modesty now initializes a private Obsidian Filing Cabinet and a separate living, OKF-compatible Bookshelf at their configured external locations. Existing material is preserved and unsafe or overlapping paths are rejected.
+Modesty now initializes her separate Filing Cabinet and Bookshelf, while the unseen Archivist maintains a local read-only catalogue of their Markdown documents. The first inventory workflow has been demonstrated; curation and its truthful Study representation remain in progress.

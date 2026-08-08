@@ -92,10 +92,18 @@ class TeamDelegator:
             ]
             for index, match in enumerate(matches, 1):
                 origin = "Private Filing Cabinet" if match.store == "filing_cabinet" else "Bookshelf"
-                lines.append(
-                    f"\n{index}. {match.title}\n{match.passage}\n"
-                    f"Source: {origin}/{match.relative_path}"
-                )
+                title = re.sub(r"[^\w]+", " ", match.title.casefold()).strip()
+                passage = re.sub(r"[^\w]+", " ", match.passage.casefold()).strip()
+                if title == passage:
+                    lines.append(
+                        f"\n{index}. {match.passage}\n"
+                        f"Source: {origin}/{match.relative_path}"
+                    )
+                else:
+                    lines.append(
+                        f"\n{index}. {match.title}\n{match.passage}\n"
+                        f"Source: {origin}/{match.relative_path}"
+                    )
             return DelegationResult(True, "\n".join(lines))
 
         collection_approval = self.COLLECTION_APPROVAL_PATTERN.match(message.strip())

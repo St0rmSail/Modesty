@@ -94,6 +94,18 @@ class LibrarySearchTest(unittest.TestCase):
         self.assertIn("Source: Bookshelf/Procedures/lens-care.md", result.response)
         self.assertEqual(result.response.count("Telescope lenses should be cleaned"), 1)
 
+    def test_library_command_suppresses_a_title_that_echoes_the_passage(self):
+        note = self.bookshelf / "Procedures" / "echo.md"
+        sentence = "Use a dedicated optical cloth, never an ordinary household cloth."
+        note.write_text(f"# {sentence.rstrip('.')}\n\n{sentence}", encoding="utf-8")
+
+        result = TeamDelegator(self.archivist).handle(
+            "Ask the Library: dedicated optical cloth"
+        )
+
+        self.assertEqual(result.response.count("Use a dedicated optical cloth"), 1)
+        self.assertIn("Source: Bookshelf/Procedures/echo.md", result.response)
+
     def test_explicit_reindex_reports_stale_removal(self):
         note = self.filing / "old.md"
         note.write_text("# Old note\n\nTemporary knowledge.", encoding="utf-8")

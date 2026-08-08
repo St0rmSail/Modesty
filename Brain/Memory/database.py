@@ -81,6 +81,16 @@ class ConversationMemory:
                     key TEXT PRIMARY KEY,
                     value TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS personal_memories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    category TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    source TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(category, content)
+                );
                 """
             )
 
@@ -254,3 +264,82 @@ class ConversationMemory:
                 )
         except sqlite3.DatabaseError as error:
             raise MemoryStoreError("The conversation could not be deleted.") from error
+
+    @staticmethod
+    def _clean_memory_fields(category: str, content: str) -> tuple[str, str]:
+        category = " ".join(category.split())[:40]
+        content = " ".join(content.split())[:500]
+        if not category or not content:
+            raise ValueError("A memory needs both a category and some text.")
+        return category, content
+
+    def add_personal_memory(
+        self,
+        category: str,
+        content: str,
+        source: str = "Added by Drew",
+    ) -> int:
+        category, content = self._clean_memory_fields(category, content)
+        source = " ".join(source.split())[:120] or "Added by Drew"
+        timestamp = self._timestamp()
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    """
+                    INSERT INTO personal_memories
+                        (category, content, source, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (category, content, source, timestamp, timestamp),
+                )
+                return int(cursor.lastrowid)
+        except sqlite3.IntegrityError as error:
+            raise MemoryStoreError("That personal memory already exists.") from error
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("The personal memory could not be saved.") from error
+
+    def update_personal_memory(self, memory_id: int, category: str, content: str):
+        category, content = self._clean_memory_fields(category, content)
+        timestamp = self._timestamp()
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    """
+                    UPDATE personal_memories
+                    SET category = ?, content = ?, updated_at = ?
+                    WHERE id = ?
+                    """,
+                    (category, content, timestamp, memory_id),
+                )
+                if cursor.rowcount == 0:
+                    raise MemoryStoreError("That personal memory no longer exists.")
+        except sqlite3.IntegrityError as error:
+            raise MemoryStoreError("That personal memory already exists.") from error
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("The personal memory could not be updated.") from error
+
+    def personal_memories(self, limit: int = 100) -> list[dict]:
+        try:
+            with self._connection() as connection:
+                rows = connection.execute(
+                    """
+                    SELECT id, category, content, source, created_at, updated_at
+                    FROM personal_memories
+                    ORDER BY category COLLATE NOCASE, id
+                    LIMIT ?
+                    """,
+                    (max(1, limit),),
+                ).fetchall()
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("Personal memories could not be listed.") from error
+        return [dict(row) for row in rows]
+
+    def delete_personal_memory(self, memory_id: int):
+        try:
+            with self._connection() as connection:
+                connection.execute(
+                    "DELETE FROM personal_memories WHERE id = ?",
+                    (memory_id,),
+                )
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("The personal memory could not be deleted.") from error

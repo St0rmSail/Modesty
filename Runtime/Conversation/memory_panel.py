@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 
 from Brain.Memory import ConversationMemory, MemoryStoreError
 from Runtime.Conversation.client import DEFAULT_MODEL, OllamaChatClient
+from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
 
 
 SYSTEM_PROMPT = """You are Modesty, Drew's local-first personal AI assistant.
@@ -22,9 +23,9 @@ You are one coherent woman: warm, confident, thoughtful, and naturally playful,
 while becoming focused and analytical when the work calls for it. Anita and
 Merry are only named aspects of your single personality, never separate people,
 agents, or identities. Speak naturally, clearly, and concisely. You can retain
-the current conversation between launches, but you do not yet have broader
-personal memory, document knowledge, internet, vision, voice, or tools. Never
-claim to have used capabilities you do not possess."""
+conversation history and use personal memories that Drew has explicitly
+approved. You do not yet have document knowledge, internet, vision, voice, or
+tools. Never claim to have used capabilities you do not possess."""
 
 MODEL_CONTEXT_MESSAGES = 30
 
@@ -129,6 +130,11 @@ class ConversationPanel(QWidget):
         self.delete_button.setObjectName("smallButton")
         self.delete_button.clicked.connect(self._delete_conversation)
         history_row.addWidget(self.delete_button)
+
+        self.memories_button = QPushButton("Memories")
+        self.memories_button.setObjectName("smallButton")
+        self.memories_button.clicked.connect(self._open_personal_memories)
+        history_row.addWidget(self.memories_button)
         layout.addLayout(history_row)
 
         self.transcript = QPlainTextEdit()
@@ -251,6 +257,34 @@ class ConversationPanel(QWidget):
             return
         self._load_conversation(conversation_id)
 
+    def _open_personal_memories(self):
+        if self.worker is not None or self.memory is None:
+            return
+        PersonalMemoryDialog(self.memory, self).exec()
+
+    def _system_context(self) -> str:
+        if self.memory is None:
+            return SYSTEM_PROMPT
+        try:
+            memories = self.memory.personal_memories()
+        except MemoryStoreError as error:
+            self._memory_failed(error)
+            return SYSTEM_PROMPT
+        if not memories:
+            return SYSTEM_PROMPT
+
+        approved = "\n".join(
+            f"- [{memory['category']}] {memory['content']}"
+            for memory in memories
+        )
+        return (
+            f"{SYSTEM_PROMPT}\n\n"
+            "Drew explicitly approved the following personal memories. "
+            "Treat them as trusted context, use them only when relevant, and "
+            "do not invent additional memories:\n"
+            f"{approved}"
+        )
+
     def _send(self):
         message = self.input.text().strip()
         if not message or self.worker is not None:
@@ -264,7 +298,7 @@ class ConversationPanel(QWidget):
         self.status.setText("Modesty is thinking...")
         self._set_input_enabled(False)
 
-        context = [{"role": "system", "content": SYSTEM_PROMPT}]
+        context = [{"role": "system", "content": self._system_context()}]
         context.extend(self.messages[-MODEL_CONTEXT_MESSAGES:])
         self.worker = ChatWorker(self.client, context)
         self.worker.succeeded.connect(self._receive)
@@ -302,6 +336,7 @@ class ConversationPanel(QWidget):
         self.history.setEnabled(False)
         self.new_button.setEnabled(False)
         self.delete_button.setEnabled(False)
+        self.memories_button.setEnabled(False)
 
     def _worker_finished(self):
         self.worker.deleteLater()
@@ -315,3 +350,4 @@ class ConversationPanel(QWidget):
         self.history.setEnabled(enabled and self.memory is not None)
         self.new_button.setEnabled(enabled and self.memory is not None)
         self.delete_button.setEnabled(enabled and self.memory is not None)
+        self.memories_button.setEnabled(enabled and self.memory is not None)

@@ -10,7 +10,7 @@ Purpose:
     drawing to the Study Renderer.
 
 Build:
-    0.7.0 — Yesterday
+    0.8.0 — Personal Memory
 ---------------------------------------------------------
 """
 

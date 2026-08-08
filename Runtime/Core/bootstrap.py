@@ -17,10 +17,13 @@ Build:
     0.0.7
 """
 
+import sqlite3
+
 from rich import print
 from Runtime.Core.noticeboard import NoticeBoard
 from Runtime.Knowledge import KnowledgeStores
 from Runtime.Knowledge.stores import KnowledgeStoreError
+from Brain.Team.archivist import Archivist
 
 from Runtime.Core import config
 
@@ -47,6 +50,15 @@ def startup():
     else:
         print(f"[green]Filing Cabinet ready:[/] {stores.filing_cabinet}")
         print(f"[green]Bookshelf ready:[/] {stores.bookshelf}")
+        try:
+            report = Archivist(stores).inventory()
+        except (OSError, sqlite3.Error, UnicodeError) as error:
+            print(f"[yellow]Archivist could not complete her inventory: {error}[/]")
+        else:
+            print(
+                f"[green]Archivist catalogued {report.documents} documents;[/] "
+                f"{report.warnings} need attention."
+            )
 
     print()
 

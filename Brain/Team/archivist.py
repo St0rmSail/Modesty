@@ -54,11 +54,15 @@ class Archivist:
         self.paths = paths
         self.catalog = catalog or KnowledgeCatalog()
 
-    def inventory(self) -> ArchivistReport:
-        filing = self._scan("filing_cabinet", self.paths.filing_cabinet)
-        bookshelf = self._scan("bookshelf", self.paths.bookshelf)
-        removed = self.catalog.replace_store("filing_cabinet", filing)
-        removed += self.catalog.replace_store("bookshelf", bookshelf)
+    def inventory(self, force_reindex: bool = False) -> ArchivistReport:
+        filing, filing_passages = self._scan("filing_cabinet", self.paths.filing_cabinet)
+        bookshelf, bookshelf_passages = self._scan("bookshelf", self.paths.bookshelf)
+        removed = self.catalog.replace_store(
+            "filing_cabinet", filing, filing_passages, force_reindex
+        )
+        removed += self.catalog.replace_store(
+            "bookshelf", bookshelf, bookshelf_passages, force_reindex
+        )
         entries = filing + bookshelf
         return ArchivistReport(
             documents=len(entries),
@@ -130,6 +134,12 @@ class Archivist:
             if len(matches) >= limit:
                 break
         return matches
+
+    def ask_library(self, query: str, limit: int = 5):
+        """Return source-linked local passages from both knowledge stores."""
+
+        self.inventory()
+        return self.catalog.search(query, limit)
 
     def review_bookshelf_inbox(self, query: str) -> list[InboxReview]:
         """Inspect matching shared Inbox notes without moving or editing them."""
@@ -274,8 +284,9 @@ class Archivist:
         excerpt = plain[start:start + length].strip()
         return ("..." if start else "") + excerpt + ("..." if start + length < len(plain) else "")
 
-    def _scan(self, store: str, root: Path) -> list[CatalogEntry]:
+    def _scan(self, store: str, root: Path) -> tuple[list[CatalogEntry], dict[str, list[str]]]:
         entries = []
+        passages = {}
         for path in sorted(root.rglob("*.md")):
             relative = path.relative_to(root)
             if any(part in self.IGNORED_DIRECTORIES for part in relative.parts):
@@ -305,7 +316,55 @@ class Archivist:
                     validation_message=message,
                 )
             )
-        return entries
+            passages[relative.as_posix()] = self._passages(text) or [str(title)]
+        return entries, passages
+
+    @staticmethod
+    def _passages(text: str, target_length: int = 520) -> list[str]:
+        """Turn Markdown into compact searchable passages without rewriting it."""
+
+        lines = text.splitlines()
+        if lines and lines[0].strip() == "---":
+            try:
+                end = next(index for index, line in enumerate(lines[1:], 1) if line.strip() == "---")
+                lines = lines[end + 1:]
+            except StopIteration:
+                pass
+        paragraphs = []
+        current = []
+        for line in lines:
+            stripped = line.strip()
+            if not stripped:
+                if current:
+                    paragraphs.append(" ".join(current))
+                    current = []
+                continue
+            if stripped.startswith("<!--") or stripped.startswith("_Source:"):
+                continue
+            if re.match(r"^#{1,6}\s+", stripped):
+                continue
+            stripped = re.sub(r"^[-*+]\s+", "", stripped)
+            current.append(stripped)
+        if current:
+            paragraphs.append(" ".join(current))
+
+        chunks = []
+        current_text = ""
+        for paragraph in paragraphs:
+            if current_text and len(current_text) + len(paragraph) + 1 > target_length:
+                chunks.append(current_text)
+                current_text = ""
+            if len(paragraph) <= target_length:
+                current_text = f"{current_text} {paragraph}".strip()
+            else:
+                if current_text:
+                    chunks.append(current_text)
+                    current_text = ""
+                for start in range(0, len(paragraph), target_length):
+                    chunks.append(paragraph[start:start + target_length].strip())
+        if current_text:
+            chunks.append(current_text)
+        return [chunk for chunk in chunks if chunk]
 
     @staticmethod
     def _frontmatter(text: str) -> tuple[dict[str, str], str | None]:

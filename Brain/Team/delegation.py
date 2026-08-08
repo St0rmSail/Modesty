@@ -50,6 +50,15 @@ class TeamDelegator:
         r"(?P<collection>projects|research|reference|procedures|media)\s*:\s*(?P<filename>[^\r\n]+)$",
         re.IGNORECASE,
     )
+    LIBRARY_REINDEX_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?library\s+to\s+re[ -]?index\s*$",
+        re.IGNORECASE,
+    )
+    LIBRARY_ASK_PATTERN = re.compile(
+        r"^(?:please\s+)?ask\s+(?:the\s+)?library"
+        r"(?:\s+(?:about|for))?\s*:?\s*(?P<query>.+)$",
+        re.IGNORECASE | re.DOTALL,
+    )
 
     def __init__(self, archivist: Archivist | None = None):
         if archivist is None:
@@ -58,6 +67,37 @@ class TeamDelegator:
         self.archivist = archivist
 
     def handle(self, message: str) -> DelegationResult:
+        if self.LIBRARY_REINDEX_PATTERN.match(message.strip()):
+            report = self.archivist.inventory(force_reindex=True)
+            return DelegationResult(
+                True,
+                f"The Library index is current: {report.documents} document"
+                f"{'s' if report.documents != 1 else ''} indexed; "
+                f"{report.removed} stale entr{'ies' if report.removed != 1 else 'y'} removed; "
+                f"{report.warnings} metadata warning{'s' if report.warnings != 1 else ''}.",
+            )
+
+        library_match = self.LIBRARY_ASK_PATTERN.match(message.strip())
+        if library_match:
+            query = library_match.group("query").strip()
+            matches = self.archivist.ask_library(query)
+            if not matches:
+                return DelegationResult(
+                    True,
+                    f"The Library found no source passage matching '{query}'.",
+                )
+            lines = [
+                f"The Library found {len(matches)} relevant passage"
+                f"{'s' if len(matches) != 1 else ''}:"
+            ]
+            for index, match in enumerate(matches, 1):
+                origin = "Private Filing Cabinet" if match.store == "filing_cabinet" else "Bookshelf"
+                lines.append(
+                    f"\n{index}. {match.title}\n{match.passage}\n"
+                    f"Source: {origin}/{match.relative_path}"
+                )
+            return DelegationResult(True, "\n".join(lines))
+
         collection_approval = self.COLLECTION_APPROVAL_PATTERN.match(message.strip())
         if collection_approval:
             path = self.archivist.file_from_workbench(

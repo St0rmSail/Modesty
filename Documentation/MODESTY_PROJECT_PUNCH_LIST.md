@@ -30,7 +30,9 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Validate structural Bookshelf metadata and surface gaps without automatic rewriting.
 - [x] Demonstrate the approval-gated Inbox-to-Workbench review path.
 - [x] Demonstrate bounded private filing and retrieval reported through Modesty.
-- [ ] Expand plain-language reporting to the future review and curation workflow.
+- [x] Propose an established Bookshelf collection without moving the Workbench item.
+- [x] Demonstrate explicit approval before moving into the proposed collection.
+- [x] Report the review and curation workflow through Modesty in plain language.
 - [ ] Create the Archivist's stern-librarian Bobblehead and Modesty's headset, tied to truthful Team state.
 
 ## Engineering housekeeping

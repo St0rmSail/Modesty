@@ -39,6 +39,8 @@ Demonstrated on 2026-08-08 at `E:\Modesty Filing Cabinet` and `E:\Modesty Booksh
 
 Read-only inventory, origin tracking, content hashing, stale-record cleanup, and structural Bookshelf metadata warnings were demonstrated on 2026-08-08. The catalogue remains local and ignored by Git. The Archivist Bobblehead and Modesty's headset are now required visual work because the first Team backend exists.
 
+Private filing and retrieval, shared Inbox filing, review, Workbench promotion, collection proposal, and final filing were also demonstrated through Modesty. Every consequential Bookshelf move waited for Drew's explicit approval. The functional contract is complete; the build remains open only for its truthful Study representation.
+
 Definition of done:
 
 - Implement the first bounded Team-member contract.

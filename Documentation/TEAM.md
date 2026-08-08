@@ -24,7 +24,7 @@ Every implemented member needs:
 | Member | Responsibility | Boundary | Status |
 |---|---|---|---|
 | **Modesty / Executive** | Understand intent, converse, obtain consent, route work, and report results | Does not replace every specialist | Role canonical; orchestration not implemented |
-| **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Read-only inventory implemented and demonstrated; curation remains future work |
+| **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Inventory, retrieval, filing, and approval-gated Bookshelf curation demonstrated; visual representation remains |
 | **Researcher** | Conduct explicit online research and return sourced findings | Borrows task-relevant Bookshelf packets; no local filesystem access | Conceptual |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |

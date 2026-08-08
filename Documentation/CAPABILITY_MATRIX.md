@@ -21,10 +21,10 @@
 | Living Bookshelf repository | Yes | Yes | Yes | Separate external collection and folders created |
 | OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
 | Knowledge filing and retrieval | Yes | Partial | Yes | Explicit Inbox filing and bounded local excerpt retrieval demonstrated |
-| Bookshelf intake and curation | Yes | Partial | Partial | Inbox exists; review and Workbench promotion remain unimplemented |
+| Bookshelf intake and curation | Yes | Yes | Yes | Approval-gated Inbox, Workbench, and established-collection lifecycle demonstrated |
 | Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
 | Local document indexing/RAG | Partial | No | No | FTS5 first; embeddings later if justified |
-| Archivist | Yes | Partial | Partial | Read-only inventory demonstrated; curation and Bobblehead remain |
+| Archivist | Yes | Partial | Partial | Functional contract demonstrated; Bobblehead and headset remain |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Partial | No | No | Bookshelf-loan and returned-contribution boundary required |
 | Voice | Partial | No | No | Config disabled |

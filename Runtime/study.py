@@ -10,7 +10,7 @@ Purpose:
     drawing to the Study Renderer.
 
 Build:
-    0.6.0 — First Words
+    0.7.0 — Yesterday
 ---------------------------------------------------------
 """
 

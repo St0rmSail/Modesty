@@ -8,5 +8,10 @@ __pycache__/
 # Environment variables (future API keys)
 .env
 
+# Local memory and generated database files
+Data/*.db
+Data/*.db-*
+Data/Backups/
+
 # Windows thumbnail cache
 Thumbs.db

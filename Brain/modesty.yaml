@@ -6,7 +6,7 @@ brain:
 
   provider: Ollama
 
-  model: llama3.1:latest
+  model: gemma4:e2b
 
 internet:
 

@@ -10,15 +10,48 @@ Purpose:
     drawing to the Study Renderer.
 
 Build:
-    0.5.0 — First Blink
+    0.6.0 — First Words
 ---------------------------------------------------------
 """
 
 import sys
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QMessageBox,
+    QStackedLayout,
+    QVBoxLayout,
+    QWidget,
+)
 
+from Runtime.Conversation import ConversationPanel
 from Runtime.Rendering.renderer import StudyRenderer
+
+
+class StudyView(QWidget):
+    """Layer the conversation controls over the unchanged Study renderer."""
+
+    def __init__(self):
+        super().__init__()
+
+        layers = QStackedLayout(self)
+        layers.setContentsMargins(0, 0, 0, 0)
+        layers.setStackingMode(QStackedLayout.StackingMode.StackAll)
+        layers.addWidget(StudyRenderer())
+
+        overlay = QWidget()
+        overlay.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        overlay_layout = QVBoxLayout(overlay)
+        overlay_layout.setContentsMargins(24, 24, 24, 24)
+        overlay_layout.addStretch()
+        overlay_layout.addWidget(
+            ConversationPanel(),
+            alignment=Qt.AlignmentFlag.AlignHCenter,
+        )
+        layers.addWidget(overlay)
+        layers.setCurrentWidget(overlay)
 
 
 class StudyWindow(QMainWindow):
@@ -29,7 +62,7 @@ class StudyWindow(QMainWindow):
 
         self.setWindowTitle("Modesty's Study")
         self.resize(1280, 720)
-        self.setCentralWidget(StudyRenderer())
+        self.setCentralWidget(StudyView())
 
 
 def run():

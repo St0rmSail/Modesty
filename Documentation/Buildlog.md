@@ -121,3 +121,5 @@ The unseen Archivist gained a deterministic, read-only inventory of both knowled
 The Team boundary was clarified: Team members are not chat personalities. Modesty alone communicates with Drew and consults the unseen Team through a future headset. Each tested Team member earns a truthful Bookshelf Bobblehead; the Archivist's approved visual identity is a stern librarian in a tweed pencil skirt and oversized glasses.
 
 The Archivist's first actual delegated duty was demonstrated on Drew's machine. Through Modesty's existing conversation interface, Drew filed a private telescope note into the Filing Cabinet Inbox and then retrieved it by subject. Modesty returned its title, private-store origin, relative path, and excerpt. These explicit duties bypass the language model and use bounded deterministic code; ambiguous filing destinations are not guessed.
+
+Shared filing and the first approval-gated curation step were then demonstrated. A telescope-care note entered the Bookshelf Inbox with OKF metadata, remained there during review, and moved into Workbench only after Drew repeated the exact approval instruction. Drew verified the physical file in Workbench.

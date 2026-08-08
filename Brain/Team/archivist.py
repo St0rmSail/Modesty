@@ -35,6 +35,15 @@ class InboxReview:
     excerpt: str
 
 
+@dataclass(frozen=True)
+class ClassificationProposal:
+    filename: str
+    title: str
+    collection: str
+    reason: str
+    excerpt: str
+
+
 class Archivist:
     """Observe the two stores and report their catalogue health."""
 
@@ -165,6 +174,67 @@ class Archivist:
         source.rename(destination)
         self.inventory()
         return destination
+
+    def classify_workbench(self, query: str) -> list[ClassificationProposal]:
+        """Propose collections for matching Workbench notes without moving them."""
+
+        terms = [term.casefold() for term in re.findall(r"[\w'-]+", query) if len(term) > 1]
+        if not terms:
+            raise ValueError("Tell me which Workbench item to classify.")
+        proposals = []
+        workbench = self.paths.bookshelf / "Workbench"
+        for path in sorted(workbench.glob("*.md")):
+            text = path.read_text(encoding="utf-8-sig", errors="replace")
+            metadata, _ = self._frontmatter(text)
+            title = metadata.get("title") or self._heading(text) or path.stem
+            haystack = f"{path.name}\n{title}\n{text}".casefold()
+            if all(term in haystack for term in terms):
+                collection, reason = self._proposed_collection(haystack)
+                proposals.append(
+                    ClassificationProposal(
+                        filename=path.name,
+                        title=str(title),
+                        collection=collection,
+                        reason=reason,
+                        excerpt=self._excerpt(text, terms),
+                    )
+                )
+        return proposals
+
+    def file_from_workbench(self, filename: str, collection: str) -> Path:
+        """Move one Workbench note to an approved established collection."""
+
+        allowed = {"Projects", "Research", "Reference", "Procedures", "Media"}
+        canonical = next((item for item in allowed if item.casefold() == collection.strip().casefold()), None)
+        if canonical is None:
+            raise ValueError("Choose Projects, Research, Reference, Procedures, or Media.")
+        filename = filename.strip()
+        if Path(filename).name != filename or not filename.casefold().endswith(".md"):
+            raise ValueError("Approval must name one Markdown file from Workbench.")
+        source = self.paths.bookshelf / "Workbench" / filename
+        if not source.is_file():
+            raise ValueError(f"Workbench does not contain {filename}.")
+        destination_folder = self.paths.bookshelf / canonical
+        destination_folder.mkdir(parents=True, exist_ok=True)
+        destination = destination_folder / filename
+        if destination.exists():
+            raise ValueError(f"{canonical} already contains {filename}; nothing was moved.")
+        source.rename(destination)
+        self.inventory()
+        return destination
+
+    @staticmethod
+    def _proposed_collection(text: str) -> tuple[str, str]:
+        rules = (
+            ("Procedures", ("procedure", "how to", "steps", "clean", "care"), "it describes a repeatable method or care instruction"),
+            ("Research", ("research", "study", "finding", "experiment"), "it records findings or investigation"),
+            ("Projects", ("project", "milestone", "build", "roadmap"), "it belongs to active project work"),
+            ("Media", ("image", "audio", "video", "dataset", "map"), "it describes or accompanies a media resource"),
+        )
+        for collection, keywords, reason in rules:
+            if any(keyword in text for keyword in keywords):
+                return collection, reason
+        return "Reference", "it appears to be stable general information"
 
     @staticmethod
     def _first_line_title(content: str) -> str:

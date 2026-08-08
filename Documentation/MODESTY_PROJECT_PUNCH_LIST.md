@@ -28,7 +28,7 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Inventory Markdown in both stores without modifying it.
 - [x] Record source store, path, hash, size, and modification timestamp.
 - [x] Validate structural Bookshelf metadata and surface gaps without automatic rewriting.
-- [ ] Implement the Inbox-to-Workbench review path.
+- [x] Demonstrate the approval-gated Inbox-to-Workbench review path.
 - [x] Demonstrate bounded private filing and retrieval reported through Modesty.
 - [ ] Expand plain-language reporting to the future review and curation workflow.
 - [ ] Create the Archivist's stern-librarian Bobblehead and Modesty's headset, tied to truthful Team state.

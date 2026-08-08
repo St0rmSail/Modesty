@@ -87,6 +87,27 @@ class ArchivistDelegationTest(unittest.TestCase):
                 "Approve the Archivist to move to Workbench: ../private.md"
             )
 
+    def test_classifies_without_moving_then_files_in_approved_collection(self):
+        filed = self.delegator.handle(
+            "Ask the Archivist to file on the Bookshelf: Telescope lens cleaning procedure"
+        )
+        filename = filed.response.rsplit(": ", 1)[1]
+        self.delegator.handle(f"Approve the Archivist to move to Workbench: {filename}")
+
+        proposal = self.delegator.handle("Ask the Archivist to classify: telescope lens")
+
+        self.assertIn("Proposed collection: Procedures", proposal.response)
+        self.assertTrue((self.bookshelf / "Workbench" / filename).is_file())
+        self.assertFalse((self.bookshelf / "Procedures" / filename).exists())
+
+        approved = self.delegator.handle(
+            f"Approve the Archivist to file in Procedures: {filename}"
+        )
+
+        self.assertIn("Bookshelf Procedures collection", approved.response)
+        self.assertFalse((self.bookshelf / "Workbench" / filename).exists())
+        self.assertTrue((self.bookshelf / "Procedures" / filename).is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -41,6 +41,15 @@ class TeamDelegator:
         r"^approve\s+(?:the\s+)?archivist\s+to\s+move\s+to\s+workbench\s*:\s*(?P<filename>[^\r\n]+)$",
         re.IGNORECASE,
     )
+    CLASSIFY_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?archivist\s+to\s+classify\s*:\s*(?P<query>.+)$",
+        re.IGNORECASE | re.DOTALL,
+    )
+    COLLECTION_APPROVAL_PATTERN = re.compile(
+        r"^approve\s+(?:the\s+)?archivist\s+to\s+file\s+in\s+"
+        r"(?P<collection>projects|research|reference|procedures|media)\s*:\s*(?P<filename>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
 
     def __init__(self, archivist: Archivist | None = None):
         if archivist is None:
@@ -49,6 +58,35 @@ class TeamDelegator:
         self.archivist = archivist
 
     def handle(self, message: str) -> DelegationResult:
+        collection_approval = self.COLLECTION_APPROVAL_PATTERN.match(message.strip())
+        if collection_approval:
+            path = self.archivist.file_from_workbench(
+                collection_approval.group("filename"),
+                collection_approval.group("collection"),
+            )
+            return DelegationResult(
+                True,
+                f"Approved. The Archivist filed {path.name} in the Bookshelf {path.parent.name} collection.",
+            )
+
+        classify_match = self.CLASSIFY_PATTERN.match(message.strip())
+        if classify_match:
+            query = classify_match.group("query").strip()
+            proposals = self.archivist.classify_workbench(query)
+            if not proposals:
+                return DelegationResult(True, f"The Archivist found no Workbench item matching '{query}'.")
+            lines = [f"The Archivist classified {len(proposals)} matching Workbench item{'s' if len(proposals) != 1 else ''}:"]
+            for proposal in proposals:
+                lines.append(
+                    f"\n{proposal.title}\nFile: {proposal.filename}\n{proposal.excerpt}\n"
+                    f"Proposed collection: {proposal.collection}, because {proposal.reason}."
+                )
+            if len(proposals) == 1:
+                lines.append(
+                    f"\nTo approve, say: Approve the Archivist to file in {proposals[0].collection}: {proposals[0].filename}"
+                )
+            return DelegationResult(True, "\n".join(lines))
+
         approval_match = self.WORKBENCH_APPROVAL_PATTERN.match(message.strip())
         if approval_match:
             path = self.archivist.promote_to_workbench(approval_match.group("filename"))

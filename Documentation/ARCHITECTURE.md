@@ -29,9 +29,10 @@ main.py
 | Conversation history | `Brain/Memory/database.py`, SQLite | Implemented and restart-tested |
 | Approved personal facts | `personal_memories` table and memory dialogs | Implemented and tested |
 | Noticeboard | `Runtime/Core/noticeboard.py` | Prototype only |
-| The Team | `Brain/Team/` | Package placeholder only |
+| The Team | `Brain/Team/archivist.py`, `Brain/Team/delegation.py` | Archivist implemented and demonstrated |
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
+| Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
 | Grand Library gateway | no active implementation | Designed, not implemented |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 

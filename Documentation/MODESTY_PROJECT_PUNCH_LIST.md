@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.11.0 - Ask the Library (in progress)
-**Current focus:** Local source-linked retrieval across both knowledge stores
+**Current build:** 0.12.0 - Library Gateway (in progress)
+**Current focus:** Explicit and bounded Grand Library online access
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -36,12 +36,23 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Create and demonstrate the Archivist's stern-librarian Bobblehead, absence sign, and readiness lamp.
 - [x] Create and demonstrate Modesty's headset as the visible Team communication channel.
 
-## Build 0.11.0
+## Build 0.11.0 - Complete
 
-- [ ] Build a local index, starting with SQLite FTS5.
-- [ ] Retrieve from both stores while preserving origin on every result.
-- [ ] Give Modesty source-linked passages rather than unsourced summaries.
-- [ ] Support re-index, deletion, and stale-file detection.
+- [x] Build a local index using SQLite FTS5.
+- [x] Retrieve from both stores while preserving origin on every result.
+- [x] Give Modesty source-linked passages rather than unsourced summaries.
+- [x] Support re-index, changed files, moved files, deletion, and stale-file detection.
+- [x] Demonstrate and accept echo-free Library answers through Modesty.
+
+## Build 0.12.0
+
+- [ ] Explicitly open and close Grand Library online mode.
+- [ ] Export bounded loans from the Bookshelf only.
+- [ ] Preview consequential outbound knowledge.
+- [ ] Apply redaction and size limits.
+- [ ] Receive sourced returns into the Bookshelf Inbox.
+- [ ] Record an audit trail of what was borrowed, returned, and why.
+- [ ] Prevent direct online-agent access to either local store.
 
 ## Engineering housekeeping
 

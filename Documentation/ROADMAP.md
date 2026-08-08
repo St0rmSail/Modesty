@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.11.0 - Ask the Library (in progress)
+**Current marker:** Build 0.12.0 - Library Gateway (in progress)
 **Reviewed:** 2026-08-08
 
 ## Completed build line
@@ -20,6 +20,7 @@
 | 0.8.2 | The Living Bookshelf | Filing Cabinet, Bookshelf growth, and Grand Library mode canonised |
 | 0.9.0 | Cabinet and Bookshelf Foundations | Both external stores safely initialized and demonstrated |
 | 0.10.0 | The Archivist | Approval-gated local knowledge curation and truthful Team representation |
+| 0.11.0 | Ask the Library | Local source-linked passage retrieval across both knowledge stores |
 
 ## Immediate sequence
 
@@ -54,7 +55,9 @@ Definition of done:
 - Report work and failure plainly through Modesty.
 - Add the Archivist's stern-librarian Bobblehead and Modesty's Team headset, driven by truthful subsystem state.
 
-### 0.11.0 - Ask the Library
+### 0.11.0 - Ask the Library - Complete
+
+SQLite FTS5 passage indexing now covers both knowledge stores while preserving private/shared origin and exact relative paths. Normal questions refresh changed, moved, and deleted files before searching; an explicit re-index command performs a complete rebuild. Drew accepted the echo-free, source-linked response through Modesty on 2026-08-08.
 
 Definition of done:
 

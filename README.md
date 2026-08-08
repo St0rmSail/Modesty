@@ -18,6 +18,6 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.11.0 - Ask the Library (in progress)**
+**0.12.0 - Library Gateway (in progress)**
 
-Build 0.10.0 is complete. The unseen Archivist can inventory, file, retrieve, review, classify, and curate local knowledge through explicit approval gates. Her truthful Bobblehead presence, readiness lamp, and Modesty's Team headset have been demonstrated and accepted. The next build adds source-linked local retrieval across both stores.
+Build 0.11.0 is complete. Modesty can search source-linked passages across the private Filing Cabinet and shared Bookshelf through a local SQLite FTS5 index that tracks changed, moved, and deleted files. The next build establishes the explicit, bounded Grand Library online gateway.

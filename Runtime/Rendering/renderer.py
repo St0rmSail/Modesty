@@ -23,7 +23,7 @@ Notes:
     to the Study when the window is resized or cropped.
 
 Build:
-    0.4.0 — First Breath
+    0.5.0 — First Blink
 ---------------------------------------------------------
 """
 
@@ -34,7 +34,7 @@ from PySide6.QtCore import QRectF, QTimer, Qt
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtWidgets import QWidget
 
-from Runtime.Animation import AnimationEngine, BreathingAnimation
+from Runtime.Animation import AnimationEngine, BlinkAnimation, BreathingAnimation
 from Runtime.Rendering.shadows import ShadowRenderer
 
 
@@ -47,6 +47,13 @@ MODESTY_IMAGE = (
     / "Modesty"
     / "Standing"
     / "modesty_standing_v1.png"
+)
+MODESTY_BLINK_IMAGE = (
+    PROJECT_ROOT
+    / "Assets"
+    / "Modesty"
+    / "Standing"
+    / "modesty_standing_blink_v1.png"
 )
 
 POSITION_FILE = PROJECT_ROOT / "Config" / "modesty_position.json"
@@ -83,6 +90,7 @@ class StudyRenderer(QWidget):
 
         self.study = QPixmap(str(STUDY_IMAGE))
         self.modesty = QPixmap(str(MODESTY_IMAGE))
+        self.modesty_blink = QPixmap(str(MODESTY_BLINK_IMAGE))
 
         if self.study.isNull():
             raise FileNotFoundError(
@@ -94,12 +102,21 @@ class StudyRenderer(QWidget):
                 f"Modesty image could not be loaded:\n{MODESTY_IMAGE}"
             )
 
+        if self.modesty_blink.isNull():
+            raise FileNotFoundError(
+                f"Blink image could not be loaded:\n{MODESTY_BLINK_IMAGE}"
+            )
+
+        if self.modesty_blink.size() != self.modesty.size():
+            raise ValueError("Blink image must match the standing image dimensions.")
+
         self.position = load_json(POSITION_FILE)
         self.pose = load_json(POSE_FILE)
         self.lighting = load_json(LIGHTING_FILE)
 
         self.shadow_renderer = ShadowRenderer(self.lighting)
         self.animation_engine = AnimationEngine(BreathingAnimation())
+        self.blink_engine = AnimationEngine(BlinkAnimation())
 
         self.animation_timer = QTimer(self)
         self.animation_timer.setTimerType(Qt.TimerType.PreciseTimer)
@@ -191,6 +208,7 @@ class StudyRenderer(QWidget):
 
     def _draw_characters(self, painter: QPainter, geometry: dict):
         breath = self.animation_engine.current_frame()
+        blink = self.blink_engine.current_frame()
         character_width = geometry["character_width"] * breath.scale_x
         character_height = geometry["character_height"] * breath.scale_y
 
@@ -203,10 +221,12 @@ class StudyRenderer(QWidget):
             character_height,
         )
 
+        character_image = self.modesty_blink if blink.closed else self.modesty
+
         painter.drawPixmap(
             character_rect,
-            self.modesty,
-            QRectF(self.modesty.rect()),
+            character_image,
+            QRectF(character_image.rect()),
         )
 
     def _draw_foreground(self, painter: QPainter, geometry: dict):

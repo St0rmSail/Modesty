@@ -10,7 +10,7 @@ Purpose:
     drawing to the Study Renderer.
 
 Build:
-    0.4.0 — First Breath
+    0.5.0 — First Blink
 ---------------------------------------------------------
 """
 

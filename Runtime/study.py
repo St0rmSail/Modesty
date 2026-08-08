@@ -48,7 +48,10 @@ class StudyView(QWidget):
         overlay_layout.addStretch()
         overlay_layout.addWidget(
             ConversationPanel(),
-            alignment=Qt.AlignmentFlag.AlignHCenter,
+            alignment=(
+                Qt.AlignmentFlag.AlignRight
+                | Qt.AlignmentFlag.AlignBottom
+            ),
         )
         layers.addWidget(overlay)
         layers.setCurrentWidget(overlay)

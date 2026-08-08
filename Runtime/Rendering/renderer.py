@@ -220,13 +220,25 @@ class StudyRenderer(QWidget):
         centre_y = study_rect.top() + float(settings["centre_y"]) * study_rect.height()
         radius = float(settings["glow_radius"]) * study_rect.height()
         glow = QRadialGradient(centre_x, centre_y, radius)
-        glow.setColorAt(0.0, QColor(255, 224, 145, 115))
-        glow.setColorAt(0.45, QColor(255, 194, 85, 48))
+        glow.setColorAt(0.0, QColor(255, 239, 174, 220))
+        glow.setColorAt(0.35, QColor(255, 205, 92, 110))
+        glow.setColorAt(0.68, QColor(255, 183, 62, 42))
         glow.setColorAt(1.0, QColor(255, 170, 60, 0))
         painter.save()
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(glow)
         painter.drawEllipse(QRectF(centre_x - radius, centre_y - radius, radius * 2, radius * 2))
+        bulb_width = study_rect.height() * 0.014
+        bulb_height = study_rect.height() * 0.008
+        painter.setBrush(QColor(255, 244, 184, 245))
+        painter.drawEllipse(
+            QRectF(
+                centre_x - bulb_width / 2,
+                centre_y - bulb_height / 2,
+                bulb_width,
+                bulb_height,
+            )
+        )
         painter.restore()
 
     def _draw_team(self, painter: QPainter, geometry: dict):

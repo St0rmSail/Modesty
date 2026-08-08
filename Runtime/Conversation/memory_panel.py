@@ -71,7 +71,8 @@ class ConversationPanel(QWidget):
     def _build_ui(self):
         self.setObjectName("conversationPanel")
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground)
-        self.setMaximumWidth(900)
+        self.setMinimumWidth(380)
+        self.setMaximumWidth(420)
         self.setMinimumHeight(235)
         self.setMaximumHeight(270)
         self.setStyleSheet(

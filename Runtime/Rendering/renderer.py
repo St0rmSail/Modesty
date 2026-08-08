@@ -235,9 +235,9 @@ class StudyRenderer(QWidget):
             return
 
         glow = QRadialGradient(0, 0, radius)
-        glow.setColorAt(0.0, QColor(255, 239, 174, 220))
-        glow.setColorAt(0.35, QColor(255, 205, 92, 110))
-        glow.setColorAt(0.68, QColor(255, 183, 62, 42))
+        glow.setColorAt(0.0, QColor(255, 239, 174, 120))
+        glow.setColorAt(0.35, QColor(255, 205, 92, 62))
+        glow.setColorAt(0.68, QColor(255, 183, 62, 24))
         glow.setColorAt(1.0, QColor(255, 170, 60, 0))
         painter.setClipRect(
             QRectF(

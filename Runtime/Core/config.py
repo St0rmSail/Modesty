@@ -37,3 +37,7 @@ OBSIDIAN = DATA / "Obsidian"
 VECTORDB = DATA / "VectorDB"
 OCR = DATA / "OCR"
 KNOWLEDGE = DATA / "Knowledge"
+
+# External knowledge stores are configured in Config/knowledge_stores.json.
+# The legacy Data/Obsidian and Data/Knowledge paths above are placeholders only.
+KNOWLEDGE_STORES_CONFIG = ROOT / "Config" / "knowledge_stores.json"

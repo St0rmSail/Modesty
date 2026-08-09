@@ -166,6 +166,7 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         note = next((self.gateway.paths.bookshelf / "Inbox").glob("*smithsonian*.md"))
         text = note.read_text(encoding="utf-8")
         self.assertIn("verified: unverified", text)
+        self.assertIn("created_by: system:grand-library-smithsonian", text)
         self.assertIn("https://americanhistory.si.edu/example", text)
 
 

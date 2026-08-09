@@ -1,8 +1,9 @@
 """Transport providers for the Grand Library Gateway."""
 
 from dataclasses import dataclass
+import json
 import re
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse, urlunparse
 
 from Runtime.Library.models import LoanPacket
 from Runtime.Library.smithsonian import SmithsonianAccess, SmithsonianError
@@ -39,6 +40,7 @@ class SmithsonianProvider:
     MAX_RESULTS = 5
     MAX_EXCERPT_CHARS = 700
     FIRST_EXPEDITION_QUESTION = "Research Kathleen McNulty and the first ENIAC programmers"
+    FIRST_EXPEDITION_QUERY = '"Kathleen McNulty"'
 
     def __init__(self, access: SmithsonianAccess):
         self.access = access
@@ -48,16 +50,19 @@ class SmithsonianProvider:
             raise SmithsonianError(
                 "This provider is currently restricted to the approved first expedition."
             )
-        response = self.access.search(packet.question, rows=self.MAX_RESULTS)
-        rows = response.get("rows", [])[:self.MAX_RESULTS]
+        response = self.access.search(self.FIRST_EXPEDITION_QUERY, rows=self.MAX_RESULTS)
+        rows = [
+            row
+            for row in response.get("rows", [])[:self.MAX_RESULTS]
+            if isinstance(row, dict) and self._is_relevant(row)
+        ]
         if not rows:
             raise SmithsonianError(
-                "The Smithsonian returned no matching records; no empty research note was filed."
+                "The Smithsonian returned no records explicitly containing Kathleen McNulty; "
+                "no irrelevant research note was filed."
             )
         sections = []
         for index, row in enumerate(rows, 1):
-            if not isinstance(row, dict):
-                continue
             title = self._plain(row.get("title")) or "Untitled Smithsonian record"
             unit = self._plain(row.get("unitCode"))
             source = self._source_url(row)
@@ -87,7 +92,16 @@ class SmithsonianProvider:
     def _plain(cls, value) -> str:
         if not isinstance(value, str):
             return ""
-        return re.sub(r"\s+", " ", value).strip()[: cls.MAX_EXCERPT_CHARS]
+        text = re.sub(r"\s+", " ", value).strip()
+        if len(text) <= cls.MAX_EXCERPT_CHARS:
+            return text
+        shortened = text[: cls.MAX_EXCERPT_CHARS + 1].rsplit(" ", 1)[0]
+        return shortened.rstrip(" ,;:-") + "…"
+
+    @staticmethod
+    def _is_relevant(row: dict) -> bool:
+        text = json.dumps(row, ensure_ascii=False).casefold()
+        return "kathleen" in text and "mcnulty" in text
 
     @classmethod
     def _source_url(cls, row: dict) -> str:
@@ -102,26 +116,54 @@ class SmithsonianProvider:
                 continue
             parsed = urlparse(candidate)
             host = (parsed.hostname or "").casefold()
-            if parsed.scheme == "https" and (host == "si.edu" or host.endswith(".si.edu")):
-                return candidate
-        return SmithsonianAccess.SEARCH_ENDPOINT
+            if parsed.scheme in ("http", "https") and (
+                host == "si.edu" or host.endswith(".si.edu")
+            ):
+                return urlunparse(parsed._replace(scheme="https"))
+        identifier = row.get("id")
+        if isinstance(identifier, str) and identifier.strip():
+            return f"https://www.si.edu/object/{quote(identifier.strip(), safe=':_-')}"
+        return "https://www.si.edu/openaccess"
 
     @classmethod
     def _excerpt(cls, row: dict) -> str:
         content = row.get("content")
         if not isinstance(content, dict):
             return ""
-        freetext = content.get("freetext")
-        if not isinstance(freetext, dict):
-            return ""
-        candidates = []
-        for field in ("notes", "date", "name"):
-            values = freetext.get(field, [])
-            if not isinstance(values, list):
+        values = []
+
+        def collect(value):
+            if isinstance(value, dict):
+                for child in value.values():
+                    collect(child)
+            elif isinstance(value, list):
+                for child in value:
+                    collect(child)
+            elif isinstance(value, str):
+                text = re.sub(r"\s+", " ", value).strip()
+                if text and not text.startswith(("http://", "https://")):
+                    values.append(text)
+
+        collect(content)
+        ranked = sorted(
+            enumerate(values),
+            key=lambda item: (
+                "mcnulty" not in item[1].casefold(),
+                "kathleen" not in item[1].casefold(),
+                "eniac" not in item[1].casefold(),
+                item[0],
+            ),
+        )
+        selected = []
+        seen = set()
+        for _, value in ranked:
+            normalized = value.casefold()
+            if normalized in seen:
                 continue
-            for value in values:
-                if isinstance(value, dict):
-                    text = cls._plain(value.get("content"))
-                    if text:
-                        candidates.append(text)
-        return " ".join(candidates)[: cls.MAX_EXCERPT_CHARS]
+            if not any(term in normalized for term in ("mcnulty", "kathleen", "eniac")):
+                continue
+            selected.append(value)
+            seen.add(normalized)
+            if len(" ".join(selected)) >= cls.MAX_EXCERPT_CHARS:
+                break
+        return cls._plain(" ".join(selected))

@@ -94,6 +94,7 @@ class SmithsonianAccessTest(unittest.TestCase):
         def opener(request, timeout):
             self.assertIn("rows=5", request.full_url)
             self.assertIn("type=all", request.full_url)
+            self.assertIn("q=%22Kathleen+McNulty%22", request.full_url)
             return FakeResponse(
                 json.dumps(
                     {
@@ -111,7 +112,13 @@ class SmithsonianAccessTest(unittest.TestCase):
                                             ]
                                         }
                                     },
-                                }
+                                },
+                                {
+                                    "title": "Unrelated correspondence",
+                                    "unitCode": "AAA",
+                                    "url": "https://www.si.edu/object/unrelated",
+                                    "content": {"freetext": {"notes": [{"content": "No relevant person."}]}},
+                                },
                             ],
                         }
                     }
@@ -130,6 +137,7 @@ class SmithsonianAccessTest(unittest.TestCase):
 
         self.assertIn("Kathleen McNulty helped program ENIAC", returned.body)
         self.assertIn("Source: https://americanhistory.si.edu/example", returned.body)
+        self.assertNotIn("Unrelated correspondence", returned.body)
         self.assertNotIn("private-test-key", returned.body)
 
     def test_provider_refuses_unapproved_general_research(self):

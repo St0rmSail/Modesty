@@ -39,3 +39,7 @@ Close the Grand Library
 ```
 
 Do not promote the returned note yet. First inspect Modesty's response and the new `E:\Modesty Bookshelf\Inbox\*-grand-library-smithsonian-*.md` file for relevance, source links, formatting, and unexpected material.
+
+## First-cast quality result
+
+Loan `GL-20260809-80A62FBE` completed the transport safely but did not pass research inspection. Its quarantined note is test evidence, not useful knowledge, and must not be promoted. The corrected provider requires a second live cast using the same command sequence.

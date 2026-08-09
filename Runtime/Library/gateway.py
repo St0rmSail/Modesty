@@ -207,7 +207,7 @@ class GrandLibraryGateway:
             "---\n"
             "type: Research Return\n"
             f"title: {title}\n"
-            "created_by: system:grand-library-loopback\n"
+            f"created_by: system:grand-library-{packet.provider.casefold()}\n"
             f"verified: {'test-only' if packet.provider == 'loopback' else 'unverified'}\n"
             "provenance: grand-library-return\n"
             f"loan_id: {packet.loan_id}\n"

@@ -33,12 +33,13 @@ main.py
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
-| Grand Library gateway | `Runtime/Library/` | Local loopback boundary demonstrated; real provider not implemented |
+| Grand Library gateway | `Runtime/Library/` | Loopback demonstrated; encrypted credential storage and bounded Smithsonian validation implemented; expedition provider not implemented |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
 
 - `Data/modesty.db` is local generated state and is excluded from Git.
+- `Data/Secrets/` contains current-user encrypted credentials and is excluded from Git; clear-text credentials never belong in repository files, chat, audit logs, loan packets, or returned notes.
 - Conversation history and approved personal memories are structured parts of the Filing Cabinet domain.
 - The repository stores Modesty's design, contracts, schemas, and implementation record.
 - The Filing Cabinet stores private personal and working knowledge.

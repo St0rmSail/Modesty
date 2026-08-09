@@ -12,6 +12,7 @@ __pycache__/
 Data/*.db
 Data/*.db-*
 Data/Backups/
+Data/Secrets/
 
 # Windows thumbnail cache
 Thumbs.db

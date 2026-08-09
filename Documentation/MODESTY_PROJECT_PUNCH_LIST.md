@@ -59,6 +59,9 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 
 ### Real provider and online boundary
 
+- [x] Implement Windows current-user encrypted storage outside Git.
+- [x] Implement a one-purpose authenticated Smithsonian statistics check with content-free audit.
+- [ ] Demonstrate key storage and authenticated validation in the live checkout.
 - [ ] Explicitly open and close Grand Library online mode.
 - [ ] Export bounded loans from the Bookshelf only.
 - [ ] Preview consequential outbound knowledge.

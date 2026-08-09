@@ -22,12 +22,12 @@
 | OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
 | Knowledge filing and retrieval | Yes | Partial | Yes | Explicit Inbox filing and bounded local excerpt retrieval demonstrated |
 | Bookshelf intake and curation | Yes | Yes | Yes | Approval-gated Inbox, Workbench, and established-collection lifecycle demonstrated |
-| Grand Library online mode | Yes | Partial | Partial | Fail-closed local loopback demonstrated; credentials and real network provider remain absent |
+| Grand Library online mode | Yes | Partial | Partial | Loopback demonstrated; DPAPI key storage and one-purpose Smithsonian authentication check implemented; live validation and expedition remain pending |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
 | Team readiness display | Yes | Yes | Yes | Archivist presence, absence sign, readiness lamp, and Team headset demonstrated |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
-| Web research gateway | Partial | No | No | Bookshelf-loan and returned-contribution boundary required |
+| Web research gateway | Partial | Partial | No | Authentication validation only; no research retrieval or online loan execution yet |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |

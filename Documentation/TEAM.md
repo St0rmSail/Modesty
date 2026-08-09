@@ -1,7 +1,7 @@
 # The Team
 
 **Status:** Canonical framework; Archivist foundation implemented
-**Reviewed:** 2026-08-08
+**Reviewed:** 2026-08-09
 
 The Team is a group of unseen functional specialists working behind the scenes. They are not chat personalities and never speak to Drew as alternate characters. Modesty is the sole conversational presence: she consults the Team through her headset and communicates their results. Team activity is monitored through corresponding Bobbleheads on her Bookshelf.
 
@@ -18,6 +18,21 @@ Every implemented member needs:
 - provenance and activity reporting;
 - an interruption/approval boundary;
 - a truthful Bobblehead state when applicable.
+
+## Workspace hygiene and retention
+
+Every Team member must **leave its own desk tidy**. Ownership of a duty includes ownership of the temporary files, failed or partial outputs, caches, pending state, and disposable working material created while performing it. A duty is not complete until its useful outputs have been handed off, its transient state has been cleared, and anything deliberately retained has an identified purpose and location.
+
+Tidiness must never become silent evidence destruction:
+
+- source material, approved knowledge, audit history, and potentially meaningful user data are not disposable clutter;
+- uncertain material is quarantined, archived, or presented to Drew for a retention decision rather than deleted;
+- deletion of material that could matter requires Drew's approval, with recoverable removal preferred where practical;
+- routine generated debris may be removed automatically only under an explicit, tested retention rule owned by the subsystem that created it.
+
+The Archivist owns **knowledge hygiene**, not everybody else's technical debris. This includes orderly Inbox and Workbench queues, classification, duplicates, supersession, provenance, promotion, and Archive use across the Filing Cabinet and Bookshelf. Each other specialist remains responsible for cleaning up its own operational workspace.
+
+A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead. It becomes justified only if cross-specialist maintenance grows into a recurring capability with its own tools and boundaries—for example scheduled storage reports, quotas, cache policy, backup verification, duplicate detection, stale-project review, and restoration. Repeated failure by specialists to clean up after themselves is evidence for considering that role; aesthetic preference alone is not.
 
 ## Current roster
 

@@ -1,6 +1,6 @@
 # Decision Log
 
-**Reviewed:** 2026-08-08
+**Reviewed:** 2026-08-09
 
 This compact register records settled decisions. Create a separate detailed decision record only when consequences or alternatives need more space.
 
@@ -29,6 +29,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-021 | Online agents borrow bounded read-only Bookshelf packets and return sourced contributions to Inbox; they never receive direct local access or silently rewrite established knowledge. | Canonical |
 | D-022 | Bookshelf changes use Routine, Normal, Important, and Protected trust levels; only Drew may approve movement from Filing Cabinet to Bookshelf. | Canonical |
 | D-023 | Team members are unseen functional specialists, never chat personalities. Modesty alone speaks to Drew, consults them through a headset, and their tested state is represented by individual Bookshelf Bobbleheads. | Canonical |
+| D-024 | Every specialist must clean up its own operational debris under explicit retention rules; the Archivist governs knowledge hygiene, and a separate Housekeeper is deferred until cross-specialist maintenance becomes a distinct recurring capability. | Canonical |
 
 ## Superseded decisions and names
 

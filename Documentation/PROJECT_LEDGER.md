@@ -32,6 +32,7 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Roadmap](ROADMAP.md): ordered next work and definitions of done.
 - [Personality Canon](MODESTY_PERSONALITY_CANON.md): the Anita/Merry identity rule.
 - [Build Log](Buildlog.md): chronological milestone record.
+- [Voice](VOICE.md): local voice direction, current audition findings, and selection gate.
 
 ## Evidence reviewed for Build 0.8.1
 

@@ -86,7 +86,7 @@ Definition of done:
 
 ## Later functional milestones
 
-- Voice with explicit microphone control.
+- Local voice after the deferred audition and explicit selection recorded in [VOICE.md](VOICE.md), with separate explicit microphone control for listening.
 - Vision, screen understanding, and OCR with visible privacy state.
 - Useful tools with confirmation, logging, and undo where practical.
 - Executive routing, durable Team contracts, and persistent noticeboard state.

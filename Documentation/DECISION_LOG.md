@@ -30,6 +30,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-022 | Bookshelf changes use Routine, Normal, Important, and Protected trust levels; only Drew may approve movement from Filing Cabinet to Bookshelf. | Canonical |
 | D-023 | Team members are unseen functional specialists, never chat personalities. Modesty alone speaks to Drew, consults them through a headset, and their tested state is represented by individual Bookshelf Bobbleheads. | Canonical |
 | D-024 | Every specialist must clean up its own operational debris under explicit retention rules; the Archivist governs knowledge hygiene, and a separate Housekeeper is deferred until cross-specialist maintenance becomes a distinct recurring capability. | Canonical |
+| D-025 | Modesty's eventual voice must be local and original; `af_nicole` leads a deferred long-term audition, but no voice is selected or implemented until Drew explicitly approves it after repeated listening. | Canonical direction |
 
 ## Superseded decisions and names
 

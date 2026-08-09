@@ -10,6 +10,7 @@ from Runtime.Knowledge.catalog import KnowledgeCatalog
 from Runtime.Knowledge.stores import StorePaths
 from Runtime.Library import GatewayError, GrandLibraryGateway, LoanSource
 from Runtime.Library.providers import ProviderReturn, SmithsonianProvider
+from Runtime.Core import team_status
 
 
 class FakeSmithsonianProvider:
@@ -41,6 +42,7 @@ class UnsafeReturnProvider:
 
 class GrandLibraryGatewayTest(unittest.TestCase):
     def setUp(self):
+        team_status.reset()
         self.temporary = TemporaryDirectory()
         root = Path(self.temporary.name)
         self.filing = root / "Filing"
@@ -177,6 +179,7 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         )
         opened = delegator.handle("Open the Grand Library online")
         self.assertIn("No request has been sent", opened.response)
+        self.assertEqual(team_status.grand_library_state(), "online")
 
         refused = delegator.handle("Prepare a Smithsonian expedition: Research cats")
         self.assertIn("restricted to the approved first expedition", refused.response)
@@ -196,6 +199,8 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         self.assertIn("verified: unverified", text)
         self.assertIn("created_by: system:grand-library-smithsonian", text)
         self.assertIn("https://americanhistory.si.edu/example", text)
+        delegator.handle("Close the Grand Library")
+        self.assertEqual(team_status.grand_library_state(), "closed")
 
     def test_failed_approved_loan_is_consumed_once(self):
         self.gateway.select_provider(FailingSmithsonianProvider())

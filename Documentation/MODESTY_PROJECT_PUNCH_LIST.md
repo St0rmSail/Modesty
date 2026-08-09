@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
 **Current build:** 0.12.0 - Library Gateway (in progress)
-**Current focus:** Demonstrate Grand Library media refusal, then implement truthful Study online state
+**Current focus:** Live review of the Grand Library online Study state
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -72,8 +72,9 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Demonstrate and inspect the first Smithsonian expedition.
 - [x] Complete approved Inbox to Workbench to Research curation of the first trophy.
 - [x] Define and enforce a fail-closed text-only boundary before accepting any media-bearing return.
-- [ ] Demonstrate in `E:\Modesty` that an embedded-media return is refused without an Inbox file.
-- [ ] Implement and demonstrate the Study's truthful Grand Library online-state sequence.
+- [x] Demonstrate in `E:\Modesty` that embedded-media refusal tests pass without an Inbox file.
+- [x] Implement the Study's truthful Grand Library online-state sequence.
+- [ ] Visually review the opening transition, temporary panel hide, persistent online badge, and clean close in `E:\Modesty`.
 
 ## Engineering housekeeping
 

@@ -4,11 +4,13 @@
 _enabled_members = {"archivist"}
 _member_states = {member: "offline" for member in _enabled_members}
 _core_ready = False
+_grand_library_state = "closed"
 
 
 def reset():
-    global _core_ready
+    global _core_ready, _grand_library_state
     _core_ready = False
+    _grand_library_state = "closed"
     for member in _enabled_members:
         _member_states[member] = "offline"
 
@@ -34,3 +36,14 @@ def system_ready() -> bool:
     return _core_ready and all(
         state in {"ready", "working", "waiting"} for state in _member_states.values()
     )
+
+
+def set_grand_library_state(state: str):
+    global _grand_library_state
+    if state not in {"closed", "loopback", "online"}:
+        raise ValueError(f"Unknown Grand Library state: {state}")
+    _grand_library_state = state
+
+
+def grand_library_state() -> str:
+    return _grand_library_state

@@ -17,6 +17,18 @@ class TeamStatusTest(unittest.TestCase):
         self.assertEqual(team_status.member_state("archivist"), "offline")
         self.assertEqual(team_status.member_state("unimplemented"), "offline")
 
+    def test_grand_library_state_is_truthful_and_resets_closed(self):
+        self.assertEqual(team_status.grand_library_state(), "closed")
+        team_status.set_grand_library_state("loopback")
+        self.assertEqual(team_status.grand_library_state(), "loopback")
+        team_status.set_grand_library_state("online")
+        self.assertEqual(team_status.grand_library_state(), "online")
+        team_status.reset()
+        self.assertEqual(team_status.grand_library_state(), "closed")
+
+        with self.assertRaises(ValueError):
+            team_status.set_grand_library_state("internet-ish")
+
 
 if __name__ == "__main__":
     unittest.main()

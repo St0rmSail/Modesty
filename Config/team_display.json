@@ -5,6 +5,12 @@
     "glow_radius": 0.075,
     "angle_degrees": -10.0
   },
+  "grand_library": {
+    "centre_x": 0.842,
+    "centre_y": 0.315,
+    "width": 0.105,
+    "height": 0.405
+  },
   "members": {
     "archivist": {
       "pedestal": 1,

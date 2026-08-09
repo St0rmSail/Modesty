@@ -29,9 +29,18 @@ Build:
 
 import json
 from pathlib import Path
+from time import monotonic
 
 from PySide6.QtCore import QRectF, QTimer, Qt
-from PySide6.QtGui import QColor, QPainter, QPixmap, QRadialGradient
+from PySide6.QtGui import (
+    QColor,
+    QLinearGradient,
+    QPainter,
+    QPainterPath,
+    QPen,
+    QPixmap,
+    QRadialGradient,
+)
 from PySide6.QtWidgets import QWidget
 
 from Runtime.Animation import AnimationEngine, BlinkAnimation, BreathingAnimation
@@ -145,6 +154,8 @@ class StudyRenderer(QWidget):
         self.shadow_renderer = ShadowRenderer(self.lighting)
         self.animation_engine = AnimationEngine(BreathingAnimation())
         self.blink_engine = AnimationEngine(BlinkAnimation())
+        self._library_visual_state = "closed"
+        self._library_opened_at = None
 
         self.animation_timer = QTimer(self)
         self.animation_timer.setTimerType(Qt.TimerType.PreciseTimer)
@@ -162,6 +173,7 @@ class StudyRenderer(QWidget):
         geometry = self._calculate_geometry()
 
         self._draw_background(painter, geometry)
+        self._draw_grand_library(painter, geometry)
         self._draw_readiness_lamp(painter, geometry)
         self._draw_team(painter, geometry)
         self._draw_ground_effects(painter, geometry)
@@ -226,6 +238,70 @@ class StudyRenderer(QWidget):
             self.study,
             QRectF(self.study.rect()),
         )
+
+    def _draw_grand_library(self, painter: QPainter, geometry: dict):
+        state = team_status.grand_library_state()
+        if state != self._library_visual_state:
+            self._library_visual_state = state
+            self._library_opened_at = monotonic() if state == "online" else None
+        if state != "online":
+            return
+
+        settings = self.team_display["grand_library"]
+        study_rect = geometry["study_rect"]
+        centre_x = study_rect.left() + float(settings["centre_x"]) * study_rect.width()
+        centre_y = study_rect.top() + float(settings["centre_y"]) * study_rect.height()
+        full_width = float(settings["width"]) * study_rect.width()
+        full_height = float(settings["height"]) * study_rect.height()
+        elapsed = monotonic() - self._library_opened_at
+        progress = min(1.0, max(0.08, elapsed / 1.2))
+        width = full_width * progress
+        portal = QRectF(centre_x - width / 2, centre_y - full_height / 2, width, full_height)
+
+        painter.save()
+        painter.setClipRect(portal)
+        interior = QLinearGradient(portal.left(), portal.top(), portal.right(), portal.bottom())
+        interior.setColorAt(0.0, QColor(5, 16, 28, 238))
+        interior.setColorAt(0.5, QColor(19, 94, 126, 225))
+        interior.setColorAt(1.0, QColor(5, 12, 24, 242))
+        painter.fillRect(portal, interior)
+
+        glow_pen = QPen(QColor(112, 232, 255, 210), max(2.0, study_rect.height() * 0.004))
+        painter.setPen(glow_pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawRoundedRect(portal, 8, 8)
+
+        if progress > 0.55:
+            alpha = int(255 * min(1.0, (progress - 0.55) / 0.45))
+            self._draw_online_mark(painter, portal.center(), full_height * 0.23, alpha)
+        painter.restore()
+
+    @staticmethod
+    def _draw_online_mark(painter: QPainter, centre, size: float, alpha: int):
+        painter.save()
+        painter.translate(centre)
+        painter.setPen(QPen(QColor(190, 247, 255, alpha), max(1.5, size * 0.055)))
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        canopy = QPainterPath()
+        canopy.moveTo(-size * 0.62, -size * 0.30)
+        canopy.lineTo(0, -size * 0.50)
+        canopy.lineTo(size * 0.62, -size * 0.30)
+        canopy.moveTo(-size * 0.48, -size * 0.18)
+        canopy.quadTo(-size * 0.14, size * 0.08, 0, -size * 0.22)
+        canopy.quadTo(size * 0.14, size * 0.08, size * 0.48, -size * 0.18)
+        painter.drawPath(canopy)
+        bolt = QPainterPath()
+        bolt.moveTo(-size * 0.08, -size * 0.12)
+        bolt.lineTo(size * 0.20, size * 0.12)
+        bolt.lineTo(size * 0.04, size * 0.10)
+        bolt.lineTo(size * 0.28, size * 0.52)
+        bolt.lineTo(-size * 0.25, size * 0.02)
+        bolt.lineTo(-size * 0.05, size * 0.05)
+        bolt.closeSubpath()
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(QColor(222, 252, 255, alpha))
+        painter.drawPath(bolt)
+        painter.restore()
 
     def _draw_readiness_lamp(self, painter: QPainter, geometry: dict):
         settings = self.team_display["lamp"]

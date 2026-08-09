@@ -19,6 +19,7 @@ from Brain.Memory import ConversationMemory, MemoryStoreError
 from Brain.Team.delegation import TeamDelegator
 from Runtime.Conversation.client import DEFAULT_MODEL, OllamaChatClient
 from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
+from Runtime.Core import team_status
 
 
 SYSTEM_PROMPT = """You are Modesty, Drew's local-first personal AI assistant.
@@ -56,6 +57,7 @@ class ConversationPanel(QWidget):
     """Collect text input and persist local conversation history."""
 
     hide_requested = Signal()
+    grand_library_state_changed = Signal(str)
 
     def __init__(self, memory: ConversationMemory | None = None):
         super().__init__()
@@ -314,12 +316,16 @@ class ConversationPanel(QWidget):
 
         try:
             self.team_delegator = self.team_delegator or TeamDelegator()
+            previous_library_state = team_status.grand_library_state()
             delegated = self.team_delegator.handle(message)
         except (OSError, RuntimeError, sqlite3.Error, UnicodeError, ValueError) as error:
             self._receive(f"Modesty could not complete that duty: {error}")
             self._set_input_enabled(True)
             return
         if delegated.handled:
+            current_library_state = team_status.grand_library_state()
+            if current_library_state != previous_library_state:
+                self.grand_library_state_changed.emit(current_library_state)
             self._receive(delegated.response)
             self._set_input_enabled(True)
             self.input.setFocus()

@@ -11,6 +11,7 @@ from Runtime.Library import GatewayError, GrandLibraryGateway
 from Runtime.Library.credentials import CredentialStore
 from Runtime.Library.providers import LoopbackProvider, SmithsonianProvider
 from Runtime.Library.smithsonian import DEFAULT_KEY_PATH, SmithsonianAccess
+from Runtime.Core import team_status
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,7 @@ class TeamDelegator:
             if not self.gateway.is_open:
                 self.gateway.select_provider(self.smithsonian_provider)
             changed = self.gateway.open()
+            team_status.set_grand_library_state("online")
             if changed:
                 return DelegationResult(
                     True,
@@ -134,6 +136,7 @@ class TeamDelegator:
             if not self.gateway.is_open:
                 self.gateway.select_provider(LoopbackProvider())
             changed = self.gateway.open()
+            team_status.set_grand_library_state("loopback")
             if changed:
                 return DelegationResult(
                     True,
@@ -144,6 +147,7 @@ class TeamDelegator:
 
         if self.GRAND_LIBRARY_CLOSE_PATTERN.match(message.strip()):
             cancelled = self.gateway.close()
+            team_status.set_grand_library_state("closed")
             detail = (
                 f" {cancelled} pending loan{'s were' if cancelled != 1 else ' was'} cancelled."
                 if cancelled else ""

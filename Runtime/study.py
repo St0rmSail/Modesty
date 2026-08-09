@@ -91,7 +91,7 @@ class ConversationDock(QWidget):
         self._library_auto_hidden = True
         self.panel.hide()
         self.show_button.show()
-        QTimer.singleShot(1400, self._restore_after_library_opening)
+        QTimer.singleShot(3600, self._restore_after_library_opening)
 
     def _restore_after_library_opening(self):
         if not self._library_auto_hidden:

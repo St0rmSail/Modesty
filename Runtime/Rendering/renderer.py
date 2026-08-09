@@ -261,7 +261,8 @@ class StudyRenderer(QWidget):
         portal = QPolygonF(points)
         bounds = portal.boundingRect()
         elapsed = monotonic() - self._library_opened_at
-        progress = min(1.0, max(0.08, elapsed / 1.2))
+        progress = min(1.0, max(0.0, elapsed / 3.0))
+        eased = progress * progress * (3.0 - 2.0 * progress)
 
         painter.save()
         portal_path = QPainterPath()
@@ -272,73 +273,62 @@ class StudyRenderer(QWidget):
         interior.setColorAt(0.5, QColor(19, 94, 126, 225))
         interior.setColorAt(1.0, QColor(5, 12, 24, 242))
         painter.fillRect(bounds, interior)
+        self._draw_online_globe(painter, bounds.center(), min(bounds.width(), bounds.height()) * 0.72)
         painter.restore()
 
-        top_mid = (points[0] + points[1]) / 2
-        bottom_mid = (points[3] + points[2]) / 2
-        halves = (
-            (QPolygonF((points[0], top_mid, bottom_mid, points[3])), -1),
-            (QPolygonF((top_mid, points[1], points[2], bottom_mid)), 1),
-        )
         source_left = min(float(point[0]) for point in normalized) * self.study.width()
         source_right = max(float(point[0]) for point in normalized) * self.study.width()
         source_top = min(float(point[1]) for point in normalized) * self.study.height()
         source_bottom = max(float(point[1]) for point in normalized) * self.study.height()
-        source_mid = (source_left + source_right) / 2
-        destination_mid = bounds.center().x()
-        travel = bounds.width() * 0.52 * progress
-        source_rects = (
-            QRectF(source_left, source_top, source_mid - source_left, source_bottom - source_top),
-            QRectF(source_mid, source_top, source_right - source_mid, source_bottom - source_top),
+        source_rect = QRectF(
+            source_left,
+            source_top,
+            source_right - source_left,
+            source_bottom - source_top,
         )
-        destination_rects = (
-            QRectF(bounds.left(), bounds.top(), destination_mid - bounds.left(), bounds.height()),
-            QRectF(destination_mid, bounds.top(), bounds.right() - destination_mid, bounds.height()),
-        )
-        for index, (half, direction) in enumerate(halves):
-            painter.save()
-            half_path = QPainterPath()
-            half_path.addPolygon(half)
-            painter.setClipPath(half_path)
-            destination = destination_rects[index].translated(direction * travel, 0)
-            painter.drawPixmap(destination, self.study, source_rects[index])
-            painter.restore()
+        painter.save()
+        painter.setClipPath(portal_path)
+        destination = bounds.translated(-bounds.width() * 1.06 * eased, 0)
+        painter.drawPixmap(destination, self.study, source_rect)
+        painter.restore()
 
         painter.save()
-        glow_pen = QPen(QColor(112, 232, 255, 210), max(2.0, study_rect.height() * 0.004))
+        glow_pen = QPen(QColor(112, 232, 255, 150), max(1.5, study_rect.height() * 0.0025))
         painter.setPen(glow_pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPolygon(portal)
-
-        if progress > 0.55:
-            alpha = int(255 * min(1.0, (progress - 0.55) / 0.45))
-            self._draw_online_mark(painter, bounds.center(), bounds.height() * 0.23, alpha)
         painter.restore()
 
     @staticmethod
-    def _draw_online_mark(painter: QPainter, centre, size: float, alpha: int):
+    def _draw_online_globe(painter: QPainter, centre, size: float):
         painter.save()
         painter.translate(centre)
-        painter.setPen(QPen(QColor(190, 247, 255, alpha), max(1.5, size * 0.055)))
+        glow = QRadialGradient(0, 0, size * 0.72)
+        glow.setColorAt(0.0, QColor(109, 226, 255, 105))
+        glow.setColorAt(0.58, QColor(23, 111, 151, 56))
+        glow.setColorAt(1.0, QColor(10, 63, 91, 0))
+        painter.setPen(Qt.PenStyle.NoPen)
+        painter.setBrush(glow)
+        painter.drawEllipse(QRectF(-size * 0.72, -size * 0.72, size * 1.44, size * 1.44))
+
+        line = QPen(QColor(190, 247, 255, 235), max(1.5, size * 0.025))
+        painter.setPen(line)
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        canopy = QPainterPath()
-        canopy.moveTo(-size * 0.62, -size * 0.30)
-        canopy.lineTo(0, -size * 0.50)
-        canopy.lineTo(size * 0.62, -size * 0.30)
-        canopy.moveTo(-size * 0.48, -size * 0.18)
-        canopy.quadTo(-size * 0.14, size * 0.08, 0, -size * 0.22)
-        canopy.quadTo(size * 0.14, size * 0.08, size * 0.48, -size * 0.18)
-        painter.drawPath(canopy)
+        sphere = QRectF(-size / 2, -size / 2, size, size)
+        painter.drawEllipse(sphere)
+        painter.drawEllipse(QRectF(-size * 0.23, -size / 2, size * 0.46, size))
+        painter.drawEllipse(QRectF(-size / 2, -size * 0.23, size, size * 0.46))
+
         bolt = QPainterPath()
-        bolt.moveTo(-size * 0.08, -size * 0.12)
-        bolt.lineTo(size * 0.20, size * 0.12)
-        bolt.lineTo(size * 0.04, size * 0.10)
-        bolt.lineTo(size * 0.28, size * 0.52)
-        bolt.lineTo(-size * 0.25, size * 0.02)
-        bolt.lineTo(-size * 0.05, size * 0.05)
+        bolt.moveTo(-size * 0.06, -size * 0.27)
+        bolt.lineTo(size * 0.18, -size * 0.02)
+        bolt.lineTo(size * 0.03, -size * 0.04)
+        bolt.lineTo(size * 0.19, size * 0.31)
+        bolt.lineTo(-size * 0.20, -size * 0.08)
+        bolt.lineTo(-size * 0.04, -size * 0.05)
         bolt.closeSubpath()
         painter.setPen(Qt.PenStyle.NoPen)
-        painter.setBrush(QColor(222, 252, 255, alpha))
+        painter.setBrush(QColor(225, 252, 255, 245))
         painter.drawPath(bolt)
         painter.restore()
 

@@ -1,7 +1,7 @@
 # Capability Matrix
 
-**Baseline:** Build 0.11.0 complete; Build 0.12.0 in progress
-**Reviewed:** 2026-08-08
+**Baseline:** Build 0.12.0 complete
+**Reviewed:** 2026-08-09
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
 |---|---:|---:|---:|---|
@@ -22,7 +22,7 @@
 | OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
 | Knowledge filing and retrieval | Yes | Partial | Yes | Explicit Inbox filing and bounded local excerpt retrieval demonstrated |
 | Bookshelf intake and curation | Yes | Yes | Yes | Approval-gated Inbox, Workbench, and established-collection lifecycle demonstrated |
-| Grand Library online mode | Yes | Yes | Yes | Closed-by-default loopback and one-purpose Smithsonian mode demonstrated; media policy and final Study representation remain build work |
+| Grand Library online mode | Yes | Yes | Yes | Closed-by-default loopback, bounded online provider, text-only media boundary, and truthful Study state demonstrated |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
 | Team readiness display | Yes | Yes | Yes | Archivist presence, absence sign, readiness lamp, and Team headset demonstrated |

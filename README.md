@@ -18,9 +18,9 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.12.0 - Library Gateway (in progress)**
+**0.12.0 - Library Gateway (complete)**
 
-Build 0.11.0 is complete. Modesty can search source-linked passages across the private Filing Cabinet and shared Bookshelf through a local SQLite FTS5 index that tracks changed, moved, and deleted files. Build 0.12's fail-closed loopback, secure Smithsonian authentication, complete first online expedition lifecycle, and text-only media boundary have been demonstrated. The real provider remains deliberately restricted to ENIAC Accumulator #2. The truthful Study online-state sequence is implemented and awaits live visual acceptance before Build 0.12 closes.
+Build 0.12.0 is complete. Modesty's Grand Library starts closed, separates local loopback from bounded online access, previews and approval-gates exact loans, protects secrets and local stores, quarantines sourced text returns, and records a content-free audit. The first authenticated Smithsonian return completed the Inbox-to-Research lifecycle. Active media remains fail-closed until a dedicated inspected-media intake exists. The accepted Study sequence truthfully distinguishes online access from local readiness.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

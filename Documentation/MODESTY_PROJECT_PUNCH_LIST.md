@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.12.0 - Library Gateway (in progress)
-**Current focus:** Live review of the Grand Library online Study state
+**Current build:** 0.12.0 - Library Gateway (complete)
+**Current focus:** Select the next build deliberately
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -44,7 +44,7 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Support re-index, changed files, moved files, deletion, and stale-file detection.
 - [x] Demonstrate and accept echo-free Library answers through Modesty.
 
-## Build 0.12.0
+## Build 0.12.0 - Complete
 
 ### Local loopback foundation - Complete
 
@@ -74,7 +74,7 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Define and enforce a fail-closed text-only boundary before accepting any media-bearing return.
 - [x] Demonstrate in `E:\Modesty` that embedded-media refusal tests pass without an Inbox file.
 - [x] Implement the Study's truthful Grand Library online-state sequence.
-- [ ] Visually review the opening transition, temporary panel hide, persistent online badge, and clean close in `E:\Modesty`.
+- [x] Visually review and accept the five-second shelf-panel transition, temporary panel hide, persistent online badge, clean close, loopback silence, resize stability, and restart-closed state in `E:\Modesty`.
 
 ## Engineering housekeeping
 

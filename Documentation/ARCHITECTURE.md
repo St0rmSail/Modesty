@@ -1,7 +1,7 @@
 # System Architecture
 
 **Status:** Current implementation plus approved boundaries
-**Reviewed:** 2026-08-08
+**Reviewed:** 2026-08-09
 
 ## Runtime path
 
@@ -33,7 +33,7 @@ main.py
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
-| Grand Library gateway | `Runtime/Library/` | Functional and security lifecycle demonstrated; truthful online Study state implemented pending live visual review |
+| Grand Library gateway | `Runtime/Library/` | Functional, security, quarantine, curation, and truthful Study-state lifecycle demonstrated |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership

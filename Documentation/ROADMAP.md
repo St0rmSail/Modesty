@@ -1,7 +1,7 @@
 # Roadmap
 
-**Current marker:** Build 0.12.0 - Library Gateway (in progress)
-**Reviewed:** 2026-08-08
+**Current marker:** Build 0.12.0 - Library Gateway (complete)
+**Reviewed:** 2026-08-09
 
 ## Completed build line
 
@@ -21,6 +21,7 @@
 | 0.9.0 | Cabinet and Bookshelf Foundations | Both external stores safely initialized and demonstrated |
 | 0.10.0 | The Archivist | Approval-gated local knowledge curation and truthful Team representation |
 | 0.11.0 | Ask the Library | Local source-linked passage retrieval across both knowledge stores |
+| 0.12.0 | Library Gateway | Fail-closed bounded online loans, first curated expedition, media boundary, and truthful Study state |
 
 ## Immediate sequence
 
@@ -66,7 +67,7 @@ Definition of done:
 - Give Modesty source-linked passages rather than unsourced summaries.
 - Support re-index, deletion, and stale-file detection.
 
-### 0.12.0 - Library Gateway
+### 0.12.0 - Library Gateway - Complete
 
 Step One was demonstrated on 2026-08-09 using a strictly local loopback provider. The Gateway starts closed, requires an explicit open command, previews an immutable bounded packet, accepts only its exact loan ID, quarantines the return in the Bookshelf Inbox, records a content-free audit trail, cancels pending loans on close, and starts closed again after restart. Automatic source selection was removed after a structural Bookshelf index passage proved irrelevant; outbound Bookshelf evidence now requires future explicit selection.
 
@@ -78,7 +79,7 @@ The final clean expedition, loan `GL-20260809-2BCA584B`, retrieved one exact NMA
 
 The Gateway now enforces a fail-closed text-only return policy before any Inbox write. Media, embeds, raw HTML, active or local URI schemes, control characters, non-text values, and size overruns are refused. Future media intake remains disabled until the separate controls in [MEDIA_RETURN_POLICY.md](MEDIA_RETURN_POLICY.md) exist. The refusal suite passed in `E:\Modesty` on 2026-08-09.
 
-The final Study sequence is implemented pending Drew's visual review. Only real online mode opens a cyan portal and lightning mark over the Bookshelf; local loopback remains visually ordinary. The chat panel hides briefly for the reveal, restores automatically, and carries a persistent illuminated online badge until explicit closure. Startup resets the visual state closed.
+The final Study sequence was accepted on 2026-08-09. Only real online mode opens a five-second concealed shelf panel and reveals the illuminated Grand Library globe; local loopback remains visually ordinary. The chat panel clears for the reveal, restores automatically, and carries a persistent illuminated online badge until explicit closure. The effect remains attached to its marked shelf bay during resize, closing removes every online signal, and startup resets closed. Provider-neutral opening language keeps the Grand Library distinct from the Smithsonian expedition.
 
 Definition of done:
 

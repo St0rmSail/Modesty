@@ -1,8 +1,8 @@
 # Project Ledger
 
 **Status:** Authoritative index
-**Reviewed:** 2026-08-08
-**Current build:** 0.12.0 - Library Gateway (in progress)
+**Reviewed:** 2026-08-09
+**Current build:** 0.12.0 - Library Gateway (complete)
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 

@@ -131,10 +131,8 @@ class TeamDelegator:
                 except GatewayError as error:
                     return DelegationResult(True, str(error))
             question = loopback.group("question").strip()
-            matches = self.archivist.ask_library(question, limit=20)
-            bookshelf_matches = [match for match in matches if match.store == "bookshelf"][:3]
             try:
-                packet = self.gateway.prepare(question, bookshelf_matches)
+                packet = self.gateway.prepare(question, ())
             except GatewayError as error:
                 return DelegationResult(True, str(error))
             lines = [

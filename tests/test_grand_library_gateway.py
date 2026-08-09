@@ -119,6 +119,8 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         )
         self.assertIn("no network", preview.response)
         self.assertIn("Bookshelf passages leaving", preview.response)
+        self.assertIn("Bookshelf passages leaving the local boundary:\n\nNone.", preview.response)
+        self.assertNotIn("Bookshelf/index.md", preview.response)
         loan_id = preview.response.rsplit("Approve Grand Library loan: ", 1)[1]
 
         returned = self.delegator.handle(f"Approve Grand Library loan: {loan_id}")

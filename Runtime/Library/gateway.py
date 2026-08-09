@@ -9,6 +9,7 @@ import secrets
 
 from Runtime.Knowledge.stores import StorePaths
 from Runtime.Library.credentials import CredentialError
+from Runtime.Library.media_policy import ReturnPolicyError, TEXT_RETURN_POLICY
 from Runtime.Library.models import LoanPacket, LoanSource
 from Runtime.Library.providers import LoopbackProvider
 from Runtime.Library.smithsonian import SmithsonianError
@@ -141,6 +142,7 @@ class GrandLibraryGateway:
         self._pending.pop(packet.loan_id, None)
         try:
             returned = self.provider.execute(packet)
+            TEXT_RETURN_POLICY.validate(returned.title, returned.body)
             return_path = self._quarantine(packet, returned.title, returned.body)
         except Exception as error:
             self._audit(
@@ -149,7 +151,9 @@ class GrandLibraryGateway:
                 provider=packet.provider,
                 error_type=type(error).__name__,
             )
-            if isinstance(error, (CredentialError, GatewayError, SmithsonianError)):
+            if isinstance(
+                error, (CredentialError, GatewayError, ReturnPolicyError, SmithsonianError)
+            ):
                 message = str(error)
             else:
                 message = (
@@ -182,6 +186,10 @@ class GrandLibraryGateway:
                 raise GatewayError("A Bookshelf passage exceeds the loan size limit.")
             strings.extend((source.relative_path, source.title, source.passage))
         outbound_text = "\n".join(strings)
+        try:
+            TEXT_RETURN_POLICY.validate_content(outbound_text)
+        except ReturnPolicyError as error:
+            raise GatewayError(str(error)) from error
         if "filing cabinet" in outbound_text.casefold():
             raise GatewayError("The loan appears to contain Filing Cabinet material.")
         if self.SECRET_PATTERN.search(outbound_text):

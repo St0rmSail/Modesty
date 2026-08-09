@@ -76,7 +76,7 @@ Step Two was demonstrated in `E:\Modesty` on 2026-08-09. Step Three implements a
 
 The final clean expedition, loan `GL-20260809-2BCA584B`, retrieved one exact NMAH record with a resolvable Smithsonian ARK citation and no leaked secret or local path. The Gateway closed with no pending loan. The Archivist reviewed the quarantined return, moved it to Workbench only after approval, classified it as Research, and filed it physically in `E:\Modesty Bookshelf\Research` after a second explicit approval. Inbox and Workbench were left clear. The first complete online knowledge lifecycle is demonstrated.
 
-Build 0.12 remains open only for a bounded policy and implementation for future media-bearing returns, plus the truthful Study sequence that visually distinguishes online Grand Library state from ordinary local readiness.
+The Gateway now enforces a fail-closed text-only return policy before any Inbox write. Media, embeds, raw HTML, active or local URI schemes, control characters, non-text values, and size overruns are refused. Future media intake remains disabled until the separate controls in [MEDIA_RETURN_POLICY.md](MEDIA_RETURN_POLICY.md) exist. Build 0.12 remains open for a live refusal demonstration and the truthful Study sequence that visually distinguishes online Grand Library state from ordinary local readiness.
 
 Definition of done:
 

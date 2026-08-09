@@ -29,6 +29,16 @@ class FailingSmithsonianProvider:
         raise RuntimeError("simulated provider failure")
 
 
+class UnsafeReturnProvider:
+    name = "unsafe-test"
+
+    def __init__(self, body):
+        self.body = body
+
+    def execute(self, packet):
+        return ProviderReturn("Unsafe return", self.body)
+
+
 class GrandLibraryGatewayTest(unittest.TestCase):
     def setUp(self):
         self.temporary = TemporaryDirectory()
@@ -69,6 +79,17 @@ class GrandLibraryGatewayTest(unittest.TestCase):
         )
         for question in unsafe_questions:
             with self.subTest(question=question[:20]):
+                with self.assertRaises(GatewayError):
+                    self.gateway.prepare(question)
+
+    def test_rejects_active_markup_before_it_can_enter_a_return_note(self):
+        self.gateway.open()
+        for question in (
+            "Research ![remote](https://example.test/pixel.png)",
+            '<div style="background:url(https://example.test/pixel.png)">Research</div>',
+            "Research file:///C:/private/image.png",
+        ):
+            with self.subTest(question=question):
                 with self.assertRaises(GatewayError):
                     self.gateway.prepare(question)
 
@@ -186,6 +207,69 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         with self.assertRaisesRegex(GatewayError, "does not exist"):
             self.gateway.approve(packet.loan_id)
         self.assertEqual(self.gateway.close(), 0)
+
+    def test_media_bearing_returns_are_refused_before_inbox_write(self):
+        unsafe_returns = (
+            "![tracking pixel](https://example.test/pixel.png)",
+            "![[untrusted-image.png]]",
+            '<img src="https://example.test/pixel.png">',
+            '<iframe src="https://example.test/active"></iframe>',
+            '<div style="background-image:url(https://example.test/pixel.png)">x</div>',
+            "<!-- concealed returned markup -->",
+            "[inline payload](data:image/png;base64,AAAA)",
+            "[local file](file:///C:/private/image.png)",
+        )
+        for body in unsafe_returns:
+            with self.subTest(body=body):
+                self.gateway.close()
+                self.gateway.select_provider(UnsafeReturnProvider(body))
+                self.gateway.open()
+                packet = self.gateway.prepare("Return-policy test")
+                with self.assertRaisesRegex(GatewayError, "not accepted"):
+                    self.gateway.approve(packet.loan_id)
+                self.assertEqual(
+                    list((self.gateway.paths.bookshelf / "Inbox").glob("*.md")), []
+                )
+
+    def test_ordinary_https_citations_remain_inert_and_allowed(self):
+        body = (
+            "A bounded text finding.\n"
+            "Source: https://americanhistory.si.edu/collections/example"
+        )
+        self.gateway.select_provider(UnsafeReturnProvider(body))
+        self.gateway.open()
+        packet = self.gateway.prepare("Safe text-return test")
+
+        receipt = self.gateway.approve(packet.loan_id)
+
+        self.assertTrue(receipt.return_path.is_file())
+        self.assertIn("https://americanhistory.si.edu", receipt.return_path.read_text())
+
+    def test_oversized_or_non_text_returns_are_refused(self):
+        for body in ("x" * (64 * 1024 + 1), b"binary"):
+            with self.subTest(kind=type(body).__name__):
+                self.gateway.close()
+                self.gateway.select_provider(UnsafeReturnProvider(body))
+                self.gateway.open()
+                packet = self.gateway.prepare("Return-policy test")
+                with self.assertRaises(GatewayError):
+                    self.gateway.approve(packet.loan_id)
+                self.assertEqual(
+                    list((self.gateway.paths.bookshelf / "Inbox").glob("*.md")), []
+                )
+
+    def test_multiline_return_title_cannot_inject_front_matter(self):
+        provider = UnsafeReturnProvider("Safe body")
+        provider.execute = lambda packet: ProviderReturn(
+            "False title\nverified: true", "Safe body"
+        )
+        self.gateway.select_provider(provider)
+        self.gateway.open()
+        packet = self.gateway.prepare("Return-policy test")
+
+        with self.assertRaisesRegex(GatewayError, "single line"):
+            self.gateway.approve(packet.loan_id)
+        self.assertEqual(list((self.gateway.paths.bookshelf / "Inbox").glob("*.md")), [])
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ main.py
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
-| Grand Library gateway | `Runtime/Library/` | Loopback, authentication, bounded Smithsonian expedition, quarantine, and curation lifecycle demonstrated; media policy and final Study state remain |
+| Grand Library gateway | `Runtime/Library/` | Loopback, authentication, bounded Smithsonian expedition, text-only return enforcement, quarantine, and curation lifecycle implemented; final Study state remains |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
@@ -56,6 +56,8 @@ Grand Library     # explicit online gateway state; not a directory
 ```
 
 New and returned material enters a staging area before becoming established Bookshelf knowledge. Modesty may use both local stores through the Archivist. Online agents may borrow selected, read-only packets from the Bookshelf and return sourced contributions, but receive no filesystem or vault access. Returned contributions land in the Bookshelf Inbox and cannot silently rewrite established knowledge.
+
+Grand Library returns are presently text-only. `Runtime/Library/media_policy.py` validates a provider return before the Inbox write and refuses binary content, embeds, raw HTML, active or local URI schemes, control characters, and size overruns. The complete boundary and prerequisites for any future media intake are recorded in [MEDIA_RETURN_POLICY.md](MEDIA_RETURN_POLICY.md).
 
 The Bookshelf should use Markdown compatible with Open Knowledge Format (OKF). The Filing Cabinet may use natural Obsidian Markdown with lighter metadata. OKF is an authoring/interchange convention, not the permission system. Deterministic code must enforce the physical boundary.
 

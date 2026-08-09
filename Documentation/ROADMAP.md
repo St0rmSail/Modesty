@@ -72,7 +72,11 @@ Step One was demonstrated on 2026-08-09 using a strictly local loopback provider
 
 Step Two implements Windows current-user encrypted storage for the Smithsonian API key and a separate one-purpose HTTPS validation command. Validation calls only the Smithsonian Open Access statistics endpoint, retains no response content, and audits only provider, endpoint, outcome, and HTTP status when applicable.
 
-Step Two was demonstrated in `E:\Modesty` on 2026-08-09. Step Three implements a distinct Smithsonian online state, exact packet preview and approval, a maximum five-record Open Access search, source-linked formatting, and an unverified Inbox return. After the Open Access API proved unable to supply the originally proposed Kathleen McNulty article evidence, Drew approved retargeting the first trophy to the exact Smithsonian record for ENIAC Accumulator #2. The provider refuses every other question. Live expedition demonstration remains pending.
+Step Two was demonstrated in `E:\Modesty` on 2026-08-09. Step Three implements a distinct Smithsonian online state, exact packet preview and approval, a maximum five-record Open Access search, source-linked formatting, and an unverified Inbox return. After the Open Access API proved unable to supply the originally proposed Kathleen McNulty article evidence, Drew approved retargeting the first trophy to the exact Smithsonian record for ENIAC Accumulator #2. The provider refuses every other question.
+
+The final clean expedition, loan `GL-20260809-2BCA584B`, retrieved one exact NMAH record with a resolvable Smithsonian ARK citation and no leaked secret or local path. The Gateway closed with no pending loan. The Archivist reviewed the quarantined return, moved it to Workbench only after approval, classified it as Research, and filed it physically in `E:\Modesty Bookshelf\Research` after a second explicit approval. Inbox and Workbench were left clear. The first complete online knowledge lifecycle is demonstrated.
+
+Build 0.12 remains open only for a bounded policy and implementation for future media-bearing returns, plus the truthful Study sequence that visually distinguishes online Grand Library state from ordinary local readiness.
 
 Definition of done:
 

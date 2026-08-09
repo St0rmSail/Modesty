@@ -22,12 +22,12 @@
 | OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
 | Knowledge filing and retrieval | Yes | Partial | Yes | Explicit Inbox filing and bounded local excerpt retrieval demonstrated |
 | Bookshelf intake and curation | Yes | Yes | Yes | Approval-gated Inbox, Workbench, and established-collection lifecycle demonstrated |
-| Grand Library online mode | Yes | Partial | Partial | Loopback and DPAPI-backed authentication demonstrated; distinct approval-gated Smithsonian mode implemented pending expedition test |
+| Grand Library online mode | Yes | Yes | Yes | Closed-by-default loopback and one-purpose Smithsonian mode demonstrated; media policy and final Study representation remain build work |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
 | Team readiness display | Yes | Yes | Yes | Archivist presence, absence sign, readiness lamp, and Team headset demonstrated |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
-| Web research gateway | Partial | Partial | No | First Smithsonian search is capped, source-linked, quarantined, and restricted to the approved question; live test pending |
+| Web research gateway | Partial | Partial | Yes | First authenticated Smithsonian retrieval completed through quarantine and Archivist curation; general Researcher remains unimplemented |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |

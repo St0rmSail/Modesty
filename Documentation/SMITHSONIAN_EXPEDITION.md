@@ -16,9 +16,9 @@ This provider is intentionally restricted to one approved first expedition: retr
 - The return enters `Bookshelf/Inbox` with `verified: unverified`.
 - The Archivist must review and curate it later; it does not become established knowledge automatically.
 
-## Live sequence
+## Demonstrated live sequence
 
-After pulling the Step Three commit, start Modesty normally with `python main.py`. In Modesty's chat panel, enter each command separately:
+The first expedition used the following sequence. If this bounded provider must be retested, start Modesty normally with `python main.py` and enter each command separately in Modesty's chat panel:
 
 ```text
 Open the Grand Library online
@@ -38,7 +38,7 @@ After the result returns, close the connection:
 Close the Grand Library
 ```
 
-Do not promote the returned note yet. First inspect Modesty's response and the new `E:\Modesty Bookshelf\Inbox\*-grand-library-smithsonian-*.md` file for relevance, source links, formatting, and unexpected material.
+Never promote a returned note automatically. First inspect Modesty's response and the new `E:\Modesty Bookshelf\Inbox\*-grand-library-smithsonian-*.md` file for relevance, source links, formatting, and unexpected material, then use the Archivist's approval-gated curation workflow.
 
 ## First-cast quality result
 
@@ -48,4 +48,6 @@ Loan `GL-20260809-26CCCD92` correctly refused to create a return because the Ope
 
 Drew approved ENIAC Accumulator #2 as the replacement target. The prior Kathleen McNulty command is superseded and must now be refused. The exact-title collection record is the only acceptable third-cast return.
 
-Loan `GL-20260809-A314B1E7` retrieved the correct single record and passed transport and relevance checks. Its quarantined note remains unverified because presentation review found a title echo, mid-fact truncation, and generic fallback citation. Those defects were corrected; one final clean cast is required before the trophy can enter Workbench.
+Loan `GL-20260809-A314B1E7` retrieved the correct single record and passed transport and relevance checks. Its quarantined note remained unverified because presentation review found a title echo, mid-fact truncation, and generic fallback citation. Those defects were corrected before the final cast.
+
+Loan `GL-20260809-2BCA584B` was the accepted first catch. It returned one exact NMAH record with complete non-echoing prose and the Smithsonian ARK `ark:/65665/ng49ca746ac-29eb-704b-e053-15f76fa0b4fa`. No credential, local path, or Bookshelf passage crossed the boundary, and closure left no pending loan. After inspection, Drew explicitly approved Inbox to Workbench movement and then the Archivist's Research classification. The note is now established at `E:\Modesty Bookshelf\Research\2026-08-09-grand-library-smithsonian-gl-20260809-2bca584b.md`.

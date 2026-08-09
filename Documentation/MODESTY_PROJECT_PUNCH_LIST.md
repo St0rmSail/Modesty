@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
 **Current build:** 0.12.0 - Library Gateway (in progress)
-**Current focus:** Explicit and bounded Grand Library online access
+**Current focus:** Complete Grand Library media boundaries and truthful Study online state
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -65,11 +65,14 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Implement explicit open and close controls for a distinct Grand Library online mode.
 - [x] Keep the first expedition's outbound Bookshelf selection empty.
 - [x] Preview the exact outbound question and return boundary before approval.
-- [ ] Apply redaction and size limits.
+- [x] Apply credential redaction, outbound packet limits, response limits, and bounded excerpts.
 - [x] Implement bounded, source-linked, unverified returns into the Bookshelf Inbox.
-- [ ] Record an audit trail of what was borrowed, returned, and why.
-- [ ] Prevent direct online-agent access to either local store.
-- [ ] Demonstrate and inspect the first Smithsonian expedition.
+- [x] Record a content-free audit trail of preparation, approval, outcome, failure class, and closure.
+- [x] Prevent the online provider from receiving filesystem or direct local-store access.
+- [x] Demonstrate and inspect the first Smithsonian expedition.
+- [x] Complete approved Inbox to Workbench to Research curation of the first trophy.
+- [ ] Define and test quarantine rules before accepting any media-bearing return.
+- [ ] Implement and demonstrate the Study's truthful Grand Library online-state sequence.
 
 ## Engineering housekeeping
 

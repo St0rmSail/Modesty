@@ -1,6 +1,6 @@
 # Smithsonian Access Setup
 
-**Scope:** Build 0.12.0, Step Two only
+**Scope:** Build 0.12.0 credential setup and recovery
 
 This step stores the Smithsonian Open Access API key securely and makes one harmless authenticated validation request. It does not open the Grand Library, execute a research loan, retrieve expedition material, or write anything to the Bookshelf.
 
@@ -40,7 +40,7 @@ Success must read:
 Smithsonian authentication validated. No expedition material was retrieved or filed.
 ```
 
-Do not repeat the request unnecessarily. After success, Step Two is demonstrated and work can proceed to the separately previewed Kathleen McNulty expedition.
+Do not repeat the request unnecessarily. This validation and the first bounded expedition have been demonstrated. The accepted expedition retrieved the Smithsonian Open Access record for ENIAC Accumulator #2; use this procedure again only after credential removal, loss, or migration to a rebuilt Windows installation.
 
 To revoke Modesty's local copy later:
 

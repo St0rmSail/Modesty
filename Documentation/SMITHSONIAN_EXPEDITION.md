@@ -47,3 +47,5 @@ Loan `GL-20260809-80A62FBE` completed the transport safely but did not pass rese
 Loan `GL-20260809-26CCCD92` correctly refused to create a return because the Open Access API contains no record explicitly matching Kathleen McNulty. The intended Women's History article also requires interactive web verification and is unsuitable as an unattended provider source. The first-catch target therefore requires an explicit decision before another cast.
 
 Drew approved ENIAC Accumulator #2 as the replacement target. The prior Kathleen McNulty command is superseded and must now be refused. The exact-title collection record is the only acceptable third-cast return.
+
+Loan `GL-20260809-A314B1E7` retrieved the correct single record and passed transport and relevance checks. Its quarantined note remains unverified because presentation review found a title echo, mid-fact truncation, and generic fallback citation. Those defects were corrected; one final clean cast is required before the trophy can enter Workbench.

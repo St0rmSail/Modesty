@@ -106,9 +106,13 @@ class SmithsonianAccessTest(unittest.TestCase):
                                     "unitCode": "NMAH",
                                     "url": "https://americanhistory.si.edu/example",
                                     "content": {
+                                        "descriptiveNonRepeating": {
+                                            "title": {"content": "ENIAC Accumulator #2"},
+                                            "guid": "http://n2t.net/ark:/65665/example",
+                                        },
                                         "freetext": {
                                             "notes": [
-                                                {"content": "ENIAC Accumulator #2 is a surviving component of ENIAC."}
+                                                {"content": "This accumulator is a surviving component of ENIAC."}
                                             ]
                                         }
                                     },
@@ -137,6 +141,7 @@ class SmithsonianAccessTest(unittest.TestCase):
 
         self.assertIn("surviving component of ENIAC", returned.body)
         self.assertIn("Source: https://americanhistory.si.edu/example", returned.body)
+        self.assertNotIn("ENIAC Accumulator #2\nENIAC Accumulator #2", returned.body)
         self.assertNotIn("Unrelated correspondence", returned.body)
         self.assertNotIn("private-test-key", returned.body)
 
@@ -150,6 +155,30 @@ class SmithsonianAccessTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(SmithsonianError, "approved first expedition"):
             SmithsonianProvider(None).execute(packet)
+
+    def test_provider_accepts_smithsonian_ark_and_ends_excerpt_at_sentence(self):
+        row = {
+            "content": {
+                "descriptiveNonRepeating": {
+                    "guid": "http://n2t.net/ark:/65665/example"
+                },
+                "freetext": {
+                    "notes": [
+                        {
+                            "content": "ENIAC was significant. "
+                            + ("Accumulator details continue here. " * 40)
+                        }
+                    ]
+                },
+            }
+        }
+        self.assertEqual(
+            SmithsonianProvider._source_url(row),
+            "https://n2t.net/ark:/65665/example",
+        )
+        excerpt = SmithsonianProvider._excerpt(row)
+        self.assertLessEqual(len(excerpt), SmithsonianProvider.MAX_EXCERPT_CHARS)
+        self.assertTrue(excerpt.endswith("."))
 
 
 if __name__ == "__main__":

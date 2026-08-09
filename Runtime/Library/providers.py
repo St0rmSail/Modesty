@@ -122,7 +122,7 @@ class SmithsonianProvider:
             parsed = urlparse(candidate)
             host = (parsed.hostname or "").casefold()
             if parsed.scheme in ("http", "https") and (
-                host == "si.edu" or host.endswith(".si.edu")
+                host == "si.edu" or host.endswith(".si.edu") or host == "n2t.net"
             ):
                 return urlunparse(parsed._replace(scheme="https"))
         identifier = row.get("id")
@@ -164,10 +164,19 @@ class SmithsonianProvider:
             normalized = value.casefold()
             if normalized in seen:
                 continue
+            if re.sub(r"[^a-z0-9]+", " ", normalized).strip() == re.sub(
+                r"[^a-z0-9]+", " ", cls.FIRST_EXPEDITION_TITLE.casefold()
+            ).strip():
+                continue
             if not any(term in normalized for term in ("eniac", "accumulator")):
                 continue
             selected.append(value)
             seen.add(normalized)
             if len(" ".join(selected)) >= cls.MAX_EXCERPT_CHARS:
                 break
-        return cls._plain(" ".join(selected))
+        excerpt = cls._plain(" ".join(selected))
+        if excerpt.endswith("…"):
+            complete = excerpt[:-1].rfind(". ")
+            if complete >= cls.MAX_EXCERPT_CHARS // 2:
+                excerpt = excerpt[: complete + 1]
+        return excerpt

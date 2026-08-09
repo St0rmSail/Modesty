@@ -261,7 +261,7 @@ class StudyRenderer(QWidget):
         portal = QPolygonF(points)
         bounds = portal.boundingRect()
         elapsed = monotonic() - self._library_opened_at
-        progress = min(1.0, max(0.0, elapsed / 3.0))
+        progress = min(1.0, max(0.0, elapsed / 5.0))
         eased = progress * progress * (3.0 - 2.0 * progress)
 
         painter.save()

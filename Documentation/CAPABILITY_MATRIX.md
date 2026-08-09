@@ -22,7 +22,7 @@
 | OKF knowledge structure | Yes | Yes | Yes | Starter index, log, and concept template created |
 | Knowledge filing and retrieval | Yes | Partial | Yes | Explicit Inbox filing and bounded local excerpt retrieval demonstrated |
 | Bookshelf intake and curation | Yes | Yes | Yes | Approval-gated Inbox, Workbench, and established-collection lifecycle demonstrated |
-| Grand Library online mode | Yes | No | No | Explicit gateway state; not a storage directory |
+| Grand Library online mode | Yes | Partial | Partial | Fail-closed local loopback demonstrated; credentials and real network provider remain absent |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
 | Team readiness display | Yes | Yes | Yes | Archivist presence, absence sign, readiness lamp, and Team headset demonstrated |

@@ -20,4 +20,4 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 **0.12.0 - Library Gateway (in progress)**
 
-Build 0.11.0 is complete. Modesty can search source-linked passages across the private Filing Cabinet and shared Bookshelf through a local SQLite FTS5 index that tracks changed, moved, and deleted files. The next build establishes the explicit, bounded Grand Library online gateway.
+Build 0.11.0 is complete. Modesty can search source-linked passages across the private Filing Cabinet and shared Bookshelf through a local SQLite FTS5 index that tracks changed, moved, and deleted files. Build 0.12's fail-closed, approval-gated local loopback foundation has been demonstrated; secure credentials and a real Smithsonian provider remain offline and unimplemented.

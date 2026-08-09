@@ -33,7 +33,7 @@ main.py
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
-| Grand Library gateway | no active implementation | Designed, not implemented |
+| Grand Library gateway | `Runtime/Library/` | Local loopback boundary demonstrated; real provider not implemented |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership

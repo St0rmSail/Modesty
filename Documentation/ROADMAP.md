@@ -68,6 +68,8 @@ Definition of done:
 
 ### 0.12.0 - Library Gateway
 
+Step One was demonstrated on 2026-08-09 using a strictly local loopback provider. The Gateway starts closed, requires an explicit open command, previews an immutable bounded packet, accepts only its exact loan ID, quarantines the return in the Bookshelf Inbox, records a content-free audit trail, cancels pending loans on close, and starts closed again after restart. Automatic source selection was removed after a structural Bookshelf index passage proved irrelevant; outbound Bookshelf evidence now requires future explicit selection. No API credential or network request has been used.
+
 Definition of done:
 
 - Explicitly open and close Grand Library online mode.

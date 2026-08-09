@@ -46,6 +46,19 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 
 ## Build 0.12.0
 
+### Local loopback foundation - Complete
+
+- [x] Start closed and refuse outbound work while closed.
+- [x] Open and close an explicitly labelled local loopback mode.
+- [x] Preview an immutable, size-limited packet before exact-ID approval.
+- [x] Reject Filing Cabinet sources, credentials, absolute paths, and oversized packets.
+- [x] Quarantine a test-only return in the Bookshelf Inbox.
+- [x] Record a content-free audit trail for refusal, preparation, approval, return, cancellation, and closure.
+- [x] Cancel pending loans on close and return to closed state after restart.
+- [x] Require explicit future source selection rather than silently attaching search matches.
+
+### Real provider and online boundary
+
 - [ ] Explicitly open and close Grand Library online mode.
 - [ ] Export bounded loans from the Bookshelf only.
 - [ ] Preview consequential outbound knowledge.

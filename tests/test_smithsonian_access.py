@@ -82,11 +82,23 @@ class SmithsonianAccessTest(unittest.TestCase):
         def opener(request, timeout):
             raise HTTPError(request.full_url, 403, "Forbidden", {}, None)
 
-        with self.assertRaisesRegex(SmithsonianError, "rejected") as raised:
+        with self.assertRaisesRegex(SmithsonianError, "rejected the stored API key") as raised:
             SmithsonianAccess(self.store, self.audit_path, opener).validate()
         self.assertNotIn("private-test-key", str(raised.exception))
         record = json.loads(self.audit_path.read_text(encoding="utf-8"))
         self.assertEqual(record["status"], 403)
+
+    def test_server_failure_does_not_blame_the_api_key(self):
+        self.store.store("private-test-key")
+
+        def opener(request, timeout):
+            raise HTTPError(request.full_url, 502, "Bad Gateway", {}, None)
+
+        with self.assertRaisesRegex(SmithsonianError, "temporarily unavailable") as raised:
+            SmithsonianAccess(self.store, self.audit_path, opener).search("ENIAC")
+        self.assertNotIn("key", str(raised.exception).casefold())
+        record = json.loads(self.audit_path.read_text(encoding="utf-8"))
+        self.assertEqual(record["status"], 502)
 
     def test_bounded_search_and_source_linked_provider_return(self):
         self.store.store("private-test-key")

@@ -96,9 +96,18 @@ class SmithsonianAccess:
                 payload = response.read(self.MAX_RESPONSE_BYTES + 1)
         except HTTPError as error:
             self._audit(failure_event, reason="http_error", status=error.code)
-            raise SmithsonianError(
-                "The Smithsonian rejected the request. Check the stored API key."
-            ) from None
+            if error.code in (401, 403):
+                message = "The Smithsonian rejected the stored API key."
+            elif error.code == 429:
+                message = "The Smithsonian request limit was reached. Try again later."
+            elif 500 <= error.code <= 599:
+                message = (
+                    "The Smithsonian service is temporarily unavailable "
+                    f"(HTTP {error.code}). Try again later."
+                )
+            else:
+                message = f"The Smithsonian refused the request (HTTP {error.code})."
+            raise SmithsonianError(message) from None
         except (URLError, TimeoutError, OSError) as error:
             self._audit(failure_event, reason="network_error")
             raise SmithsonianError(

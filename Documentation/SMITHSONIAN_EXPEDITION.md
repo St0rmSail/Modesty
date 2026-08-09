@@ -43,3 +43,5 @@ Do not promote the returned note yet. First inspect Modesty's response and the n
 ## First-cast quality result
 
 Loan `GL-20260809-80A62FBE` completed the transport safely but did not pass research inspection. Its quarantined note is test evidence, not useful knowledge, and must not be promoted. The corrected provider requires a second live cast using the same command sequence.
+
+Loan `GL-20260809-26CCCD92` correctly refused to create a return because the Open Access API contains no record explicitly matching Kathleen McNulty. The intended Women's History article also requires interactive web verification and is unsuitable as an unattended provider source. The first-catch target therefore requires an explicit decision before another cast.

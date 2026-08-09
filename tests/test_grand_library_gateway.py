@@ -22,6 +22,13 @@ class FakeSmithsonianProvider:
         )
 
 
+class FailingSmithsonianProvider:
+    name = "smithsonian"
+
+    def execute(self, packet):
+        raise RuntimeError("simulated provider failure")
+
+
 class GrandLibraryGatewayTest(unittest.TestCase):
     def setUp(self):
         self.temporary = TemporaryDirectory()
@@ -168,6 +175,17 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         self.assertIn("verified: unverified", text)
         self.assertIn("created_by: system:grand-library-smithsonian", text)
         self.assertIn("https://americanhistory.si.edu/example", text)
+
+    def test_failed_approved_loan_is_consumed_once(self):
+        self.gateway.select_provider(FailingSmithsonianProvider())
+        self.gateway.open()
+        packet = self.gateway.prepare("A bounded test")
+
+        with self.assertRaisesRegex(GatewayError, "failed safely"):
+            self.gateway.approve(packet.loan_id)
+        with self.assertRaisesRegex(GatewayError, "does not exist"):
+            self.gateway.approve(packet.loan_id)
+        self.assertEqual(self.gateway.close(), 0)
 
 
 if __name__ == "__main__":

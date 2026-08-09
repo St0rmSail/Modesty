@@ -137,6 +137,8 @@ class GrandLibraryGateway:
             provider=packet.provider,
             size_bytes=packet.size_bytes,
         )
+        # Approval is a one-shot authorization, whether transport succeeds or fails.
+        self._pending.pop(packet.loan_id, None)
         try:
             returned = self.provider.execute(packet)
             return_path = self._quarantine(packet, returned.title, returned.body)
@@ -154,7 +156,6 @@ class GrandLibraryGateway:
                     f"The {self.provider.name} loan failed safely; no success was recorded."
                 )
             raise GatewayError(message) from error
-        self._pending.pop(packet.loan_id, None)
         self._audit(
             "loan_returned",
             loan_id=packet.loan_id,

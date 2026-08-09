@@ -61,14 +61,15 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 
 - [x] Implement Windows current-user encrypted storage outside Git.
 - [x] Implement a one-purpose authenticated Smithsonian statistics check with content-free audit.
-- [ ] Demonstrate key storage and authenticated validation in the live checkout.
-- [ ] Explicitly open and close Grand Library online mode.
-- [ ] Export bounded loans from the Bookshelf only.
-- [ ] Preview consequential outbound knowledge.
+- [x] Demonstrate key storage and authenticated validation in the live checkout.
+- [x] Implement explicit open and close controls for a distinct Grand Library online mode.
+- [x] Keep the first expedition's outbound Bookshelf selection empty.
+- [x] Preview the exact outbound question and return boundary before approval.
 - [ ] Apply redaction and size limits.
-- [ ] Receive sourced returns into the Bookshelf Inbox.
+- [x] Implement bounded, source-linked, unverified returns into the Bookshelf Inbox.
 - [ ] Record an audit trail of what was borrowed, returned, and why.
 - [ ] Prevent direct online-agent access to either local store.
+- [ ] Demonstrate and inspect the first Smithsonian expedition.
 
 ## Engineering housekeeping
 

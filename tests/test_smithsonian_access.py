@@ -5,6 +5,8 @@ import unittest
 from urllib.error import HTTPError
 
 from Runtime.Library.credentials import CredentialError, CredentialStore
+from Runtime.Library.models import LoanPacket
+from Runtime.Library.providers import SmithsonianProvider
 from Runtime.Library.smithsonian import SmithsonianAccess, SmithsonianError
 
 
@@ -85,6 +87,61 @@ class SmithsonianAccessTest(unittest.TestCase):
         self.assertNotIn("private-test-key", str(raised.exception))
         record = json.loads(self.audit_path.read_text(encoding="utf-8"))
         self.assertEqual(record["status"], 403)
+
+    def test_bounded_search_and_source_linked_provider_return(self):
+        self.store.store("private-test-key")
+
+        def opener(request, timeout):
+            self.assertIn("rows=5", request.full_url)
+            self.assertIn("type=all", request.full_url)
+            return FakeResponse(
+                json.dumps(
+                    {
+                        "response": {
+                            "rowCount": 1,
+                            "rows": [
+                                {
+                                    "title": "ENIAC programmers",
+                                    "unitCode": "NMAH",
+                                    "url": "https://americanhistory.si.edu/example",
+                                    "content": {
+                                        "freetext": {
+                                            "notes": [
+                                                {"content": "Kathleen McNulty helped program ENIAC."}
+                                            ]
+                                        }
+                                    },
+                                }
+                            ],
+                        }
+                    }
+                ).encode("utf-8")
+            )
+
+        access = SmithsonianAccess(self.store, self.audit_path, opener)
+        packet = LoanPacket(
+            loan_id="GL-TEST",
+            provider="smithsonian",
+            question=SmithsonianProvider.FIRST_EXPEDITION_QUESTION,
+            sources=(),
+            created_at="2026-08-09T00:00:00+00:00",
+        )
+        returned = SmithsonianProvider(access).execute(packet)
+
+        self.assertIn("Kathleen McNulty helped program ENIAC", returned.body)
+        self.assertIn("Source: https://americanhistory.si.edu/example", returned.body)
+        self.assertNotIn("private-test-key", returned.body)
+
+    def test_provider_refuses_unapproved_general_research(self):
+        packet = LoanPacket(
+            loan_id="GL-TEST",
+            provider="smithsonian",
+            question="Research something else",
+            sources=(),
+            created_at="2026-08-09T00:00:00+00:00",
+        )
+        with self.assertRaisesRegex(SmithsonianError, "approved first expedition"):
+            SmithsonianProvider(None).execute(packet)
 
 
 if __name__ == "__main__":

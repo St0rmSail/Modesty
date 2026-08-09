@@ -1,0 +1,41 @@
+# First Smithsonian Expedition
+
+**Scope:** Build 0.12.0, Step Three
+
+This provider is intentionally restricted to one approved first expedition. It is not a general Researcher and has no access to the Filing Cabinet, Bookshelf filesystem, browser, or arbitrary web addresses.
+
+## Boundary
+
+- Online mode and loopback mode are separate and cannot be switched while open.
+- Opening online mode sends nothing.
+- The exact question is previewed before approval.
+- No Bookshelf passage accompanies this first request.
+- Only the Smithsonian Open Access HTTPS API is contacted.
+- At most five records are accepted.
+- Returned text is bounded and every usable record retains a Smithsonian source URL.
+- The return enters `Bookshelf/Inbox` with `verified: unverified`.
+- The Archivist must review and curate it later; it does not become established knowledge automatically.
+
+## Live sequence
+
+After pulling the Step Three commit, start Modesty normally with `python main.py`. In Modesty's chat panel, enter each command separately:
+
+```text
+Open the Grand Library online
+```
+
+Opening must confirm that no request has yet been sent. Then prepare the only allowed expedition:
+
+```text
+Prepare a Smithsonian expedition: Research Kathleen McNulty and the first ENIAC programmers
+```
+
+Inspect the preview. It must say that no Bookshelf passages are leaving and provide a unique approval command. Copy that approval command exactly into the chat panel.
+
+After the result returns, close the connection:
+
+```text
+Close the Grand Library
+```
+
+Do not promote the returned note yet. First inspect Modesty's response and the new `E:\Modesty Bookshelf\Inbox\*-grand-library-smithsonian-*.md` file for relevance, source links, formatting, and unexpected material.

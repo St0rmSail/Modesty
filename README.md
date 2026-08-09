@@ -20,6 +20,7 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 **0.12.0 - Library Gateway (in progress)**
 
-Build 0.11.0 is complete. Modesty can search source-linked passages across the private Filing Cabinet and shared Bookshelf through a local SQLite FTS5 index that tracks changed, moved, and deleted files. Build 0.12's fail-closed, approval-gated local loopback foundation has been demonstrated. Step Two provides current-user encrypted Smithsonian key storage and a single harmless authentication check; the real expedition provider remains offline and unimplemented.
+Build 0.11.0 is complete. Modesty can search source-linked passages across the private Filing Cabinet and shared Bookshelf through a local SQLite FTS5 index that tracks changed, moved, and deleted files. Build 0.12's fail-closed loopback and secure Smithsonian authentication have been demonstrated. Step Three adds a distinct approval-gated online mode restricted to the first Kathleen McNulty expedition; live demonstration remains pending.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
+The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

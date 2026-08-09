@@ -33,7 +33,7 @@ main.py
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
-| Grand Library gateway | `Runtime/Library/` | Loopback demonstrated; encrypted credential storage and bounded Smithsonian validation implemented; expedition provider not implemented |
+| Grand Library gateway | `Runtime/Library/` | Loopback and authentication demonstrated; bounded first Smithsonian expedition implemented pending live test |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership

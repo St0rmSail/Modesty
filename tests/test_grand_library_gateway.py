@@ -9,6 +9,17 @@ from Brain.Team.delegation import TeamDelegator
 from Runtime.Knowledge.catalog import KnowledgeCatalog
 from Runtime.Knowledge.stores import StorePaths
 from Runtime.Library import GatewayError, GrandLibraryGateway, LoanSource
+from Runtime.Library.providers import ProviderReturn, SmithsonianProvider
+
+
+class FakeSmithsonianProvider:
+    name = "smithsonian"
+
+    def execute(self, packet):
+        return ProviderReturn(
+            "Kathleen McNulty expedition",
+            "Bounded Smithsonian result.\nSource: https://americanhistory.si.edu/example",
+        )
 
 
 class GrandLibraryGatewayTest(unittest.TestCase):
@@ -101,6 +112,8 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         archivist = Archivist(paths, KnowledgeCatalog(root / "catalog.db"))
         gateway = GrandLibraryGateway(paths, root / "audit.jsonl")
         self.delegator = TeamDelegator(archivist, gateway)
+        self.archivist = archivist
+        self.gateway = gateway
 
     def tearDown(self):
         self.temporary.cleanup()
@@ -127,6 +140,33 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         self.assertIn("returned safely to the Bookshelf Inbox", returned.response)
         closed = self.delegator.handle("Close the Grand Library")
         self.assertIn("Grand Library is closed", closed.response)
+
+    def test_online_expedition_requires_mode_preview_and_exact_approval(self):
+        delegator = TeamDelegator(
+            self.archivist,
+            self.gateway,
+            smithsonian_provider=FakeSmithsonianProvider(),
+        )
+        opened = delegator.handle("Open the Grand Library online")
+        self.assertIn("No request has been sent", opened.response)
+
+        refused = delegator.handle("Prepare a Smithsonian expedition: Research cats")
+        self.assertIn("restricted to the approved first expedition", refused.response)
+
+        preview = delegator.handle(
+            "Prepare a Smithsonian expedition: "
+            + SmithsonianProvider.FIRST_EXPEDITION_QUESTION
+        )
+        self.assertIn("HTTPS, authenticated", preview.response)
+        self.assertIn("Bookshelf passages leaving the local boundary: None", preview.response)
+        loan_id = preview.response.rsplit("Approve Grand Library loan: ", 1)[1]
+
+        returned = delegator.handle(f"Approve Grand Library loan: {loan_id}")
+        self.assertIn("approved smithsonian loan returned safely", returned.response)
+        note = next((self.gateway.paths.bookshelf / "Inbox").glob("*smithsonian*.md"))
+        text = note.read_text(encoding="utf-8")
+        self.assertIn("verified: unverified", text)
+        self.assertIn("https://americanhistory.si.edu/example", text)
 
 
 if __name__ == "__main__":

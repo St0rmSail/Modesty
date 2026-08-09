@@ -8,8 +8,10 @@ import re
 import secrets
 
 from Runtime.Knowledge.stores import StorePaths
+from Runtime.Library.credentials import CredentialError
 from Runtime.Library.models import LoanPacket, LoanSource
 from Runtime.Library.providers import LoopbackProvider
+from Runtime.Library.smithsonian import SmithsonianError
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -59,6 +61,12 @@ class GrandLibraryGateway:
         self._open = True
         self._audit("gateway_opened", provider=self.provider.name)
         return changed
+
+    def select_provider(self, provider):
+        if self._open:
+            raise GatewayError("Close the Grand Library before changing its provider.")
+        self._pending.clear()
+        self.provider = provider
 
     def close(self) -> int:
         cancelled = len(self._pending)
@@ -139,7 +147,13 @@ class GrandLibraryGateway:
                 provider=packet.provider,
                 error_type=type(error).__name__,
             )
-            raise GatewayError("The loopback loan failed safely; no success was recorded.") from error
+            if isinstance(error, (CredentialError, GatewayError, SmithsonianError)):
+                message = str(error)
+            else:
+                message = (
+                    f"The {self.provider.name} loan failed safely; no success was recorded."
+                )
+            raise GatewayError(message) from error
         self._pending.pop(packet.loan_id, None)
         self._audit(
             "loan_returned",
@@ -179,7 +193,10 @@ class GrandLibraryGateway:
     def _quarantine(self, packet: LoanPacket, title: str, body: str) -> Path:
         inbox = self.paths.bookshelf / "Inbox"
         inbox.mkdir(parents=True, exist_ok=True)
-        filename = f"{datetime.now():%Y-%m-%d}-grand-library-loopback-{packet.loan_id.casefold()}.md"
+        filename = (
+            f"{datetime.now():%Y-%m-%d}-grand-library-{packet.provider.casefold()}-"
+            f"{packet.loan_id.casefold()}.md"
+        )
         path = inbox / filename
         if path.exists():
             raise GatewayError("A return with this loan identifier already exists.")
@@ -191,7 +208,7 @@ class GrandLibraryGateway:
             "type: Research Return\n"
             f"title: {title}\n"
             "created_by: system:grand-library-loopback\n"
-            "verified: test-only\n"
+            f"verified: {'test-only' if packet.provider == 'loopback' else 'unverified'}\n"
             "provenance: grand-library-return\n"
             f"loan_id: {packet.loan_id}\n"
             f"provider: {packet.provider}\n"
@@ -199,7 +216,7 @@ class GrandLibraryGateway:
             "---\n\n"
             f"# {title}\n\n"
             f"## Approved question\n\n{packet.question}\n\n"
-            f"## Loopback result\n\n{body}\n\n"
+            f"## Returned research\n\n{body}\n\n"
             f"## Loaned sources\n\n{sources}\n"
         )
         path.write_text(document, encoding="utf-8", newline="\n")

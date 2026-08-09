@@ -29,9 +29,10 @@ class ValidationReceipt:
 
 
 class SmithsonianAccess:
-    """Make the single harmless request allowed during Gateway Step Two."""
+    """Make bounded requests to the Smithsonian Open Access API."""
 
     STATS_ENDPOINT = "https://api.si.edu/openaccess/api/v1.0/stats"
+    SEARCH_ENDPOINT = "https://api.si.edu/openaccess/api/v1.0/search"
     MAX_RESPONSE_BYTES = 1_000_000
 
     def __init__(self, credentials: CredentialStore, audit_path=DEFAULT_AUDIT_PATH, opener=urlopen):
@@ -40,8 +41,49 @@ class SmithsonianAccess:
         self._opener = opener
 
     def validate(self, timeout: float = 15.0) -> ValidationReceipt:
+        document = self._get_json(
+            self.STATS_ENDPOINT, {}, timeout, "smithsonian_validation_failed"
+        )
+        if not isinstance(document.get("response"), dict):
+            self._audit("smithsonian_validation_failed", reason="unexpected_schema")
+            raise SmithsonianError("The Smithsonian returned an unexpected validation response.")
+        self._audit("smithsonian_validation_succeeded", endpoint="stats")
+        return ValidationReceipt()
+
+    def search(self, query: str, rows: int = 5, timeout: float = 20.0) -> dict:
+        """Return one bounded Smithsonian search response without persisting it."""
+        query = query.strip()
+        if not query or len(query) > 200:
+            raise SmithsonianError("The Smithsonian search query is invalid.")
+        if not 1 <= rows <= 5:
+            raise SmithsonianError("The Smithsonian search result limit is invalid.")
+        document = self._get_json(
+            self.SEARCH_ENDPOINT,
+            {
+                "q": query,
+                "start": 0,
+                "rows": rows,
+                "sort": "relevancy",
+                "type": "all",
+                "row_group": "objects",
+            },
+            timeout,
+            "smithsonian_request_failed",
+        )
+        response = document.get("response")
+        if not isinstance(response, dict) or not isinstance(response.get("rows"), list):
+            raise SmithsonianError("The Smithsonian returned an unexpected search response.")
+        return response
+
+    def _get_json(
+        self,
+        endpoint: str,
+        parameters: dict,
+        timeout: float,
+        failure_event: str,
+    ) -> dict:
         api_key = self.credentials.load()
-        url = f"{self.STATS_ENDPOINT}?{urlencode({'api_key': api_key})}"
+        url = f"{endpoint}?{urlencode({**parameters, 'api_key': api_key})}"
         request = Request(
             url,
             headers={
@@ -53,28 +95,26 @@ class SmithsonianAccess:
             with self._opener(request, timeout=timeout) as response:
                 payload = response.read(self.MAX_RESPONSE_BYTES + 1)
         except HTTPError as error:
-            self._audit("smithsonian_validation_failed", reason="http_error", status=error.code)
+            self._audit(failure_event, reason="http_error", status=error.code)
             raise SmithsonianError(
-                "The Smithsonian rejected the validation request. Check the stored API key."
+                "The Smithsonian rejected the request. Check the stored API key."
             ) from None
         except (URLError, TimeoutError, OSError) as error:
-            self._audit("smithsonian_validation_failed", reason="network_error")
+            self._audit(failure_event, reason="network_error")
             raise SmithsonianError(
-                "The Smithsonian validation request could not reach the service safely."
+                "The Smithsonian request could not reach the service safely."
             ) from None
         if len(payload) > self.MAX_RESPONSE_BYTES:
-            self._audit("smithsonian_validation_failed", reason="response_too_large")
-            raise SmithsonianError("The Smithsonian validation response was unexpectedly large.")
+            self._audit(failure_event, reason="response_too_large")
+            raise SmithsonianError("The Smithsonian response was unexpectedly large.")
         try:
             document = json.loads(payload)
         except (UnicodeDecodeError, json.JSONDecodeError) as error:
-            self._audit("smithsonian_validation_failed", reason="invalid_json")
-            raise SmithsonianError("The Smithsonian returned an invalid validation response.") from error
-        if not isinstance(document, dict) or not isinstance(document.get("response"), dict):
-            self._audit("smithsonian_validation_failed", reason="unexpected_schema")
-            raise SmithsonianError("The Smithsonian returned an unexpected validation response.")
-        self._audit("smithsonian_validation_succeeded", endpoint="stats")
-        return ValidationReceipt()
+            self._audit(failure_event, reason="invalid_json")
+            raise SmithsonianError("The Smithsonian returned an invalid response.") from error
+        if not isinstance(document, dict):
+            raise SmithsonianError("The Smithsonian returned an unexpected response.")
+        return document
 
     def _audit(self, event: str, **details):
         self.audit_path.parent.mkdir(parents=True, exist_ok=True)

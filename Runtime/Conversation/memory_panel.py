@@ -316,7 +316,7 @@ class ConversationPanel(QWidget):
             self.team_delegator = self.team_delegator or TeamDelegator()
             delegated = self.team_delegator.handle(message)
         except (OSError, RuntimeError, sqlite3.Error, UnicodeError, ValueError) as error:
-            self._receive(f"The Archivist could not complete that duty: {error}")
+            self._receive(f"Modesty could not complete that duty: {error}")
             self._set_input_enabled(True)
             return
         if delegated.handled:

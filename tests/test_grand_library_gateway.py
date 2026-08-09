@@ -1,0 +1,131 @@
+from dataclasses import replace
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+import unittest
+
+from Brain.Team.archivist import Archivist
+from Brain.Team.delegation import TeamDelegator
+from Runtime.Knowledge.catalog import KnowledgeCatalog
+from Runtime.Knowledge.stores import StorePaths
+from Runtime.Library import GatewayError, GrandLibraryGateway, LoanSource
+
+
+class GrandLibraryGatewayTest(unittest.TestCase):
+    def setUp(self):
+        self.temporary = TemporaryDirectory()
+        root = Path(self.temporary.name)
+        self.filing = root / "Filing"
+        self.bookshelf = root / "Bookshelf"
+        self.filing.mkdir()
+        (self.bookshelf / "Inbox").mkdir(parents=True)
+        self.paths = StorePaths(self.filing, self.bookshelf)
+        self.audit = root / "audit.jsonl"
+        self.gateway = GrandLibraryGateway(self.paths, self.audit)
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def test_starts_closed_and_a_new_instance_is_closed(self):
+        with self.assertRaisesRegex(GatewayError, "Grand Library is closed"):
+            self.gateway.prepare("A safe test question")
+        refusal = json.loads(self.audit.read_text(encoding="utf-8").splitlines()[-1])
+        self.assertEqual(refusal["event"], "loan_refused")
+        self.assertNotIn("question", refusal)
+        self.gateway.open()
+        self.assertTrue(self.gateway.is_open)
+        self.assertFalse(GrandLibraryGateway(self.paths, self.audit).is_open)
+
+    def test_only_bookshelf_sources_can_enter_a_loan(self):
+        self.gateway.open()
+        private = LoanSource("filing_cabinet", "Personal/private.md", "Private", "secret")
+        with self.assertRaisesRegex(GatewayError, "Only Bookshelf passages"):
+            self.gateway.prepare("Research this", [private])
+
+    def test_rejects_credentials_absolute_paths_and_oversized_packets(self):
+        self.gateway.open()
+        unsafe_questions = (
+            "api_key=do-not-send-this",
+            r"Read C:\Users\Drew\private.txt",
+            "x" * 601,
+        )
+        for question in unsafe_questions:
+            with self.subTest(question=question[:20]):
+                with self.assertRaises(GatewayError):
+                    self.gateway.prepare(question)
+
+    def test_exact_approval_returns_to_inbox_and_audits_without_content(self):
+        self.gateway.open()
+        source = LoanSource(
+            "bookshelf", "Procedures/lens.md", "Lens Care", "Use an optical cloth."
+        )
+        packet = self.gateway.prepare("Research telescope lens care", [source])
+
+        receipt = self.gateway.approve(packet.loan_id)
+
+        self.assertTrue(receipt.return_path.is_file())
+        text = receipt.return_path.read_text(encoding="utf-8")
+        self.assertIn("provenance: grand-library-return", text)
+        self.assertIn(f"loan_id: {packet.loan_id}", text)
+        records = [json.loads(line) for line in self.audit.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(records[-1]["event"], "loan_returned")
+        self.assertTrue(any(record["event"] == "loan_approved" for record in records))
+        self.assertNotIn("optical cloth", self.audit.read_text(encoding="utf-8"))
+
+    def test_changed_packet_and_close_both_invalidate_approval(self):
+        self.gateway.open()
+        packet = self.gateway.prepare("Original question")
+        self.gateway._pending[packet.loan_id] = (
+            replace(packet, question="Changed question"),
+            packet.fingerprint,
+        )
+        with self.assertRaisesRegex(GatewayError, "changed after preview"):
+            self.gateway.approve(packet.loan_id)
+
+        second = self.gateway.prepare("Second question")
+        self.assertEqual(self.gateway.close(), 1)
+        self.gateway.open()
+        with self.assertRaisesRegex(GatewayError, "does not exist"):
+            self.gateway.approve(second.loan_id)
+
+
+class GrandLibraryDelegationTest(unittest.TestCase):
+    def setUp(self):
+        self.temporary = TemporaryDirectory()
+        root = Path(self.temporary.name)
+        filing = root / "Filing"
+        bookshelf = root / "Bookshelf"
+        filing.mkdir()
+        (bookshelf / "Inbox").mkdir(parents=True)
+        paths = StorePaths(filing, bookshelf)
+        archivist = Archivist(paths, KnowledgeCatalog(root / "catalog.db"))
+        gateway = GrandLibraryGateway(paths, root / "audit.jsonl")
+        self.delegator = TeamDelegator(archivist, gateway)
+
+    def tearDown(self):
+        self.temporary.cleanup()
+
+    def test_full_loopback_command_flow(self):
+        refused = self.delegator.handle(
+            "Prepare a Grand Library loopback: Research the first programmers"
+        )
+        self.assertTrue(refused.handled)
+        self.assertIn("Grand Library is closed", refused.response)
+
+        opened = self.delegator.handle("Open the Grand Library")
+        self.assertIn("local loopback mode", opened.response)
+        preview = self.delegator.handle(
+            "Prepare a Grand Library loopback: Research the first programmers"
+        )
+        self.assertIn("no network", preview.response)
+        self.assertIn("Bookshelf passages leaving", preview.response)
+        loan_id = preview.response.rsplit("Approve Grand Library loan: ", 1)[1]
+
+        returned = self.delegator.handle(f"Approve Grand Library loan: {loan_id}")
+        self.assertIn("returned safely to the Bookshelf Inbox", returned.response)
+        closed = self.delegator.handle("Close the Grand Library")
+        self.assertIn("Grand Library is closed", closed.response)
+
+
+if __name__ == "__main__":
+    unittest.main()

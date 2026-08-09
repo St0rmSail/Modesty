@@ -7,6 +7,7 @@ import re
 from Brain.Team.archivist import Archivist
 from Runtime.Knowledge.catalog import KnowledgeCatalog
 from Runtime.Knowledge.stores import KnowledgeStores
+from Runtime.Library import GatewayError, GrandLibraryGateway
 
 
 @dataclass(frozen=True)
@@ -59,14 +60,99 @@ class TeamDelegator:
         r"(?:\s+(?:about|for))?\s*:?\s*(?P<query>.+)$",
         re.IGNORECASE | re.DOTALL,
     )
+    GRAND_LIBRARY_OPEN_PATTERN = re.compile(
+        r"^(?:please\s+)?open\s+(?:the\s+)?grand\s+library\s*$",
+        re.IGNORECASE,
+    )
+    GRAND_LIBRARY_CLOSE_PATTERN = re.compile(
+        r"^(?:please\s+)?close\s+(?:the\s+)?grand\s+library\s*$",
+        re.IGNORECASE,
+    )
+    LOOPBACK_PREPARE_PATTERN = re.compile(
+        r"^(?:please\s+)?prepare\s+(?:a\s+)?grand\s+library\s+"
+        r"loopback(?:\s+loan)?\s*:\s*(?P<question>.+)$",
+        re.IGNORECASE | re.DOTALL,
+    )
+    GRAND_LIBRARY_APPROVAL_PATTERN = re.compile(
+        r"^approve\s+grand\s+library\s+loan\s*:\s*(?P<loan_id>GL-[A-Z0-9-]+)\s*$",
+        re.IGNORECASE,
+    )
 
-    def __init__(self, archivist: Archivist | None = None):
+    def __init__(
+        self,
+        archivist: Archivist | None = None,
+        gateway: GrandLibraryGateway | None = None,
+    ):
         if archivist is None:
             paths = KnowledgeStores().initialize()
             archivist = Archivist(paths, KnowledgeCatalog())
         self.archivist = archivist
+        self.gateway = gateway or GrandLibraryGateway(archivist.paths)
 
     def handle(self, message: str) -> DelegationResult:
+        if self.GRAND_LIBRARY_OPEN_PATTERN.match(message.strip()):
+            changed = self.gateway.open()
+            if changed:
+                return DelegationResult(
+                    True,
+                    "The Grand Library is open in local loopback mode. "
+                    "The internet remains disconnected; only bounded test loans can run.",
+                )
+            return DelegationResult(True, "The Grand Library is already open in local loopback mode.")
+
+        if self.GRAND_LIBRARY_CLOSE_PATTERN.match(message.strip()):
+            cancelled = self.gateway.close()
+            detail = (
+                f" {cancelled} pending loan{'s were' if cancelled != 1 else ' was'} cancelled."
+                if cancelled else ""
+            )
+            return DelegationResult(
+                True,
+                f"The Grand Library is closed. No outbound loan can leave.{detail}",
+            )
+
+        approval = self.GRAND_LIBRARY_APPROVAL_PATTERN.match(message.strip())
+        if approval:
+            try:
+                receipt = self.gateway.approve(approval.group("loan_id").upper())
+            except GatewayError as error:
+                return DelegationResult(True, str(error))
+            return DelegationResult(
+                True,
+                f"The approved loopback loan returned safely to the Bookshelf Inbox: "
+                f"{receipt.return_path.name}\nLoan: {receipt.loan_id}",
+            )
+
+        loopback = self.LOOPBACK_PREPARE_PATTERN.match(message.strip())
+        if loopback:
+            if not self.gateway.is_open:
+                try:
+                    self.gateway.prepare(loopback.group("question"), ())
+                except GatewayError as error:
+                    return DelegationResult(True, str(error))
+            question = loopback.group("question").strip()
+            matches = self.archivist.ask_library(question, limit=20)
+            bookshelf_matches = [match for match in matches if match.store == "bookshelf"][:3]
+            try:
+                packet = self.gateway.prepare(question, bookshelf_matches)
+            except GatewayError as error:
+                return DelegationResult(True, str(error))
+            lines = [
+                "Grand Library loopback loan preview:",
+                f"\nLoan: {packet.loan_id}",
+                f"Provider: {packet.provider} (local only; no network)",
+                f"Question: {packet.question}",
+                f"Packet size: {packet.size_bytes} bytes",
+                "Bookshelf passages leaving the local boundary:",
+            ]
+            if packet.sources:
+                for source in packet.sources:
+                    lines.append(f"\nBookshelf/{source.relative_path}\n{source.passage}")
+            else:
+                lines.append("\nNone.")
+            lines.append(f"\nTo send this exact packet, say: Approve Grand Library loan: {packet.loan_id}")
+            return DelegationResult(True, "\n".join(lines))
+
         if self.LIBRARY_REINDEX_PATTERN.match(message.strip()):
             report = self.archivist.inventory(force_reindex=True)
             return DelegationResult(

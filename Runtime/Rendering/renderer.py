@@ -31,7 +31,7 @@ import json
 from pathlib import Path
 from time import monotonic
 
-from PySide6.QtCore import QRectF, QTimer, Qt
+from PySide6.QtCore import QPointF, QRectF, QTimer, Qt
 from PySide6.QtGui import (
     QColor,
     QLinearGradient,
@@ -39,6 +39,7 @@ from PySide6.QtGui import (
     QPainterPath,
     QPen,
     QPixmap,
+    QPolygonF,
     QRadialGradient,
 )
 from PySide6.QtWidgets import QWidget
@@ -249,31 +250,69 @@ class StudyRenderer(QWidget):
 
         settings = self.team_display["grand_library"]
         study_rect = geometry["study_rect"]
-        centre_x = study_rect.left() + float(settings["centre_x"]) * study_rect.width()
-        centre_y = study_rect.top() + float(settings["centre_y"]) * study_rect.height()
-        full_width = float(settings["width"]) * study_rect.width()
-        full_height = float(settings["height"]) * study_rect.height()
+        normalized = settings["corners"]
+        points = [
+            QPointF(
+                study_rect.left() + float(point[0]) * study_rect.width(),
+                study_rect.top() + float(point[1]) * study_rect.height(),
+            )
+            for point in normalized
+        ]
+        portal = QPolygonF(points)
+        bounds = portal.boundingRect()
         elapsed = monotonic() - self._library_opened_at
         progress = min(1.0, max(0.08, elapsed / 1.2))
-        width = full_width * progress
-        portal = QRectF(centre_x - width / 2, centre_y - full_height / 2, width, full_height)
 
         painter.save()
-        painter.setClipRect(portal)
-        interior = QLinearGradient(portal.left(), portal.top(), portal.right(), portal.bottom())
+        portal_path = QPainterPath()
+        portal_path.addPolygon(portal)
+        painter.setClipPath(portal_path)
+        interior = QLinearGradient(bounds.left(), bounds.top(), bounds.right(), bounds.bottom())
         interior.setColorAt(0.0, QColor(5, 16, 28, 238))
         interior.setColorAt(0.5, QColor(19, 94, 126, 225))
         interior.setColorAt(1.0, QColor(5, 12, 24, 242))
-        painter.fillRect(portal, interior)
+        painter.fillRect(bounds, interior)
+        painter.restore()
 
+        top_mid = (points[0] + points[1]) / 2
+        bottom_mid = (points[3] + points[2]) / 2
+        halves = (
+            (QPolygonF((points[0], top_mid, bottom_mid, points[3])), -1),
+            (QPolygonF((top_mid, points[1], points[2], bottom_mid)), 1),
+        )
+        source_left = min(float(point[0]) for point in normalized) * self.study.width()
+        source_right = max(float(point[0]) for point in normalized) * self.study.width()
+        source_top = min(float(point[1]) for point in normalized) * self.study.height()
+        source_bottom = max(float(point[1]) for point in normalized) * self.study.height()
+        source_mid = (source_left + source_right) / 2
+        destination_mid = bounds.center().x()
+        travel = bounds.width() * 0.52 * progress
+        source_rects = (
+            QRectF(source_left, source_top, source_mid - source_left, source_bottom - source_top),
+            QRectF(source_mid, source_top, source_right - source_mid, source_bottom - source_top),
+        )
+        destination_rects = (
+            QRectF(bounds.left(), bounds.top(), destination_mid - bounds.left(), bounds.height()),
+            QRectF(destination_mid, bounds.top(), bounds.right() - destination_mid, bounds.height()),
+        )
+        for index, (half, direction) in enumerate(halves):
+            painter.save()
+            half_path = QPainterPath()
+            half_path.addPolygon(half)
+            painter.setClipPath(half_path)
+            destination = destination_rects[index].translated(direction * travel, 0)
+            painter.drawPixmap(destination, self.study, source_rects[index])
+            painter.restore()
+
+        painter.save()
         glow_pen = QPen(QColor(112, 232, 255, 210), max(2.0, study_rect.height() * 0.004))
         painter.setPen(glow_pen)
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.drawRoundedRect(portal, 8, 8)
+        painter.drawPolygon(portal)
 
         if progress > 0.55:
             alpha = int(255 * min(1.0, (progress - 0.55) / 0.45))
-            self._draw_online_mark(painter, portal.center(), full_height * 0.23, alpha)
+            self._draw_online_mark(painter, bounds.center(), bounds.height() * 0.23, alpha)
         painter.restore()
 
     @staticmethod

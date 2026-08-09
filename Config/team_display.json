@@ -6,10 +6,12 @@
     "angle_degrees": -10.0
   },
   "grand_library": {
-    "centre_x": 0.842,
-    "centre_y": 0.315,
-    "width": 0.105,
-    "height": 0.405
+    "corners": [
+      [0.755, 0.105],
+      [0.835, 0.095],
+      [0.850, 0.555],
+      [0.742, 0.555]
+    ]
   },
   "members": {
     "archivist": {

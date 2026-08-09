@@ -64,13 +64,13 @@ class ConversationDock(QWidget):
         )
         self.show_button.clicked.connect(self.show_panel)
         self.show_row.addWidget(self.show_button)
-        layout.addLayout(self.show_row)
 
         self.panel = ConversationPanel()
         self.panel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
         self.panel.hide_requested.connect(self.hide_panel)
         self.panel.grand_library_state_changed.connect(self._library_state_changed)
         layout.addWidget(self.panel, stretch=1)
+        layout.addLayout(self.show_row)
         self.show_button.hide()
         self._library_auto_hidden = False
 

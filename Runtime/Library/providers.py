@@ -1,7 +1,6 @@
 """Transport providers for the Grand Library Gateway."""
 
 from dataclasses import dataclass
-import json
 import re
 from urllib.parse import quote, urlparse, urlunparse
 
@@ -39,8 +38,11 @@ class SmithsonianProvider:
     name = "smithsonian"
     MAX_RESULTS = 5
     MAX_EXCERPT_CHARS = 700
-    FIRST_EXPEDITION_QUESTION = "Research Kathleen McNulty and the first ENIAC programmers"
-    FIRST_EXPEDITION_QUERY = '"Kathleen McNulty"'
+    FIRST_EXPEDITION_QUESTION = (
+        "Retrieve the Smithsonian Open Access record for ENIAC Accumulator #2"
+    )
+    FIRST_EXPEDITION_QUERY = '"ENIAC Accumulator"'
+    FIRST_EXPEDITION_TITLE = "ENIAC Accumulator #2"
 
     def __init__(self, access: SmithsonianAccess):
         self.access = access
@@ -58,8 +60,8 @@ class SmithsonianProvider:
         ]
         if not rows:
             raise SmithsonianError(
-                "The Smithsonian returned no records explicitly containing Kathleen McNulty; "
-                "no irrelevant research note was filed."
+                "The Smithsonian returned no exact ENIAC Accumulator #2 record; "
+                "no substitute research note was filed."
             )
         sections = []
         for index, row in enumerate(rows, 1):
@@ -84,7 +86,7 @@ class SmithsonianProvider:
             + "\n\n".join(sections)
         )
         return ProviderReturn(
-            title="Kathleen McNulty and the first ENIAC programmers — Smithsonian expedition",
+            title="ENIAC Accumulator #2 — first Smithsonian expedition",
             body=body,
         )
 
@@ -98,10 +100,13 @@ class SmithsonianProvider:
         shortened = text[: cls.MAX_EXCERPT_CHARS + 1].rsplit(" ", 1)[0]
         return shortened.rstrip(" ,;:-") + "…"
 
-    @staticmethod
-    def _is_relevant(row: dict) -> bool:
-        text = json.dumps(row, ensure_ascii=False).casefold()
-        return "kathleen" in text and "mcnulty" in text
+    @classmethod
+    def _is_relevant(cls, row: dict) -> bool:
+        title = re.sub(r"[^a-z0-9]+", " ", str(row.get("title", "")).casefold()).strip()
+        expected = re.sub(
+            r"[^a-z0-9]+", " ", cls.FIRST_EXPEDITION_TITLE.casefold()
+        ).strip()
+        return title == expected
 
     @classmethod
     def _source_url(cls, row: dict) -> str:
@@ -148,9 +153,8 @@ class SmithsonianProvider:
         ranked = sorted(
             enumerate(values),
             key=lambda item: (
-                "mcnulty" not in item[1].casefold(),
-                "kathleen" not in item[1].casefold(),
                 "eniac" not in item[1].casefold(),
+                "accumulator" not in item[1].casefold(),
                 item[0],
             ),
         )
@@ -160,7 +164,7 @@ class SmithsonianProvider:
             normalized = value.casefold()
             if normalized in seen:
                 continue
-            if not any(term in normalized for term in ("mcnulty", "kathleen", "eniac")):
+            if not any(term in normalized for term in ("eniac", "accumulator")):
                 continue
             selected.append(value)
             seen.add(normalized)

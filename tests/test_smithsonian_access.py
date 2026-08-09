@@ -94,7 +94,7 @@ class SmithsonianAccessTest(unittest.TestCase):
         def opener(request, timeout):
             self.assertIn("rows=5", request.full_url)
             self.assertIn("type=all", request.full_url)
-            self.assertIn("q=%22Kathleen+McNulty%22", request.full_url)
+            self.assertIn("q=%22ENIAC+Accumulator%22", request.full_url)
             return FakeResponse(
                 json.dumps(
                     {
@@ -102,13 +102,13 @@ class SmithsonianAccessTest(unittest.TestCase):
                             "rowCount": 1,
                             "rows": [
                                 {
-                                    "title": "ENIAC programmers",
+                                    "title": "ENIAC Accumulator #2",
                                     "unitCode": "NMAH",
                                     "url": "https://americanhistory.si.edu/example",
                                     "content": {
                                         "freetext": {
                                             "notes": [
-                                                {"content": "Kathleen McNulty helped program ENIAC."}
+                                                {"content": "ENIAC Accumulator #2 is a surviving component of ENIAC."}
                                             ]
                                         }
                                     },
@@ -135,7 +135,7 @@ class SmithsonianAccessTest(unittest.TestCase):
         )
         returned = SmithsonianProvider(access).execute(packet)
 
-        self.assertIn("Kathleen McNulty helped program ENIAC", returned.body)
+        self.assertIn("surviving component of ENIAC", returned.body)
         self.assertIn("Source: https://americanhistory.si.edu/example", returned.body)
         self.assertNotIn("Unrelated correspondence", returned.body)
         self.assertNotIn("private-test-key", returned.body)
@@ -144,7 +144,7 @@ class SmithsonianAccessTest(unittest.TestCase):
         packet = LoanPacket(
             loan_id="GL-TEST",
             provider="smithsonian",
-            question="Research something else",
+            question="Research Kathleen McNulty and the first ENIAC programmers",
             sources=(),
             created_at="2026-08-09T00:00:00+00:00",
         )

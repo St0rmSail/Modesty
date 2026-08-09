@@ -2,7 +2,7 @@
 
 **Scope:** Build 0.12.0, Step Three
 
-This provider is intentionally restricted to one approved first expedition. It is not a general Researcher and has no access to the Filing Cabinet, Bookshelf filesystem, browser, or arbitrary web addresses.
+This provider is intentionally restricted to one approved first expedition: retrieving the Smithsonian Open Access record for **ENIAC Accumulator #2**. It is not a general Researcher and has no access to the Filing Cabinet, Bookshelf filesystem, browser, or arbitrary web addresses.
 
 ## Boundary
 
@@ -27,7 +27,7 @@ Open the Grand Library online
 Opening must confirm that no request has yet been sent. Then prepare the only allowed expedition:
 
 ```text
-Prepare a Smithsonian expedition: Research Kathleen McNulty and the first ENIAC programmers
+Prepare a Smithsonian expedition: Retrieve the Smithsonian Open Access record for ENIAC Accumulator #2
 ```
 
 Inspect the preview. It must say that no Bookshelf passages are leaving and provide a unique approval command. Copy that approval command exactly into the chat panel.
@@ -45,3 +45,5 @@ Do not promote the returned note yet. First inspect Modesty's response and the n
 Loan `GL-20260809-80A62FBE` completed the transport safely but did not pass research inspection. Its quarantined note is test evidence, not useful knowledge, and must not be promoted. The corrected provider requires a second live cast using the same command sequence.
 
 Loan `GL-20260809-26CCCD92` correctly refused to create a return because the Open Access API contains no record explicitly matching Kathleen McNulty. The intended Women's History article also requires interactive web verification and is unsuitable as an unattended provider source. The first-catch target therefore requires an explicit decision before another cast.
+
+Drew approved ENIAC Accumulator #2 as the replacement target. The prior Kathleen McNulty command is superseded and must now be refused. The exact-title collection record is the only acceptable third-cast return.

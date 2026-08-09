@@ -65,15 +65,15 @@ class TeamDelegator:
         re.IGNORECASE | re.DOTALL,
     )
     GRAND_LIBRARY_OPEN_PATTERN = re.compile(
-        r"^(?:please\s+)?open\s+(?:the\s+)?grand\s+library\s*$",
+        r"^(?:please\s+)?open\s+(?:the\s+)?grand\s+lib(?:rary|arary)\s*$",
         re.IGNORECASE,
     )
     GRAND_LIBRARY_ONLINE_OPEN_PATTERN = re.compile(
-        r"^(?:please\s+)?open\s+(?:the\s+)?grand\s+library\s+online\s*$",
+        r"^(?:please\s+)?open\s+(?:the\s+)?grand\s+lib(?:rary|arary)\s+online\s*$",
         re.IGNORECASE,
     )
     GRAND_LIBRARY_CLOSE_PATTERN = re.compile(
-        r"^(?:please\s+)?close\s+(?:the\s+)?grand\s+library\s*$",
+        r"^(?:please\s+)?close\s+(?:the\s+)?grand\s+lib(?:rary|arary)\s*$",
         re.IGNORECASE,
     )
     LOOPBACK_PREPARE_PATTERN = re.compile(
@@ -120,11 +120,11 @@ class TeamDelegator:
             if changed:
                 return DelegationResult(
                     True,
-                    "The Grand Library is open for the bounded Smithsonian expedition. "
+                    "The Grand Library is open for bounded online access. "
                     "No request has been sent; preparation and exact approval are still required.",
                 )
             return DelegationResult(
-                True, "The Grand Library is already open for the Smithsonian expedition."
+                True, "The Grand Library is already open for bounded online access."
             )
 
         if self.GRAND_LIBRARY_OPEN_PATTERN.match(message.strip()):

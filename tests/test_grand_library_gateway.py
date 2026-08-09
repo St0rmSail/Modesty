@@ -179,6 +179,8 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         )
         opened = delegator.handle("Open the Grand Library online")
         self.assertIn("No request has been sent", opened.response)
+        self.assertIn("bounded online access", opened.response)
+        self.assertNotIn("Smithsonian expedition", opened.response)
         self.assertEqual(team_status.grand_library_state(), "online")
 
         refused = delegator.handle("Prepare a Smithsonian expedition: Research cats")
@@ -200,6 +202,17 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         self.assertIn("created_by: system:grand-library-smithsonian", text)
         self.assertIn("https://americanhistory.si.edu/example", text)
         delegator.handle("Close the Grand Library")
+        self.assertEqual(team_status.grand_library_state(), "closed")
+
+    def test_common_library_typo_is_handled_without_model_fallback(self):
+        opened = self.delegator.handle("Open the Grand Libarary")
+
+        self.assertTrue(opened.handled)
+        self.assertIn("local loopback mode", opened.response)
+        self.assertEqual(team_status.grand_library_state(), "loopback")
+
+        closed = self.delegator.handle("Close the Grand Libarary")
+        self.assertTrue(closed.handled)
         self.assertEqual(team_status.grand_library_state(), "closed")
 
     def test_failed_approved_loan_is_consumed_once(self):

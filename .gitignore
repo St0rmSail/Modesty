@@ -1,18 +1,29 @@
 # Python virtual environment
 .venv/
 
-# Python cache
+# Python generated files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
 
-# Environment variables (future API keys)
+# Environment variables and credentials
 .env
-
-# Local memory and generated database files
-Data/*.db
-Data/*.db-*
-Data/Backups/
+.env.*
 Data/Secrets/
 
-# Windows thumbnail cache
+# Local runtime data
+Data/
+
+# Local working and review material
+Backup/
+Review/
+
+# Logs and temporary files
+Logs/
+*.log
+*.tmp
+
+# Windows generated files
 Thumbs.db
+Desktop.ini

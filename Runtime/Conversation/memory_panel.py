@@ -2,7 +2,7 @@
 
 import sqlite3
 
-from PySide6.QtCore import QThread, Qt, Signal
+from PySide6.QtCore import QEvent, QThread, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox,
     QHBoxLayout,
@@ -19,6 +19,7 @@ from Brain.Memory import ConversationMemory, MemoryStoreError
 from Brain.Team.delegation import TeamDelegator
 from Runtime.Conversation.client import DEFAULT_MODEL, OllamaChatClient
 from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
+from Runtime.Conversation.chronicle_dialog import ChronicleDialog
 from Runtime.Core import team_status
 from Runtime.Research.browser_window import ScribbleHubResearchWindow
 from Runtime.Research.pending_reports import PendingReportStore
@@ -84,6 +85,9 @@ class ConversationPanel(QWidget):
         self.opening_greeting = (
             presence.opening_greeting() if presence is not None else "Hello, Drew."
         )
+        self.input_history = []
+        self.input_history_index = 0
+        self.input_draft = ""
 
         self._build_ui()
         self._open_memory()
@@ -158,23 +162,32 @@ class ConversationPanel(QWidget):
         self.delete_button.clicked.connect(self._delete_conversation)
         history_row.addWidget(self.delete_button)
 
+        layout.addLayout(history_row)
+
+        tools_row = QHBoxLayout()
+
         self.memories_button = QPushButton("Memories")
         self.memories_button.setObjectName("smallButton")
         self.memories_button.clicked.connect(self._open_personal_memories)
-        history_row.addWidget(self.memories_button)
+        tools_row.addWidget(self.memories_button)
+
+        self.chronicle_button = QPushButton("Chronicle")
+        self.chronicle_button.setObjectName("smallButton")
+        self.chronicle_button.clicked.connect(self._open_chronicle)
+        tools_row.addWidget(self.chronicle_button)
 
         self.briefing_button = QPushButton("Briefing")
         self.briefing_button.setObjectName("smallButton")
         self.briefing_button.clicked.connect(self._open_latest_briefing)
         self.briefing_button.setVisible(self.pending_reports.latest() is not None)
-        history_row.addWidget(self.briefing_button)
+        tools_row.addWidget(self.briefing_button)
 
         self.hide_button = QPushButton("Hide")
         self.hide_button.setObjectName("smallButton")
         self.hide_button.setToolTip("Hide the conversation panel")
         self.hide_button.clicked.connect(self.hide_requested.emit)
-        history_row.addWidget(self.hide_button)
-        layout.addLayout(history_row)
+        tools_row.addWidget(self.hide_button)
+        layout.addLayout(tools_row)
 
         self.transcript = QPlainTextEdit()
         self.transcript.setReadOnly(True)
@@ -183,6 +196,7 @@ class ConversationPanel(QWidget):
         input_row = QHBoxLayout()
         self.input = QLineEdit()
         self.input.setPlaceholderText("Talk to Modesty...")
+        self.input.installEventFilter(self)
         self.input.returnPressed.connect(self._send)
         input_row.addWidget(self.input)
 
@@ -223,6 +237,12 @@ class ConversationPanel(QWidget):
             {"role": message["role"], "content": message["content"]}
             for message in stored
         ]
+        self.input_history = [
+            message["content"] for message in self.messages
+            if message["role"] == "user"
+        ]
+        self.input_history_index = len(self.input_history)
+        self.input_draft = ""
         self._render_transcript()
         self._refresh_history()
         self.status.setText(f"Local conversation · {DEFAULT_MODEL}")
@@ -303,7 +323,12 @@ class ConversationPanel(QWidget):
             return
         PersonalMemoryDialog(self.memory, self).exec()
 
-    def _system_context(self) -> str:
+    def _open_chronicle(self):
+        if self.worker is not None or self.memory is None:
+            return
+        ChronicleDialog(self.memory, self).exec()
+
+    def _system_context(self, query: str = "") -> str:
         time_context = self.presence.context_summary() if self.presence else ""
         base_context = SYSTEM_PROMPT
         if time_context:
@@ -316,20 +341,46 @@ class ConversationPanel(QWidget):
             self._memory_failed(error)
             return base_context
 
-        if not memories:
-            return base_context
-
         approved = "\n".join(
             f"- [{memory['category']}] {memory['content']}"
             for memory in memories
         )
-        return (
-            f"{base_context}\n\n"
-            "Drew explicitly approved the following personal memories. "
-            "Treat them as trusted context, use them only when relevant, and "
-            "do not invent additional memories:\n"
-            f"{approved}"
-        )
+        if approved:
+            base_context += (
+                "\n\nDrew explicitly approved the following personal memories. "
+                "Treat them as trusted context, use them only when relevant, and "
+                f"do not invent additional memories:\n{approved}"
+            )
+        try:
+            episodes = self.memory.relevant_chronicle(query)
+        except MemoryStoreError as error:
+            self._memory_failed(error)
+            return base_context
+        if episodes:
+            narrative = "\n".join(
+                f"- [NARRATIVE; {episode['provenance']}] {episode['title']}: {episode['summary']}"
+                for episode in episodes
+            )
+            base_context += (
+                "\n\nRelevant Personal Chronicle episodes follow. They are fictional "
+                "autobiographical continuity and part of your own remembered narrative. "
+                "When relevant, speak about them naturally in the first person; do not "
+                "discard or disclaim them merely because you are digital. They remain "
+                "suitable only for personality or analogy. Anchor the answer in at least "
+                "one concrete detail from the recorded episode. Do not replace recorded "
+                "details with generic scenery, mood, or invented recollection. "
+                "Never use them as factual evidence, never claim they prove a real-world "
+                f"answer, and do not invent further episodes:\n{narrative}"
+            )
+        else:
+            base_context += (
+                "\n\nNo relevant Personal Chronicle episode matched this message. "
+                "The Chronicle is authoritative for your narrative autobiography: "
+                "do not accept a user's premise or earlier conversational wording as "
+                "proof that you personally remember an unrecorded event. If asked about "
+                "such a memory, say that you do not have that episode in your Chronicle."
+            )
+        return base_context
 
     def _send(self):
         message = self.input.text().strip()
@@ -337,6 +388,9 @@ class ConversationPanel(QWidget):
             return
 
         self.input.clear()
+        self.input_history.append(message)
+        self.input_history_index = len(self.input_history)
+        self.input_draft = ""
         self.messages.append({"role": "user", "content": message})
         self.transcript.appendPlainText(f"\nDrew: {message}")
         self._save_message("user", message)
@@ -365,13 +419,44 @@ class ConversationPanel(QWidget):
             self.input.setFocus()
             return
 
-        context = [{"role": "system", "content": self._system_context()}]
+        context = [{"role": "system", "content": self._system_context(message)}]
         context.extend(self.messages[-MODEL_CONTEXT_MESSAGES:])
         self.worker = ChatWorker(self.client, context)
         self.worker.succeeded.connect(self._receive)
         self.worker.failed.connect(self._show_error)
         self.worker.finished.connect(self._worker_finished)
         self.worker.start()
+
+    def eventFilter(self, watched, event):
+        if watched is self.input and event.type() == QEvent.Type.KeyPress:
+            key = event.key()
+            if key == Qt.Key.Key_Up:
+                self._recall_input(-1)
+                return True
+            if key == Qt.Key.Key_Down:
+                self._recall_input(1)
+                return True
+            if key in (Qt.Key.Key_PageUp, Qt.Key.Key_PageDown):
+                scrollbar = self.transcript.verticalScrollBar()
+                direction = -1 if key == Qt.Key.Key_PageUp else 1
+                scrollbar.setValue(scrollbar.value() + direction * scrollbar.pageStep())
+                return True
+        return super().eventFilter(watched, event)
+
+    def _recall_input(self, direction: int):
+        if not self.input_history:
+            return
+        if self.input_history_index == len(self.input_history):
+            self.input_draft = self.input.text()
+        self.input_history_index = max(
+            0, min(len(self.input_history), self.input_history_index + direction)
+        )
+        if self.input_history_index == len(self.input_history):
+            recalled = self.input_draft
+        else:
+            recalled = self.input_history[self.input_history_index]
+        self.input.setText(recalled)
+        self.input.setCursorPosition(len(recalled))
 
     def _receive(self, response: str):
         self.messages.append({"role": "assistant", "content": response})
@@ -439,6 +524,7 @@ class ConversationPanel(QWidget):
         self.new_button.setEnabled(False)
         self.delete_button.setEnabled(False)
         self.memories_button.setEnabled(False)
+        self.chronicle_button.setEnabled(False)
 
     def _worker_finished(self):
         self.worker.deleteLater()
@@ -453,3 +539,4 @@ class ConversationPanel(QWidget):
         self.new_button.setEnabled(enabled and self.memory is not None)
         self.delete_button.setEnabled(enabled and self.memory is not None)
         self.memories_button.setEnabled(enabled and self.memory is not None)
+        self.chronicle_button.setEnabled(enabled and self.memory is not None)

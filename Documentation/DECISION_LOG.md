@@ -50,6 +50,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-042 | Modesty's durable fictional autobiography belongs in a separately labelled Personal Chronicle. It may provide analogy and continuity but never factual evidence; compact episode records consolidate into bounded arcs to prevent memory bloat. | Canonical memory boundary |
 | D-043 | Regular working-zone answers and dated conversions are deterministic local functions requiring neither Grand Library nor language model. Fixed African/GMT zones use explicit offsets; Britain, Europe, Thailand, Australia, New Zealand, and US regions use installed named timezone rules, with ambiguous countries requiring a city or region. | Canonical capability |
 | D-044 | Every milestone commit is a restore point and requires a repository-wide reconciliation of status documents, commands, tests, configuration, assets, and live behavior before commit. Stale paperwork is a completion defect. | Canonical process rule |
+| D-045 | The Personal Chronicle is authoritative for Modesty's narrative autobiography. Relevant recall must use concrete recorded details; generic model invention, stale conversational wording, and user premises cannot silently create or replace an episode. | Canonical narrative-integrity rule |
 
 ## Superseded decisions and names
 

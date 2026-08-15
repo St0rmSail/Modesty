@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.14.0 complete
+**Baseline:** Build 0.15.0 complete
 **Reviewed:** 2026-08-15
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -11,7 +11,7 @@
 | Idle breathing | Yes | Yes | Yes | Elapsed-time, subtle, feet anchored |
 | Natural blink | Yes | Yes | Yes | Clear-eyed open and closed assets |
 | Eye focus/tracking | Partial | No | No | Eye artwork corrected; tracking deferred as fluff |
-| Text conversation UI | Yes | Yes | Yes | Overlay in Study View |
+| Text conversation UI | Yes | Yes | Yes | Overlay in Study View; Up/Down recalls sent input and Page Up/Page Down scrolls the transcript while typing |
 | Local Ollama conversation | Yes | Yes | Yes | `gemma4:e2b`; bidirectional chat confirmed |
 | Conversation persistence | Yes | Yes | Yes | SQLite; restart test passed |
 | Conversation history controls | Yes | Yes | Yes | Open, create, and delete conversations |
@@ -34,7 +34,7 @@
 | Offline working time zones | Yes | Yes | Yes | Fixed African/GMT and DST-aware Britain, Europe, Thailand, Australia, New Zealand, and US named zones demonstrated locally |
 | Background service presence | Yes | Partial | No | State is defined; hidden Study host, restore control, scheduled work, and remote client are not implemented |
 | Schedule and calendar awareness | Yes | No | No | Broad schedule boundaries approved; calendar source and reminder controls remain undecided |
-| Personal Chronicle | Yes | No | No | Persistent narrative autobiography designed with compact episodes, consolidation, provenance, and factual-evidence boundary |
+| Personal Chronicle | Yes | Yes | Yes | Structured episodes, visible review, corrected-place matching, concrete active-only recall, provenance, retirement exclusion, and factual-evidence boundary demonstrated |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.14.0 - Time and Presence (complete)
+**Current marker:** Build 0.15.0 - The Personal Chronicle (complete)
 **Reviewed:** 2026-08-15
 
 ## Completed build line
@@ -24,6 +24,21 @@
 | 0.12.0 | Library Gateway | Fail-closed bounded online loans, first curated expedition, media boundary, and truthful Study state |
 | 0.13.0 | The Researcher | Visible bounded Scribble Hub discovery, coherent Briefings, explicit disposition, and truthful Team presentation |
 | 0.14.0 | Time and Presence | Session truth, elapsed absence, clean/interrupted recovery, local greetings, and offline working-zone conversion |
+
+## Active build
+
+### 0.15.0 - The Personal Chronicle - Complete
+
+The local structured episode store, compact validation, bounded active-only recall, narrative-only prompt boundary, input/transcript retrieval, and user review window are implemented and demonstrated. Persistence, correction, concrete recall, false-premise rejection, factual-evidence refusal, and retirement exclusion passed live. Autonomous self-authored episodes and bulk generation are deliberately excluded from this foundation.
+
+Definition of done:
+
+- Persist compact explicitly narrative episodes across restart.
+- Let Drew add, inspect, correct, retire, and delete episodes visibly.
+- Retrieve only a few relevant active episodes for a conversation topic.
+- Preserve provenance and last-recalled time.
+- Demonstrate that Modesty may use an episode as analogy but not factual evidence.
+- Keep autonomous episode creation disabled until the inspectable path is accepted.
 
 ## Immediate sequence
 

@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.14.0 - Time and Presence (complete)
-**Current focus:** Personal Chronicle foundation after a deliberate implementation review
+**Current build:** 0.15.0 - The Personal Chronicle (complete)
+**Current focus:** Select the next functional build from the reconciled roadmap
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -101,3 +101,16 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Add DST-aware named zones for Britain, Europe, Thailand, selected Australia, Auckland, and US East/Central/West.
 - [x] Reject ambiguous Australia and USA requests rather than guessing.
 - [x] Record dependencies and demonstrate all 79 live tests.
+
+## Build 0.15.0 - Complete
+
+- [x] Keep narrative episodes separate from factual personal memories.
+- [x] Implement compact local episode storage with status and provenance.
+- [x] Implement visible add, edit, retire, and delete controls.
+- [x] Implement bounded relevant recall of active episodes only.
+- [x] Label recalled context as narrative and prohibit factual-evidence use.
+- [x] Demonstrate persistence and review controls in the live Study.
+- [x] Demonstrate relevant analogy without factual misuse.
+- [x] Demonstrate false-premise rejection and retirement exclusion in a new conversation.
+- [x] Preserve readable controls plus keyboard input recall and transcript paging.
+- [x] Run all 84 live tests and perform the restore-point paperwork audit.

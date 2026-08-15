@@ -37,6 +37,7 @@ main.py
 | Researcher | `Brain/Team/researcher.py`, `Runtime/Research/` | Visible Scribble Hub discovery, bounded extraction, report lifecycle, and truthful Team state demonstrated |
 | Briefing Hologram | `Runtime/Conversation/briefing_hologram.py`, `Runtime/Research/pending_reports.py` | Functional visual surface, gated disposition, and reversible duty movement demonstrated; gesture artwork deferred to polish |
 | Time and presence | `Runtime/Time/presence.py`, local `Data/presence.json` | Local time, session heartbeat, clean/interrupted shutdown, greeting, and presence-state foundation implemented |
+| Personal Chronicle | `chronicle_episodes` in `Data/modesty.db`, `Runtime/Conversation/chronicle_dialog.py` | Explicitly narrative structured storage, visible lifecycle controls, and bounded active-only recall demonstrated |
 | Librarian and private reading collection | No software counterpart yet | Canonical role; **The Stacks** is a provisional collection name |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
@@ -45,7 +46,7 @@ main.py
 - `Data/modesty.db` is local generated state and is excluded from Git.
 - `Data/presence.json` is the local generated operational session ledger and is excluded from Git.
 - `Data/Secrets/` contains current-user encrypted credentials and is excluded from Git; clear-text credentials never belong in repository files, chat, audit logs, loan packets, or returned notes.
-- Conversation history and approved personal memories are structured parts of the Filing Cabinet domain.
+- Conversation history, approved personal memories, and the separately labelled Personal Chronicle are structured parts of the Filing Cabinet domain. Chronicle episodes are narrative continuity, not factual evidence.
 - The repository stores Modesty's design, contracts, schemas, and implementation record.
 - The Filing Cabinet stores private personal and working knowledge.
 - The Bookshelf stores curated shared knowledge used by Modesty and the authorized Team.

@@ -1,6 +1,6 @@
 # Modesty's Personal Chronicle
 
-**Status:** Canonical design; storage and recall not yet implemented
+**Status:** Build 0.15 implemented and demonstrated
 
 The Personal Chronicle is Modesty's persistent fictional autobiography. It gives narrative continuity to offstage trips, hobbies, mishaps, and relationships with the unseen Team without confusing them with Drew's memories, real-world evidence, or operational logs.
 
@@ -46,3 +46,16 @@ Small arcs with Team members may persist across days or weeks, such as an argume
 ## Implementation gate
 
 The Chronicle should be implemented only after the operational Time and Presence restart tests pass. Begin with inspectable local structured storage, explicit narrative labels, bounded retrieval, and a simple review surface. Do not use embeddings or autonomous bulk generation for the first version.
+
+## Build 0.15 foundation
+
+- `chronicle_episodes` is a separate table in the backed-up local `Data/modesty.db`; it is not mixed with factual personal memories.
+- The Chronicle window permits explicit add, inspect, correct, retire, and permanent delete actions.
+- Recall uses a small transparent keyword match, returns no more than three active episodes, and records the recall time.
+- Retired, consolidated, and contradicted episodes do not enter conversation context.
+- Every recalled entry is labelled `NARRATIVE` with provenance in the model context, together with an explicit prohibition on factual use.
+- A recalled answer must use at least one concrete recorded detail; generic atmosphere or newly invented recollection cannot stand in for the stored episode.
+- When no episode matches, the prompt says so explicitly; conversational residue or a user's mistaken premise cannot silently become autobiographical canon.
+- Self-authored and conversation-derived provenance labels exist for later controlled workflows, but Modesty does not yet create episodes autonomously.
+
+Live acceptance demonstrated persistence across restart, correction from Mallorca to Madagascar, concrete detail recall, refusal to treat narrative as technical proof, rejection of a false Mallorca-memory premise, and exclusion after retirement. Conversation controls also retain accessible input and transcript history. Eighty-four automated tests passed in `E:\Modesty`.

@@ -1,6 +1,7 @@
 """SQLite-backed conversation persistence for Modesty."""
 
 import sqlite3
+import re
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -90,6 +91,25 @@ class ConversationMemory:
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
                     UNIQUE(category, content)
+                );
+
+                CREATE TABLE IF NOT EXISTS chronicle_episodes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    summary TEXT NOT NULL,
+                    narrative_date TEXT NOT NULL DEFAULT '',
+                    setting TEXT NOT NULL DEFAULT '',
+                    participants TEXT NOT NULL DEFAULT '',
+                    themes TEXT NOT NULL DEFAULT '',
+                    consequences TEXT NOT NULL DEFAULT '',
+                    parent_arc TEXT NOT NULL DEFAULT '',
+                    status TEXT NOT NULL DEFAULT 'active'
+                        CHECK (status IN ('active', 'consolidated', 'retired', 'contradicted')),
+                    provenance TEXT NOT NULL DEFAULT 'Drew-approved'
+                        CHECK (provenance IN ('self-authored', 'Drew-approved', 'conversation-derived')),
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    last_recalled_at TEXT
                 );
                 """
             )
@@ -343,3 +363,119 @@ class ConversationMemory:
                 )
         except sqlite3.DatabaseError as error:
             raise MemoryStoreError("The personal memory could not be deleted.") from error
+
+    CHRONICLE_STATUSES = {"active", "consolidated", "retired", "contradicted"}
+    CHRONICLE_PROVENANCE = {"self-authored", "Drew-approved", "conversation-derived"}
+    CHRONICLE_QUERY_STOPWORDS = {
+        "about", "before", "does", "from", "have", "near", "remind", "that",
+        "this", "what", "when", "where", "which", "with", "your", "you",
+    }
+
+    @staticmethod
+    def _clean_chronicle_text(value: str, maximum: int) -> str:
+        return " ".join(value.split())[:maximum]
+
+    def _clean_chronicle(self, episode: dict) -> dict:
+        cleaned = {
+            "title": self._clean_chronicle_text(episode.get("title", ""), 120),
+            "summary": self._clean_chronicle_text(episode.get("summary", ""), 1200),
+            "narrative_date": self._clean_chronicle_text(episode.get("narrative_date", ""), 80),
+            "setting": self._clean_chronicle_text(episode.get("setting", ""), 160),
+            "participants": self._clean_chronicle_text(episode.get("participants", ""), 240),
+            "themes": self._clean_chronicle_text(episode.get("themes", ""), 240),
+            "consequences": self._clean_chronicle_text(episode.get("consequences", ""), 500),
+            "parent_arc": self._clean_chronicle_text(episode.get("parent_arc", ""), 120),
+            "status": episode.get("status", "active").strip(),
+            "provenance": episode.get("provenance", "Drew-approved").strip(),
+        }
+        if not cleaned["title"] or not cleaned["summary"]:
+            raise ValueError("A Chronicle episode needs a title and summary.")
+        if cleaned["status"] not in self.CHRONICLE_STATUSES:
+            raise ValueError("Unknown Chronicle status.")
+        if cleaned["provenance"] not in self.CHRONICLE_PROVENANCE:
+            raise ValueError("Unknown Chronicle provenance.")
+        return cleaned
+
+    def add_chronicle_episode(self, **episode) -> int:
+        values = self._clean_chronicle(episode)
+        timestamp = self._timestamp()
+        columns = tuple(values)
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    f"INSERT INTO chronicle_episodes ({', '.join(columns)}, created_at, updated_at) "
+                    f"VALUES ({', '.join('?' for _ in columns)}, ?, ?)",
+                    (*values.values(), timestamp, timestamp),
+                )
+                return int(cursor.lastrowid)
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("The Chronicle episode could not be saved.") from error
+
+    def update_chronicle_episode(self, episode_id: int, **episode):
+        values = self._clean_chronicle(episode)
+        timestamp = self._timestamp()
+        assignments = ", ".join(f"{column} = ?" for column in values)
+        try:
+            with self._connection() as connection:
+                cursor = connection.execute(
+                    f"UPDATE chronicle_episodes SET {assignments}, updated_at = ? WHERE id = ?",
+                    (*values.values(), timestamp, episode_id),
+                )
+                if cursor.rowcount == 0:
+                    raise MemoryStoreError("That Chronicle episode no longer exists.")
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("The Chronicle episode could not be updated.") from error
+
+    def chronicle_episodes(self, limit: int = 100) -> list[dict]:
+        try:
+            with self._connection() as connection:
+                rows = connection.execute(
+                    "SELECT * FROM chronicle_episodes ORDER BY id DESC LIMIT ?",
+                    (max(1, limit),),
+                ).fetchall()
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("Chronicle episodes could not be listed.") from error
+        return [dict(row) for row in rows]
+
+    def relevant_chronicle(self, query: str, limit: int = 3) -> list[dict]:
+        terms = {
+            term.lower() for term in re.findall(r"[A-Za-z0-9']{3,}", query)
+            if term.lower() not in self.CHRONICLE_QUERY_STOPWORDS
+        }
+        if not terms:
+            return []
+        candidates = [
+            episode for episode in self.chronicle_episodes(200)
+            if episode["status"] == "active"
+        ]
+        scored = []
+        for episode in candidates:
+            searchable = " ".join(
+                str(episode[field]).lower()
+                for field in ("title", "summary", "setting", "participants", "themes", "consequences", "parent_arc")
+            )
+            score = sum(1 for term in terms if term in searchable)
+            required = 1 if len(terms) == 1 else 2
+            if score >= required:
+                scored.append((score, episode["id"], episode))
+        selected = [item[2] for item in sorted(scored, reverse=True)[:max(1, limit)]]
+        if selected:
+            timestamp = self._timestamp()
+            try:
+                with self._connection() as connection:
+                    connection.executemany(
+                        "UPDATE chronicle_episodes SET last_recalled_at = ? WHERE id = ?",
+                        ((timestamp, episode["id"]) for episode in selected),
+                    )
+            except sqlite3.DatabaseError as error:
+                raise MemoryStoreError("Chronicle recall could not be recorded.") from error
+            for episode in selected:
+                episode["last_recalled_at"] = timestamp
+        return selected
+
+    def delete_chronicle_episode(self, episode_id: int):
+        try:
+            with self._connection() as connection:
+                connection.execute("DELETE FROM chronicle_episodes WHERE id = ?", (episode_id,))
+        except sqlite3.DatabaseError as error:
+            raise MemoryStoreError("The Chronicle episode could not be deleted.") from error

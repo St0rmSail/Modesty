@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.15.0 complete
+**Baseline:** Build 0.16.0 complete
 **Reviewed:** 2026-08-15
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -33,7 +33,7 @@
 | Local time and session presence | Yes | Yes | Yes | Afternoon and sub-minute greetings, graceful shutdown, nine-minute absence, clean restart, and isolated interrupted recovery demonstrated |
 | Offline working time zones | Yes | Yes | Yes | Fixed African/GMT and DST-aware Britain, Europe, Thailand, Australia, New Zealand, and US named zones demonstrated locally |
 | Background service presence | Yes | Partial | No | State is defined; hidden Study host, restore control, scheduled work, and remote client are not implemented |
-| Schedule and calendar awareness | Yes | No | No | Broad schedule boundaries approved; calendar source and reminder controls remain undecided |
+| Schedule and calendar awareness | Yes | Partial | Yes | Local reminders, lifecycle commands/window, and due opening context demonstrated; recurrence, accounts, and background delivery remain unimplemented |
 | Personal Chronicle | Yes | Yes | Yes | Structured episodes, visible review, corrected-place matching, concrete active-only recall, provenance, retirement exclusion, and factual-evidence boundary demonstrated |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |

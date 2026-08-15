@@ -13,7 +13,7 @@ from Runtime.Library.providers import LoopbackProvider, SmithsonianProvider
 from Runtime.Library.smithsonian import DEFAULT_KEY_PATH, SmithsonianAccess
 from Runtime.Core import team_status
 from Runtime.Core.command_help import command_help
-from Runtime.Time import handle_time_command
+from Runtime.Time import ReminderStore, handle_schedule_command, handle_time_command
 
 
 @dataclass(frozen=True)
@@ -105,20 +105,20 @@ class TeamDelegator:
     )
     TOPIC_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help(?:\s+me)?\s+with|show\s+(?:me\s+)?(?:the\s+)?)\s+"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:commands?|please|again|help|open))?\??\s*$",
         re.IGNORECASE,
     )
     NATURAL_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:remind\s+me\s+(?:how\s+to|about)|"
         r"what(?:'s|\s+is)\s+the\s+command\s+for)\s+(?:open\s+|use\s+)?"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:please|again))?\??\s*$",
         re.IGNORECASE,
     )
     HELP_FOLLOWUP_PATTERN = re.compile(
         r"^(?:the\s+)?(?:(?:one|section|commands?)\s+(?:about|for)\s+)?"
-        r"(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?)"
+        r"(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:please|thanks|thank\s+you|help))?\??\s*$",
         re.IGNORECASE,
     )
@@ -141,6 +141,7 @@ class TeamDelegator:
         self.smithsonian_provider = smithsonian_provider or SmithsonianProvider(
             SmithsonianAccess(CredentialStore(DEFAULT_KEY_PATH))
         )
+        self.reminders = ReminderStore()
         self._help_active = False
 
     def handle(self, message: str) -> DelegationResult:
@@ -165,6 +166,10 @@ class TeamDelegator:
         time_response = handle_time_command(message)
         if time_response is not None:
             return DelegationResult(True, time_response)
+
+        schedule_response = handle_schedule_command(message, getattr(self, "reminders", None))
+        if schedule_response is not None:
+            return DelegationResult(True, schedule_response)
 
         if self.RESEARCHER_SCRIBBLEHUB_PATTERN.match(message.strip()):
             if not self.gateway.is_open or team_status.grand_library_state() != "online":

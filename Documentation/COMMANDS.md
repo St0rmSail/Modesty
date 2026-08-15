@@ -76,6 +76,18 @@ Supported working zones include South Africa/SAST; Uganda, Kenya, Tanzania and E
 
 These answers use Modesty's installed offline timezone-rule database, including daylight-saving changes. `Australia` and `USA` alone are deliberately rejected as ambiguous; name the city or regional zone. Add `on YYYY-MM-DD` when converting a future or past event so the correct seasonal rule is applied.
 
+## Schedule and reminders
+
+The first local schedule commands use explicit local dates and 24-hour times so Modesty never guesses an ambiguous date.
+
+- `Remind me on 2026-08-16 at 09:30: Call the office`
+- `Show my reminders`
+- `List my reminders`
+- `Complete reminder 1`
+- `Delete reminder 1`
+
+Reminder numbers are stable local identifiers. Completing retains the record; deleting removes it. Calendar accounts, background notifications, and natural-language dates such as `next Friday` are not implemented yet.
+
 Use deterministic help whenever you need exact operational wording. Examples include `What commands can I use?`, `Help with the Grand Library`, `remind me how to open the Grand Library`, or a topic-only follow-up after the help index.
 
 This document records implemented deterministic commands. Ordinary conversation does not require command phrasing.

@@ -38,6 +38,7 @@ main.py
 | Briefing Hologram | `Runtime/Conversation/briefing_hologram.py`, `Runtime/Research/pending_reports.py` | Functional visual surface, gated disposition, and reversible duty movement demonstrated; gesture artwork deferred to polish |
 | Time and presence | `Runtime/Time/presence.py`, local `Data/presence.json` | Local time, session heartbeat, clean/interrupted shutdown, greeting, and presence-state foundation implemented |
 | Personal Chronicle | `chronicle_episodes` in `Data/modesty.db`, `Runtime/Conversation/chronicle_dialog.py` | Explicitly narrative structured storage, visible lifecycle controls, and bounded active-only recall demonstrated |
+| Local schedule | `Runtime/Time/schedule.py`, `reminders` in `Data/modesty.db`, `Runtime/Conversation/schedule_dialog.py` | Persistent explicit reminders, due greeting context, commands, and visible lifecycle demonstrated |
 | Librarian and private reading collection | No software counterpart yet | Canonical role; **The Stacks** is a provisional collection name |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 

@@ -1,6 +1,6 @@
 # Modesty Project Punch List
 
-**Current build:** 0.15.0 - The Personal Chronicle (complete)
+**Current build:** 0.16.0 - Schedule and Reminders (complete)
 **Current focus:** Select the next functional build from the reconciled roadmap
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
@@ -114,3 +114,12 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Demonstrate false-premise rejection and retirement exclusion in a new conversation.
 - [x] Preserve readable controls plus keyboard input recall and transcript paging.
 - [x] Run all 84 live tests and perform the restore-point paperwork audit.
+
+## Build 0.16.0 - Complete
+
+- [x] Persist explicit local-date reminders with stable IDs.
+- [x] Add deterministic create, list, complete, and delete commands plus help.
+- [x] Add a readable Schedule review surface without crowding existing controls.
+- [x] Add bounded overdue and due-today opening notices.
+- [x] Demonstrate restart persistence, overdue greeting, review, and confirmed deletion.
+- [x] Run all 89 live tests and perform the restore-point paperwork audit.

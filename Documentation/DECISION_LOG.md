@@ -51,6 +51,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-043 | Regular working-zone answers and dated conversions are deterministic local functions requiring neither Grand Library nor language model. Fixed African/GMT zones use explicit offsets; Britain, Europe, Thailand, Australia, New Zealand, and US regions use installed named timezone rules, with ambiguous countries requiring a city or region. | Canonical capability |
 | D-044 | Every milestone commit is a restore point and requires a repository-wide reconciliation of status documents, commands, tests, configuration, assets, and live behavior before commit. Stale paperwork is a completion defect. | Canonical process rule |
 | D-045 | The Personal Chronicle is authoritative for Modesty's narrative autobiography. Relevant recall must use concrete recorded details; generic model invention, stale conversational wording, and user premises cannot silently create or replace an episode. | Canonical narrative-integrity rule |
+| D-046 | The first schedule is local and deterministic: explicit local dates and times become UTC-backed reminders with stable IDs. Due time creates a notice, never a claim that work occurred; accounts, recurrence, natural-language dates, and background delivery require later controlled builds. | Canonical schedule boundary |
 
 ## Superseded decisions and names
 

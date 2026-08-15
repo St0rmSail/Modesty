@@ -20,6 +20,8 @@ TOPICS = {
     "time": "Time zones",
     "time zone": "Time zones",
     "time zones": "Time zones",
+    "schedule": "Schedule and reminders",
+    "reminders": "Schedule and reminders",
 }
 
 
@@ -38,6 +40,6 @@ def command_help(topic: str | None = None) -> str:
                 return f"{heading}\n\n{match.group('body').strip()}"
     return (
         "Modesty's command help\n\n"
-        "Available sections: Grand Library, Researcher, Briefings, Archivist, Local Library search, Conversation, and Time zones.\n\n"
+        "Available sections: Grand Library, Researcher, Briefings, Archivist, Local Library search, Conversation, Time zones, and Schedule and reminders.\n\n"
         "Ask, for example: Help with the Grand Library"
     )

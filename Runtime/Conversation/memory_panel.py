@@ -20,10 +20,11 @@ from Brain.Team.delegation import TeamDelegator
 from Runtime.Conversation.client import DEFAULT_MODEL, OllamaChatClient
 from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
 from Runtime.Conversation.chronicle_dialog import ChronicleDialog
+from Runtime.Conversation.schedule_dialog import ScheduleDialog
 from Runtime.Core import team_status
 from Runtime.Research.browser_window import ScribbleHubResearchWindow
 from Runtime.Research.pending_reports import PendingReportStore
-from Runtime.Time import PresenceSession
+from Runtime.Time import PresenceSession, ReminderStore
 
 
 SYSTEM_PROMPT = """You are Modesty, Drew's local-first personal AI assistant.
@@ -82,9 +83,13 @@ class ConversationPanel(QWidget):
         self.research_window = None
         self.pending_reports = PendingReportStore()
         self.presence = presence
+        self.reminders = ReminderStore()
         self.opening_greeting = (
             presence.opening_greeting() if presence is not None else "Hello, Drew."
         )
+        reminder_summary = self.reminders.opening_summary()
+        if reminder_summary:
+            self.opening_greeting = f"{self.opening_greeting} {reminder_summary}"
         self.input_history = []
         self.input_history_index = 0
         self.input_draft = ""
@@ -176,18 +181,28 @@ class ConversationPanel(QWidget):
         self.chronicle_button.clicked.connect(self._open_chronicle)
         tools_row.addWidget(self.chronicle_button)
 
+        self.schedule_button = QPushButton("Schedule")
+        self.schedule_button.setObjectName("smallButton")
+        self.schedule_button.clicked.connect(self._open_schedule)
+        tools_row.addWidget(self.schedule_button)
+
+        layout.addLayout(tools_row)
+
+        duty_row = QHBoxLayout()
+
         self.briefing_button = QPushButton("Briefing")
         self.briefing_button.setObjectName("smallButton")
         self.briefing_button.clicked.connect(self._open_latest_briefing)
         self.briefing_button.setVisible(self.pending_reports.latest() is not None)
-        tools_row.addWidget(self.briefing_button)
+        duty_row.addWidget(self.briefing_button)
 
         self.hide_button = QPushButton("Hide")
         self.hide_button.setObjectName("smallButton")
         self.hide_button.setToolTip("Hide the conversation panel")
         self.hide_button.clicked.connect(self.hide_requested.emit)
-        tools_row.addWidget(self.hide_button)
-        layout.addLayout(tools_row)
+        duty_row.addStretch()
+        duty_row.addWidget(self.hide_button)
+        layout.addLayout(duty_row)
 
         self.transcript = QPlainTextEdit()
         self.transcript.setReadOnly(True)
@@ -327,6 +342,11 @@ class ConversationPanel(QWidget):
         if self.worker is not None or self.memory is None:
             return
         ChronicleDialog(self.memory, self).exec()
+
+    def _open_schedule(self):
+        if self.worker is not None:
+            return
+        ScheduleDialog(self.reminders, self).exec()
 
     def _system_context(self, query: str = "") -> str:
         time_context = self.presence.context_summary() if self.presence else ""
@@ -525,6 +545,7 @@ class ConversationPanel(QWidget):
         self.delete_button.setEnabled(False)
         self.memories_button.setEnabled(False)
         self.chronicle_button.setEnabled(False)
+        self.schedule_button.setEnabled(False)
 
     def _worker_finished(self):
         self.worker.deleteLater()
@@ -540,3 +561,4 @@ class ConversationPanel(QWidget):
         self.delete_button.setEnabled(enabled and self.memory is not None)
         self.memories_button.setEnabled(enabled and self.memory is not None)
         self.chronicle_button.setEnabled(enabled and self.memory is not None)
+        self.schedule_button.setEnabled(enabled)

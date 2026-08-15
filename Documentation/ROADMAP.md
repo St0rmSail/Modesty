@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.15.0 - The Personal Chronicle (complete)
+**Current marker:** Build 0.16.0 - Schedule and Reminders (complete)
 **Reviewed:** 2026-08-15
 
 ## Completed build line
@@ -26,6 +26,10 @@
 | 0.14.0 | Time and Presence | Session truth, elapsed absence, clean/interrupted recovery, local greetings, and offline working-zone conversion |
 
 ## Active build
+
+### 0.16.0 - Schedule and Reminders - Complete
+
+Persistent local reminders, explicit dates, stable IDs, deterministic help, due/overdue opening-address context, and a readable lifecycle surface are implemented and demonstrated. Calendar accounts, recurrence, natural-language date guessing, and background notification delivery remain future work.
 
 ### 0.15.0 - The Personal Chronicle - Complete
 

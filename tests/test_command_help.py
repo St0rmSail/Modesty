@@ -48,6 +48,13 @@ class CommandHelpTest(unittest.TestCase):
         self.assertEqual(result.action, "close_study")
         self.assertIn("`Bye`", command_help("chat"))
 
+    def test_schedule_help_is_local_and_exact(self):
+        delegator = TeamDelegator.__new__(TeamDelegator)
+        result = delegator.handle("Help with reminders")
+        self.assertTrue(result.handled)
+        self.assertIn("Remind me on 2026-08-16 at 09:30", result.response)
+        self.assertIn("not implemented yet", result.response)
+
 
 if __name__ == "__main__":
     unittest.main()

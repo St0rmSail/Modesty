@@ -2,7 +2,7 @@
 
 **Status:** Authoritative index
 **Reviewed:** 2026-08-15
-**Current build:** 0.15.0 - The Personal Chronicle (complete)
+**Current build:** 0.16.0 - Schedule and Reminders (complete)
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 
@@ -39,6 +39,7 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Command Help](COMMANDS.md): authoritative user-facing deterministic command reference.
 - [Time and Presence](TIME_AND_PRESENCE.md): session truth, presence states, greeting, scheduling direction, and narrative boundary.
 - [Personal Chronicle](PERSONAL_CHRONICLE.md): compact persistent fictional autobiography and its evidence boundary.
+- [Schedule and Reminders](SCHEDULE_AND_REMINDERS.md): persistent local reminders, due context, commands, and future calendar boundary.
 
 ## Evidence reviewed for Build 0.8.1
 

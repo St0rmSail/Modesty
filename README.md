@@ -8,6 +8,12 @@ Run the application from the repository root:
 python main.py
 ```
 
+Install the recorded Python dependencies into the active environment when setting up or recovering Modesty:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
 `main.py` is the canonical entry point. Do not rename it or create numbered variants.
 
 ## Project record
@@ -18,9 +24,11 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.12.0 - Library Gateway (complete)**
+**0.14.0 - Time and Presence (complete)**
 
-Build 0.12.0 is complete. Modesty's Grand Library starts closed, separates local loopback from bounded online access, previews and approval-gates exact loans, protects secrets and local stores, quarantines sourced text returns, and records a content-free audit. The first authenticated Smithsonian return completed the Inbox-to-Research lifecycle. Active media remains fail-closed until a dedicated inspected-media intake exists. The accepted Study sequence truthfully distinguishes online access from local readiness.
+Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
+
+Build 0.14 is complete. See [Time and Presence](Documentation/TIME_AND_PRESENCE.md) for the operational boundary and [Modesty's Personal Chronicle](Documentation/PERSONAL_CHRONICLE.md) for the approved next-stage narrative-memory design.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

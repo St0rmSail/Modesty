@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.12.0 - Library Gateway (complete)
-**Current focus:** Select the next build deliberately
+**Current build:** 0.14.0 - Time and Presence (complete)
+**Current focus:** Personal Chronicle foundation after a deliberate implementation review
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -78,7 +78,26 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 
 ## Engineering housekeeping
 
-- [ ] Add a reproducible dependency manifest.
+- [x] Add a reproducible dependency manifest.
 - [ ] Audit legacy `modesty.py` and duplicate boot/config paths.
 - [ ] Add focused automated tests for memory and animation sampling.
 - [ ] Preserve `python main.py` as the launch command.
+
+## Build 0.13.0 - Complete
+
+- [x] Implement bounded visible Scribble Hub discovery without bypassing access controls.
+- [x] Return a coherent sourced Briefing rather than only a file location.
+- [x] Preserve undecided reports across restart and require explicit private, shared, or toss disposition.
+- [x] Implement the readable Briefing Hologram, duty movement, moving shadow, truthful headset state, and Researcher Bobblehead.
+- [x] Add tolerant deterministic command help and graceful `Bye` shutdown.
+- [x] Demonstrate the complete live lifecycle and pass 64 tests.
+
+## Build 0.14.0 - Complete
+
+- [x] Persist UTC startup, heartbeat, presence, and clean shutdown state outside Git.
+- [x] Produce local-time greetings with truthful elapsed clean or interrupted absence.
+- [x] Define offline, background, present, and working states without pretending background hosting exists yet.
+- [x] Answer regular African/GMT working times locally.
+- [x] Add DST-aware named zones for Britain, Europe, Thailand, selected Australia, Auckland, and US East/Central/West.
+- [x] Reject ambiguous Australia and USA requests rather than guessing.
+- [x] Record dependencies and demonstrate all 79 live tests.

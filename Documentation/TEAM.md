@@ -1,7 +1,7 @@
 # The Team
 
 **Status:** Canonical framework; Archivist foundation implemented
-**Reviewed:** 2026-08-09
+**Reviewed:** 2026-08-15
 
 The Team is a group of unseen functional specialists working behind the scenes. They are not chat personalities and never speak to Drew as alternate characters. Modesty is the sole conversational presence: she consults the Team through her headset and communicates their results. Team activity is monitored through corresponding Bobbleheads on her Bookshelf.
 

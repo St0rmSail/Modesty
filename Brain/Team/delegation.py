@@ -13,6 +13,7 @@ from Runtime.Library.providers import LoopbackProvider, SmithsonianProvider
 from Runtime.Library.smithsonian import DEFAULT_KEY_PATH, SmithsonianAccess
 from Runtime.Core import team_status
 from Runtime.Core.command_help import command_help
+from Runtime.Time import handle_time_command
 
 
 @dataclass(frozen=True)
@@ -104,20 +105,20 @@ class TeamDelegator:
     )
     TOPIC_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help(?:\s+me)?\s+with|show\s+(?:me\s+)?(?:the\s+)?)\s+"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?)"
         r"(?:\s+(?:commands?|please|again|help|open))?\??\s*$",
         re.IGNORECASE,
     )
     NATURAL_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:remind\s+me\s+(?:how\s+to|about)|"
         r"what(?:'s|\s+is)\s+the\s+command\s+for)\s+(?:open\s+|use\s+)?"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?)"
         r"(?:\s+(?:please|again))?\??\s*$",
         re.IGNORECASE,
     )
     HELP_FOLLOWUP_PATTERN = re.compile(
         r"^(?:the\s+)?(?:(?:one|section|commands?)\s+(?:about|for)\s+)?"
-        r"(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation)"
+        r"(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?)"
         r"(?:\s+(?:please|thanks|thank\s+you|help))?\??\s*$",
         re.IGNORECASE,
     )
@@ -160,6 +161,10 @@ class TeamDelegator:
 
         if self.GRACEFUL_EXIT_PATTERN.match(message.strip()):
             return DelegationResult(True, "Goodbye, Drew.", "close_study")
+
+        time_response = handle_time_command(message)
+        if time_response is not None:
+            return DelegationResult(True, time_response)
 
         if self.RESEARCHER_SCRIBBLEHUB_PATTERN.match(message.strip()):
             if not self.gateway.is_open or team_status.grand_library_state() != "online":

@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.13.0 complete
+**Baseline:** Build 0.14.0 complete
 **Reviewed:** 2026-08-15
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -30,6 +30,11 @@
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Yes | Yes | Yes | Smithsonian and visible bounded Scribble Hub discovery demonstrated without account action or silent filing |
 | Briefing Hologram and Pending Reports | Yes | Yes | Yes | Readable expanding surface, compact questioning, restart-safe pending state, gated disposition, reversible duty movement, and truthful headset state demonstrated; gesture artwork remains polish |
+| Local time and session presence | Yes | Yes | Yes | Afternoon and sub-minute greetings, graceful shutdown, nine-minute absence, clean restart, and isolated interrupted recovery demonstrated |
+| Offline working time zones | Yes | Yes | Yes | Fixed African/GMT and DST-aware Britain, Europe, Thailand, Australia, New Zealand, and US named zones demonstrated locally |
+| Background service presence | Yes | Partial | No | State is defined; hidden Study host, restore control, scheduled work, and remote client are not implemented |
+| Schedule and calendar awareness | Yes | No | No | Broad schedule boundaries approved; calendar source and reminder controls remain undecided |
+| Personal Chronicle | Yes | No | No | Persistent narrative autobiography designed with compact episodes, consolidation, provenance, and factual-evidence boundary |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |
@@ -39,7 +44,7 @@
 ## Known engineering debt
 
 - `README.md`, the old punch list, and Buildlog had fallen behind Builds 0.4 through 0.8; Build 0.8.1 repairs the record.
-- Dependency installation is not captured in a committed `requirements.txt` or equivalent.
+- Runtime dependencies are captured in `requirements.txt`; installation on a clean Windows recovery remains to be rehearsed.
 - `modesty.py` and duplicate boot/config paths require a non-destructive audit.
 - Automated coverage currently protects knowledge-store initialization and Archivist inventory; other systems still lack focused tests.
 - Configuration duplicates the Ollama model in YAML and Python.

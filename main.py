@@ -12,11 +12,16 @@ Author:
 
 from Runtime.Core.bootstrap import startup
 from Runtime.study import run
+from Runtime.Time import PresenceSession
 
 
 def main():
-    startup()
-    run()
+    presence = PresenceSession().begin()
+    try:
+        startup(presence)
+        run(presence)
+    finally:
+        presence.shutdown()
 
 
 if __name__ == "__main__":

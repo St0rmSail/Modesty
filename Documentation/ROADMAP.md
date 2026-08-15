@@ -1,7 +1,7 @@
 # Roadmap
 
-**Current marker:** Build 0.12.0 - Library Gateway (complete)
-**Reviewed:** 2026-08-09
+**Current marker:** Build 0.14.0 - Time and Presence (complete)
+**Reviewed:** 2026-08-15
 
 ## Completed build line
 
@@ -22,6 +22,8 @@
 | 0.10.0 | The Archivist | Approval-gated local knowledge curation and truthful Team representation |
 | 0.11.0 | Ask the Library | Local source-linked passage retrieval across both knowledge stores |
 | 0.12.0 | Library Gateway | Fail-closed bounded online loans, first curated expedition, media boundary, and truthful Study state |
+| 0.13.0 | The Researcher | Visible bounded Scribble Hub discovery, coherent Briefings, explicit disposition, and truthful Team presentation |
+| 0.14.0 | Time and Presence | Session truth, elapsed absence, clean/interrupted recovery, local greetings, and offline working-zone conversion |
 
 ## Immediate sequence
 
@@ -98,6 +100,12 @@ Definition of done:
 The visible local browser handoff, bounded Scribble Hub discovery, concise Return, Pending Report, functional Briefing Hologram, restart recovery, explicit disposition controls, reversible duty movement, and truthful headset state are implemented and demonstrated. The Researcher Bobblehead and its runtime state are live. The physical Grand Library globe, Bobblehead pedestal perspective, dedicated gesturing sprite, and more characterful movement arcs are deferred visual polish rather than functional blockers. See [RESEARCHER.md](RESEARCHER.md) and [BRIEFING_HOLOGRAM.md](BRIEFING_HOLOGRAM.md).
 
 The Briefing duty movement now uses separate bottom-right geometry, travels with its grounding shadow, suppresses the open Grand Library alcove while the Briefing is visible, and reverses to the exact accepted standing geometry. The dedicated gesturing pose asset and a more characterful movement path remain visual-polishing work; neither may alter the accepted neutral pose or duty endpoints.
+
+### 0.14.0 - Time and Presence - Complete
+
+Truthful local time, an atomic session heartbeat ledger, clean-versus-interrupted shutdown detection, elapsed-absence greetings, the offline/background/present/working state foundation, and immediate offline working-zone conversion are implemented. Clean nine-minute and sub-minute restarts passed live; isolated interrupted recovery produced the correct last-heartbeat warning. See [TIME_AND_PRESENCE.md](TIME_AND_PRESENCE.md).
+
+Background hosting, schedule editing, calendar integration, authorized maintenance windows, narrative vignettes, day/night visuals, and tablet access build on this foundation later. A readable Study clock is welcome polish but cannot block the operational milestone.
 
 ### Later - The Librarian
 

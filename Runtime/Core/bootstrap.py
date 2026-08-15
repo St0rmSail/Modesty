@@ -13,8 +13,8 @@ Responsibilities:
 Author:
     Andrew & ChatGPT
 
-Build:
-    0.0.7
+Current through:
+    0.14.0 — Time and Presence
 """
 
 import sqlite3
@@ -27,9 +27,10 @@ from Brain.Team.archivist import Archivist
 from Brain.Team.researcher import Researcher
 
 from Runtime.Core import config
+from Runtime.Time import PresenceSession
 
 
-def startup():
+def startup(presence: PresenceSession | None = None):
 
     team_status.reset()
 
@@ -66,6 +67,8 @@ def startup():
         print("[green]Researcher    : READY[/]  bounded discovery")
 
     print("Grand Library : CLOSED")
+    if presence is not None:
+        print("Time & Presence: READY  local session ledger")
 
     print()
     team_status.set_core_ready(True)

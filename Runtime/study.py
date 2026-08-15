@@ -9,8 +9,8 @@ Purpose:
     Creates the application window and delegates all visual
     drawing to the Study Renderer.
 
-Build:
-    0.8.0 — Personal Memory
+Current through:
+    0.14.0 — Time and Presence
 ---------------------------------------------------------
 """
 
@@ -33,12 +33,13 @@ from PySide6.QtWidgets import (
 from Runtime.Conversation import ConversationPanel
 from Runtime.Conversation.briefing_hologram import BriefingHologram
 from Runtime.Rendering.renderer import StudyRenderer
+from Runtime.Time import PresenceSession
 
 
 class ConversationDock(QWidget):
     """Keep chat on the right and leave a small restore tab when hidden."""
 
-    def __init__(self):
+    def __init__(self, presence: PresenceSession | None = None):
         super().__init__()
         self.setMaximumWidth(420)
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
@@ -66,7 +67,7 @@ class ConversationDock(QWidget):
         self.show_button.clicked.connect(self.show_panel)
         self.show_row.addWidget(self.show_button)
 
-        self.panel = ConversationPanel()
+        self.panel = ConversationPanel(presence=presence)
         self.panel.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding)
         self.panel.hide_requested.connect(self.hide_panel)
         self.panel.grand_library_state_changed.connect(self._library_state_changed)
@@ -106,7 +107,7 @@ class ConversationDock(QWidget):
 class StudyView(QWidget):
     """Layer the conversation controls over the unchanged Study renderer."""
 
-    def __init__(self):
+    def __init__(self, presence: PresenceSession | None = None):
         super().__init__()
 
         layers = QStackedLayout(self)
@@ -126,7 +127,7 @@ class StudyView(QWidget):
             stretch=1,
             alignment=Qt.AlignmentFlag.AlignVCenter,
         )
-        self.conversation = ConversationDock()
+        self.conversation = ConversationDock(presence)
         self.overlay_layout.addWidget(self.conversation, alignment=Qt.AlignmentFlag.AlignRight)
         self.conversation.panel.briefing_requested.connect(self._open_briefing)
         self.conversation.panel.response_received.connect(self._briefing_response)
@@ -189,21 +190,29 @@ class StudyView(QWidget):
 class StudyWindow(QMainWindow):
     """The Windows application shell containing the Study View."""
 
-    def __init__(self):
+    def __init__(self, presence: PresenceSession | None = None):
         super().__init__()
 
         self.setWindowTitle("Modesty's Study")
         self.resize(1280, 720)
-        self.setCentralWidget(StudyView())
+        self.presence = presence
+        self.setCentralWidget(StudyView(presence))
+        self.heartbeat_timer = None
+        if presence is not None:
+            presence.set_presence("present")
+            self.heartbeat_timer = QTimer(self)
+            self.heartbeat_timer.setInterval(30_000)
+            self.heartbeat_timer.timeout.connect(presence.heartbeat)
+            self.heartbeat_timer.start()
 
 
-def run():
+def run(presence: PresenceSession | None = None):
     """Start the Study View."""
 
     app = QApplication.instance() or QApplication(sys.argv)
 
     try:
-        window = StudyWindow()
+        window = StudyWindow(presence)
     except (FileNotFoundError, ValueError, KeyError) as error:
         QMessageBox.critical(
             None,

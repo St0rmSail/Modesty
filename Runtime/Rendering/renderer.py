@@ -22,8 +22,8 @@ Notes:
     position, scale, pose pivot, and shadow remain relative
     to the Study when the window is resized or cropped.
 
-Build:
-    0.5.0 — First Blink
+Current through:
+    0.14.0 — Time and Presence
 ---------------------------------------------------------
 """
 

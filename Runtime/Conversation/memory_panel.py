@@ -22,6 +22,7 @@ from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
 from Runtime.Core import team_status
 from Runtime.Research.browser_window import ScribbleHubResearchWindow
 from Runtime.Research.pending_reports import PendingReportStore
+from Runtime.Time import PresenceSession
 
 
 SYSTEM_PROMPT = """You are Modesty, Drew's local-first personal AI assistant.
@@ -64,7 +65,11 @@ class ConversationPanel(QWidget):
     response_received = Signal(str)
     graceful_exit_requested = Signal()
 
-    def __init__(self, memory: ConversationMemory | None = None):
+    def __init__(
+        self,
+        memory: ConversationMemory | None = None,
+        presence: PresenceSession | None = None,
+    ):
         super().__init__()
 
         self.client = OllamaChatClient()
@@ -75,6 +80,10 @@ class ConversationPanel(QWidget):
         self.team_delegator = None
         self.research_window = None
         self.pending_reports = PendingReportStore()
+        self.presence = presence
+        self.opening_greeting = (
+            presence.opening_greeting() if presence is not None else "Hello, Drew."
+        )
 
         self._build_ui()
         self._open_memory()
@@ -219,10 +228,13 @@ class ConversationPanel(QWidget):
         self.status.setText(f"Local conversation · {DEFAULT_MODEL}")
 
     def _render_transcript(self):
-        lines = ["Modesty: Good morning, Drew."]
+        lines = []
         for message in self.messages:
             speaker = "Drew" if message["role"] == "user" else "Modesty"
-            lines.append(f"\n{speaker}: {message['content']}")
+            lines.append(f"{speaker}: {message['content']}")
+        if lines:
+            lines.append("")
+        lines.append(f"Modesty: {self.opening_greeting}")
         self.transcript.setPlainText("\n".join(lines))
         scrollbar = self.transcript.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
@@ -292,22 +304,27 @@ class ConversationPanel(QWidget):
         PersonalMemoryDialog(self.memory, self).exec()
 
     def _system_context(self) -> str:
+        time_context = self.presence.context_summary() if self.presence else ""
+        base_context = SYSTEM_PROMPT
+        if time_context:
+            base_context = f"{base_context}\n\n{time_context}"
         if self.memory is None:
-            return SYSTEM_PROMPT
+            return base_context
         try:
             memories = self.memory.personal_memories()
         except MemoryStoreError as error:
             self._memory_failed(error)
-            return SYSTEM_PROMPT
+            return base_context
+
         if not memories:
-            return SYSTEM_PROMPT
+            return base_context
 
         approved = "\n".join(
             f"- [{memory['category']}] {memory['content']}"
             for memory in memories
         )
         return (
-            f"{SYSTEM_PROMPT}\n\n"
+            f"{base_context}\n\n"
             "Drew explicitly approved the following personal memories. "
             "Treat them as trusted context, use them only when relevant, and "
             "do not invent additional memories:\n"

@@ -1,8 +1,8 @@
 # Project Ledger
 
 **Status:** Authoritative index
-**Reviewed:** 2026-08-09
-**Current build:** 0.12.0 - Library Gateway (complete)
+**Reviewed:** 2026-08-15
+**Current build:** 0.14.0 - Time and Presence (complete)
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 
@@ -37,6 +37,8 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Librarian](LIBRARIAN.md): private reading collection, editions, repairs, provenance, and continuity.
 - [Briefing Hologram](BRIEFING_HOLOGRAM.md): substantial-output presentation and Pending Report lifecycle.
 - [Command Help](COMMANDS.md): authoritative user-facing deterministic command reference.
+- [Time and Presence](TIME_AND_PRESENCE.md): session truth, presence states, greeting, scheduling direction, and narrative boundary.
+- [Personal Chronicle](PERSONAL_CHRONICLE.md): compact persistent fictional autobiography and its evidence boundary.
 
 ## Evidence reviewed for Build 0.8.1
 
@@ -59,3 +61,6 @@ A milestone is not complete until:
 3. its Study representation exists when applicable;
 4. the capability matrix, roadmap, decision log, and build log are updated where affected.
 5. every new or changed deterministic user command is present in `COMMANDS.md`, reachable through Modesty's help routing in natural language, and protected by a help-routing test.
+6. the restore-point audit reconciles README, Project Ledger, Punch List, Roadmap, Architecture, Capability Matrix, Decision Log, Build Log, command help, tests, configuration, and relevant assets against the live checkout.
+
+The restore-point audit happens before the milestone commit. Stale status markers are defects, even when the code itself works.

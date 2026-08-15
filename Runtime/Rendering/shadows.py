@@ -20,8 +20,8 @@ Notes:
     ellipses. This avoids expensive real-time blur effects
     while remaining fast and convincing.
 
-Build:
-    0.3.1 — Grounded
+Current through:
+    0.13.0 — The Researcher
 ---------------------------------------------------------
 """
 

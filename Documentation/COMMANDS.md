@@ -2,7 +2,7 @@
 
 **Status:** Authoritative user command reference
 
-Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Archivist**, **Help with Briefings**, or **Help with chat** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
+Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
 
 ## Grand Library
 
@@ -52,6 +52,29 @@ Valid established Bookshelf collections are Projects, Research, Reference, Proce
 Ordinary conversation does not require a command. Type naturally and Modesty will answer through the configured local model.
 
 - `Bye` or `Goodbye, Modesty` — Modesty says goodbye and closes the Study normally.
+
+## Time zones
+
+These answers are local and immediate; they do not open the Grand Library or call the language model.
+
+- `What time is it in Uganda?`
+- `What is the current time in Kenya?`
+- `What time is it in Tanzania?`
+- `What time is it in South Africa?`
+- `What time is it in GMT?`
+- `Convert 14:00 in South Africa to Uganda`
+- `Convert 9:30 PM in Uganda to South Africa`
+- `What time is it in London?`
+- `What time is it in Marseille?`
+- `What time is it in Chiang Mai?`
+- `What time is it in New Zealand?`
+- `What time is it in Sydney?`
+- `What time is it in US East Coast?`
+- `Convert 12:00 on 2026-07-15 in London to South Africa`
+
+Supported working zones include South Africa/SAST; Uganda, Kenya, Tanzania and East Africa/EAT; GMT/UTC; Britain/London; France/Paris/Marseille; Germany/Berlin; Thailand/Bangkok/Chiang Mai; New Zealand/Auckland; Sydney, Melbourne, Brisbane, Adelaide and Perth; and US East Coast/New York, Central/Chicago, and West Coast/Los Angeles.
+
+These answers use Modesty's installed offline timezone-rule database, including daylight-saving changes. `Australia` and `USA` alone are deliberately rejected as ambiguous; name the city or regional zone. Add `on YYYY-MM-DD` when converting a future or past event so the correct seasonal rule is applied.
 
 Use deterministic help whenever you need exact operational wording. Examples include `What commands can I use?`, `Help with the Grand Library`, `remind me how to open the Grand Library`, or a topic-only follow-up after the help index.
 

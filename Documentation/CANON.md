@@ -1,7 +1,7 @@
 # Modesty Canon
 
 **Status:** Canonical
-**Reviewed:** 2026-08-08
+**Reviewed:** 2026-08-15
 
 ## Purpose
 
@@ -36,6 +36,8 @@ The approved Study geometry, perspective, furniture placement, and traffic flow 
 A backend capability and its Study representation should evolve together. Visual polish may follow functionality, but the Study must not claim that an unavailable capability is working. Animation represents and narrates activity; it is not a frame-perfect progress meter for computation.
 
 Team presence and Team communication are separate truths. A Bobblehead and the readiness lamp may show that a specialist is present and ready, but Modesty wears the Team headset only while a specialist is actively working or waiting on a duty, or while she presents that Team member's returned Briefing.
+
+Modesty has operational time and narrative continuity, but they are not interchangeable. Session timestamps, heartbeats, presence, duties, reminders, and calendar facts must be truthful. Offstage stories may give her a life between appearances, but they remain explicitly narrative and cannot imply that real work occurred while her process was offline.
 
 Locations carry meaning:
 

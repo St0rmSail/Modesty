@@ -1,6 +1,6 @@
 # Decision Log
 
-**Reviewed:** 2026-08-09
+**Reviewed:** 2026-08-15
 
 This compact register records settled decisions. Create a separate detailed decision record only when consequences or alternatives need more space.
 
@@ -44,6 +44,12 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-036 | Bobbleheads and the readiness lamp mean Team members are present; the headset means active Team communication. Modesty wears it only during a working or waiting Team duty and while presenting that duty's Briefing. | Canonical visual-state rule |
 | D-037 | An active Briefing cannot close while its report is undecided. A successful private, Bookshelf, or toss disposition visibly highlights the chosen control, locks the alternatives, and enables Close. | Canonical interaction rule |
 | D-038 | `Bye` and `Goodbye, Modesty` are deterministic graceful-exit commands: Modesty acknowledges Drew, then the Study follows its normal application shutdown path. | Canonical command |
+| D-039 | Time and presence use a persistent operational ledger with local-time presentation, UTC storage, heartbeats, clean/interrupted shutdown detection, and explicit offline/background/present/working states. | Canonical architecture |
+| D-040 | Offstage vignettes are narrative continuity, never operational evidence. They may enrich greetings but cannot claim real research, maintenance, messaging, or other work while Modesty was offline. | Canonical truth boundary |
+| D-041 | A readable real-time Study clock is desirable but cannot block Time and Presence; fragile clock-face animation is deferred to polishing. | Canonical priority |
+| D-042 | Modesty's durable fictional autobiography belongs in a separately labelled Personal Chronicle. It may provide analogy and continuity but never factual evidence; compact episode records consolidate into bounded arcs to prevent memory bloat. | Canonical memory boundary |
+| D-043 | Regular working-zone answers and dated conversions are deterministic local functions requiring neither Grand Library nor language model. Fixed African/GMT zones use explicit offsets; Britain, Europe, Thailand, Australia, New Zealand, and US regions use installed named timezone rules, with ambiguous countries requiring a city or region. | Canonical capability |
+| D-044 | Every milestone commit is a restore point and requires a repository-wide reconciliation of status documents, commands, tests, configuration, assets, and live behavior before commit. Stale paperwork is a completion defect. | Canonical process rule |
 
 ## Superseded decisions and names
 

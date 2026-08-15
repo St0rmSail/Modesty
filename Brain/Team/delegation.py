@@ -12,12 +12,14 @@ from Runtime.Library.credentials import CredentialStore
 from Runtime.Library.providers import LoopbackProvider, SmithsonianProvider
 from Runtime.Library.smithsonian import DEFAULT_KEY_PATH, SmithsonianAccess
 from Runtime.Core import team_status
+from Runtime.Core.command_help import command_help
 
 
 @dataclass(frozen=True)
 class DelegationResult:
     handled: bool
     response: str = ""
+    action: str | None = None
 
 
 class TeamDelegator:
@@ -90,6 +92,39 @@ class TeamDelegator:
         r"^approve\s+grand\s+library\s+loan\s*:\s*(?P<loan_id>GL-[A-Z0-9-]+)\s*$",
         re.IGNORECASE,
     )
+    RESEARCHER_SCRIBBLEHUB_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?researcher(?:\s+to)?\s*:?\s*"
+        r"what\s+are\s+the\s+latest\s+offerings\s+in\s+the\s+harem\s+category\??\s*$",
+        re.IGNORECASE,
+    )
+    HELP_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:help|show\s+(?:me\s+)?(?:the\s+)?commands|"
+        r"what\s+commands\s+can\s+i\s+use|how\s+do\s+i\s+use\s+modesty)\??\s*$",
+        re.IGNORECASE,
+    )
+    TOPIC_HELP_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:help(?:\s+me)?\s+with|show\s+(?:me\s+)?(?:the\s+)?)\s+"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation)"
+        r"(?:\s+(?:commands?|please|again|help|open))?\??\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_HELP_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:remind\s+me\s+(?:how\s+to|about)|"
+        r"what(?:'s|\s+is)\s+the\s+command\s+for)\s+(?:open\s+|use\s+)?"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation)"
+        r"(?:\s+(?:please|again))?\??\s*$",
+        re.IGNORECASE,
+    )
+    HELP_FOLLOWUP_PATTERN = re.compile(
+        r"^(?:the\s+)?(?:(?:one|section|commands?)\s+(?:about|for)\s+)?"
+        r"(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation)"
+        r"(?:\s+(?:please|thanks|thank\s+you|help))?\??\s*$",
+        re.IGNORECASE,
+    )
+    GRACEFUL_EXIT_PATTERN = re.compile(
+        r"^(?:bye|goodbye)(?:,?\s+modesty)?[.!]?\s*$",
+        re.IGNORECASE,
+    )
 
     def __init__(
         self,
@@ -105,8 +140,40 @@ class TeamDelegator:
         self.smithsonian_provider = smithsonian_provider or SmithsonianProvider(
             SmithsonianAccess(CredentialStore(DEFAULT_KEY_PATH))
         )
+        self._help_active = False
 
     def handle(self, message: str) -> DelegationResult:
+        natural_help = self.NATURAL_HELP_PATTERN.match(message.strip())
+        if natural_help:
+            self._help_active = True
+            return DelegationResult(True, command_help(natural_help.group("topic")))
+        topic_help = self.TOPIC_HELP_PATTERN.match(message.strip())
+        if topic_help:
+            self._help_active = True
+            return DelegationResult(True, command_help(topic_help.group("topic")))
+        if self.HELP_PATTERN.match(message.strip()):
+            self._help_active = True
+            return DelegationResult(True, command_help())
+        help_followup = self.HELP_FOLLOWUP_PATTERN.match(message.strip())
+        if getattr(self, "_help_active", False) and help_followup:
+            return DelegationResult(True, command_help(help_followup.group("topic")))
+
+        if self.GRACEFUL_EXIT_PATTERN.match(message.strip()):
+            return DelegationResult(True, "Goodbye, Drew.", "close_study")
+
+        if self.RESEARCHER_SCRIBBLEHUB_PATTERN.match(message.strip()):
+            if not self.gateway.is_open or team_status.grand_library_state() != "online":
+                return DelegationResult(
+                    True,
+                    "The Grand Library is closed. Open it online before I send the Researcher to Scribble Hub.",
+                )
+            team_status.set_member_state("researcher", "working")
+            return DelegationResult(
+                True,
+                "The Researcher is opening the approved Scribble Hub discovery query in a local visible browser. "
+                "Nothing has been filed or added to your account.",
+                "research_scribblehub_latest_harem",
+            )
         if self.GRAND_LIBRARY_ONLINE_OPEN_PATTERN.match(message.strip()):
             if self.gateway.is_open and self.gateway.provider.name != "smithsonian":
                 return DelegationResult(

@@ -44,7 +44,12 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import QWidget
 
-from Runtime.Animation import AnimationEngine, BlinkAnimation, BreathingAnimation
+from Runtime.Animation import (
+    AnimationEngine,
+    BlinkAnimation,
+    BreathingAnimation,
+    DutyTransition,
+)
 from Runtime.Rendering.shadows import ShadowRenderer
 from Runtime.Core import team_status
 
@@ -54,6 +59,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 STUDY_IMAGE = PROJECT_ROOT / "Assets" / "Study" / "study_team_roster_base_v1.png"
 ARCHIVIST_IMAGE = (
     PROJECT_ROOT / "Assets" / "Team" / "Archivist" / "archivist_bobblehead_v1.png"
+)
+RESEARCHER_IMAGE = (
+    PROJECT_ROOT / "Assets" / "Team" / "Researcher" / "researcher_bobblehead_v1.png"
 )
 MODESTY_IMAGE = (
     PROJECT_ROOT
@@ -115,6 +123,7 @@ class StudyRenderer(QWidget):
         self.modesty_blink = QPixmap(str(MODESTY_BLINK_IMAGE))
         self.modesty_headset = QPixmap(str(MODESTY_HEADSET_IMAGE))
         self.archivist = QPixmap(str(ARCHIVIST_IMAGE))
+        self.researcher = QPixmap(str(RESEARCHER_IMAGE))
 
         if self.study.isNull():
             raise FileNotFoundError(
@@ -147,6 +156,11 @@ class StudyRenderer(QWidget):
                 f"Archivist Bobblehead could not be loaded:\n{ARCHIVIST_IMAGE}"
             )
 
+        if self.researcher.isNull():
+            raise FileNotFoundError(
+                f"Researcher Bobblehead could not be loaded:\n{RESEARCHER_IMAGE}"
+            )
+
         self.position = load_json(POSITION_FILE)
         self.pose = load_json(POSE_FILE)
         self.lighting = load_json(LIGHTING_FILE)
@@ -155,6 +169,14 @@ class StudyRenderer(QWidget):
         self.shadow_renderer = ShadowRenderer(self.lighting)
         self.animation_engine = AnimationEngine(BreathingAnimation())
         self.blink_engine = AnimationEngine(BlinkAnimation())
+        presentation = self.position["briefing_presentation"]
+        self.duty_transition = DutyTransition(float(presentation["transition_seconds"]))
+        self._duty_started_at = monotonic()
+        self._duty_state = "neutral"
+        self._duty_progress = 0.0
+        self._duty_from = 0.0
+        self._duty_to = 0.0
+        self._briefing_active = False
         self._library_visual_state = "closed"
         self._library_opened_at = None
 
@@ -165,6 +187,45 @@ class StudyRenderer(QWidget):
         self.animation_timer.start()
 
         self.setMinimumSize(640, 360)
+
+    def present_briefing(self):
+        """Move from the accepted neutral geometry to Briefing duty geometry."""
+
+        if self._duty_state in {"presenting", "presented"}:
+            return
+        self._briefing_active = True
+        self._duty_progress = self._current_duty_progress()
+        self._duty_from = self._duty_progress
+        self._duty_to = 1.0
+        self._duty_state = "presenting"
+        self._duty_started_at = monotonic()
+
+    def dismiss_briefing(self):
+        """Return from duty to the identical neutral geometry."""
+
+        if self._duty_state in {"neutral", "returning"}:
+            return
+        self._briefing_active = False
+        self._duty_progress = self._current_duty_progress()
+        self._duty_from = self._duty_progress
+        self._duty_to = 0.0
+        self._duty_state = "returning"
+        self._duty_started_at = monotonic()
+
+    def _current_duty_progress(self) -> float:
+        if self._duty_state == "neutral":
+            return 0.0
+        if self._duty_state == "presented":
+            return 1.0
+
+        elapsed = monotonic() - self._duty_started_at
+        frame = self.duty_transition.sample(elapsed)
+        progress = self._duty_from + (self._duty_to - self._duty_from) * frame.progress
+        if frame.complete:
+            self._duty_state = "presented" if self._duty_to == 1.0 else "neutral"
+            self._duty_progress = self._duty_to
+            return self._duty_progress
+        return progress
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -197,9 +258,14 @@ class StudyRenderer(QWidget):
         study_left = (self.width() - study_width) / 2
         study_top = (self.height() - study_height) / 2
 
-        anchor_x = float(self.position["anchor_x"])
-        anchor_y = float(self.position["anchor_y"])
-        height_fraction = float(self.position["height"])
+        neutral_x = float(self.position["anchor_x"])
+        neutral_y = float(self.position["anchor_y"])
+        neutral_height = float(self.position["height"])
+        duty = self.position["briefing_presentation"]
+        progress = self._current_duty_progress()
+        anchor_x = neutral_x + (float(duty["anchor_x"]) - neutral_x) * progress
+        anchor_y = neutral_y + (float(duty["anchor_y"]) - neutral_y) * progress
+        height_fraction = neutral_height + (float(duty["height"]) - neutral_height) * progress
 
         pivot_x = float(self.pose["pivot_x"])
         pivot_y = float(self.pose["pivot_y"])
@@ -241,6 +307,8 @@ class StudyRenderer(QWidget):
         )
 
     def _draw_grand_library(self, painter: QPainter, geometry: dict):
+        if self._briefing_active:
+            return
         state = team_status.grand_library_state()
         if state != self._library_visual_state:
             self._library_visual_state = state
@@ -377,21 +445,23 @@ class StudyRenderer(QWidget):
         painter.restore()
 
     def _draw_team(self, painter: QPainter, geometry: dict):
-        state = team_status.member_state("archivist")
-        settings = self.team_display["members"]["archivist"]
-        if state in {"offline", "attention"}:
-            message = "LATE FOR\nWORK" if state == "offline" else "NEEDS\nATTENTION"
-            self._draw_absence_sign(painter, geometry, settings, message)
-            return
-        if state not in {"ready", "working", "waiting"}:
-            return
-        study_rect = geometry["study_rect"]
-        height = float(settings["height"]) * study_rect.height()
-        width = height * self.archivist.width() / self.archivist.height()
-        anchor_x = study_rect.left() + float(settings["anchor_x"]) * study_rect.width()
-        anchor_y = study_rect.top() + float(settings["anchor_y"]) * study_rect.height()
-        destination = QRectF(anchor_x - width / 2, anchor_y - height, width, height)
-        painter.drawPixmap(destination, self.archivist, QRectF(self.archivist.rect()))
+        images = {"archivist": self.archivist, "researcher": self.researcher}
+        for member, image in images.items():
+            state = team_status.member_state(member)
+            settings = self.team_display["members"][member]
+            if state in {"offline", "attention"}:
+                message = "LATE FOR\nWORK" if state == "offline" else "NEEDS\nATTENTION"
+                self._draw_absence_sign(painter, geometry, settings, message)
+                continue
+            if state not in {"ready", "working", "waiting"}:
+                continue
+            study_rect = geometry["study_rect"]
+            height = float(settings["height"]) * study_rect.height()
+            width = height * image.width() / image.height()
+            anchor_x = study_rect.left() + float(settings["anchor_x"]) * study_rect.width()
+            anchor_y = study_rect.top() + float(settings["anchor_y"]) * study_rect.height()
+            destination = QRectF(anchor_x - width / 2, anchor_y - height, width, height)
+            painter.drawPixmap(destination, image, QRectF(image.rect()))
 
     @staticmethod
     def _draw_absence_sign(painter: QPainter, geometry: dict, settings: dict, message: str):
@@ -459,12 +529,14 @@ class StudyRenderer(QWidget):
             y += 8 * pixel
 
     def _draw_ground_effects(self, painter: QPainter, geometry: dict):
+        duty_progress = self._current_duty_progress()
         self.shadow_renderer.draw_ground_shadow(
             painter=painter,
             anchor_x=geometry["anchor_x"],
             anchor_y=geometry["anchor_y"],
             character_width=geometry["character_width"],
             character_height=geometry["character_height"],
+            opacity_scale=1.0 + 0.65 * duty_progress,
         )
 
     def _draw_characters(self, painter: QPainter, geometry: dict):
@@ -490,7 +562,7 @@ class StudyRenderer(QWidget):
             QRectF(character_image.rect()),
         )
 
-        if team_status.member_state("archivist") in {"ready", "working", "waiting"}:
+        if team_status.any_member_active() or self._briefing_active:
             painter.drawPixmap(
                 character_rect,
                 self.modesty_headset,

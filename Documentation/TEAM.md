@@ -40,7 +40,8 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 |---|---|---|---|
 | **Modesty / Executive** | Understand intent, converse, obtain consent, route work, and report results | Does not replace every specialist | Role canonical; orchestration not implemented |
 | **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Inventory, retrieval, filing, and approval-gated Bookshelf curation demonstrated; visual representation remains |
-| **Researcher** | Conduct explicit online research and return sourced findings | Borrows task-relevant Bookshelf packets; no local filesystem access | Conceptual |
+| **Researcher** | Conduct explicit online research and return evidence-led findings through Modesty | Borrows task-relevant Bookshelf packets; no local filesystem access; cannot silently file, message, or download | Scribble Hub and Briefing lifecycle demonstrated; archaeologist Bobblehead with lit Lamp of Learning approved |
+| **Librarian** | Maintain Drew's private reading collection, editions, manuscript repairs, reading position, and cross-post continuity | Never overwrites originals, defeats DRM, republishes works, or silently places copyrighted material on the Bookshelf | Canonical role; implementation and separate Bobblehead pending |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |
 | **Vision** | Webcam, screen, screenshot, and OCR perception | Explicit indicators and hard-off controls required | Conceptual |
@@ -52,7 +53,7 @@ Artist, briefing/courier, and fishing-oriented specialists appeared in brainstor
 
 ## Archivist clarification
 
-Early project documents used **Librarian** for the knowledge role. The current term is **Archivist**. This is a terminology evolution, not evidence of two Team members.
+Early project documents used **Librarian** for the knowledge role. That preliminary synonym was superseded by **Archivist**. Drew has now separately approved a new Librarian whose remit is private reading works and continuity rather than knowledge curation; she is a distinct Team member.
 
 Modesty is small by design and should not curate these collections herself. She asks the unseen Archivist to perform bounded archival work and presents the result herself. The Archivist maintains the private Filing Cabinet, grows the Bookshelf, prepares loans when the Grand Library is online, and processes returned contributions through Inbox and Workbench stages. The Archivist may use deterministic tooling and a stronger authorized model for individual curation tasks, while all security decisions remain in code and under Drew's control.
 

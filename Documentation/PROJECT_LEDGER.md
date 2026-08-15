@@ -33,6 +33,10 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Personality Canon](MODESTY_PERSONALITY_CANON.md): the Anita/Merry identity rule.
 - [Build Log](Buildlog.md): chronological milestone record.
 - [Voice](VOICE.md): local voice direction, current audition findings, and selection gate.
+- [Researcher](RESEARCHER.md): report contract, first Scribble Hub assignment, and browser/rights boundary.
+- [Librarian](LIBRARIAN.md): private reading collection, editions, repairs, provenance, and continuity.
+- [Briefing Hologram](BRIEFING_HOLOGRAM.md): substantial-output presentation and Pending Report lifecycle.
+- [Command Help](COMMANDS.md): authoritative user-facing deterministic command reference.
 
 ## Evidence reviewed for Build 0.8.1
 
@@ -54,3 +58,4 @@ A milestone is not complete until:
 2. the requested behaviour has been demonstrated;
 3. its Study representation exists when applicable;
 4. the capability matrix, roadmap, decision log, and build log are updated where affected.
+5. every new or changed deterministic user command is present in `COMMANDS.md`, reachable through Modesty's help routing in natural language, and protected by a help-routing test.

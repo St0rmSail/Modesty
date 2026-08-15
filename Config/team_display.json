@@ -19,6 +19,12 @@
       "anchor_x": 0.119,
       "anchor_y": 0.592,
       "height": 0.070
+    },
+    "researcher": {
+      "pedestal": 2,
+      "anchor_x": 0.160,
+      "anchor_y": 0.592,
+      "height": 0.070
     }
   }
 }

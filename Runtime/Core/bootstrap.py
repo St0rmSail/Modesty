@@ -20,11 +20,11 @@ Build:
 import sqlite3
 
 from rich import print
-from Runtime.Core.noticeboard import NoticeBoard
 from Runtime.Core import team_status
 from Runtime.Knowledge import KnowledgeStores
 from Runtime.Knowledge.stores import KnowledgeStoreError
 from Brain.Team.archivist import Archivist
+from Brain.Team.researcher import Researcher
 
 from Runtime.Core import config
 
@@ -33,65 +33,45 @@ def startup():
 
     team_status.reset()
 
-    print()
-    print("[bold cyan]STATUS : INITIALISING[/]")
-    print()
-
-    print("Good morning, Drew.")
-    print()
+    print("\n[bold cyan]MODESTY : INITIALISING[/]\n")
 
     # -------------------------------------------------
     # Private Filing Cabinet and living Bookshelf
     # -------------------------------------------------
-
-    print("Checking my Filing Cabinet and Bookshelf...")
 
     try:
         stores = KnowledgeStores(config.KNOWLEDGE_STORES_CONFIG).initialize()
     except KnowledgeStoreError as error:
         print(f"[red]{error}[/]")
     else:
-        print(f"[green]Filing Cabinet ready:[/] {stores.filing_cabinet}")
-        print(f"[green]Bookshelf ready:[/] {stores.bookshelf}")
+        print(f"[green]Filing Cabinet : READY[/]  {stores.filing_cabinet}")
+        print(f"[green]Bookshelf      : READY[/]  {stores.bookshelf}")
         try:
             report = Archivist(stores).inventory()
         except (OSError, sqlite3.Error, UnicodeError) as error:
-            print(f"[yellow]Archivist could not complete her inventory: {error}[/]")
+            print(f"[yellow]Archivist     : ATTENTION  {error}[/]")
         else:
             team_status.set_member_state("archivist", "ready")
             print(
-                f"[green]Archivist catalogued {report.documents} documents;[/] "
-                f"{report.warnings} need attention."
+                f"[green]Archivist     : READY[/]  {report.documents} documents; "
+                f"{report.warnings} warnings"
             )
 
-    print()
+    try:
+        Researcher()
+    except (ImportError, RuntimeError, ValueError) as error:
+        print(f"[yellow]Researcher    : ATTENTION  {error}[/]")
+    else:
+        team_status.set_member_state("researcher", "ready")
+        print("[green]Researcher    : READY[/]  bounded discovery")
 
-    print("Looking for my diary...")
-    print("Diary found.")
-
-    print()
-
-    print("Looking for the office noticeboard...")
-    print("Noticeboard ready.")
-
-    print()
-    board = NoticeBoard()
-
-    board.post(
-        "Health",
-        "Modesty",
-        "Medicine check scheduled."
-    )
-
-    board.post(
-        "Fishing Buddy",
-        "Memory",
-        "Three new bait recipes discovered."
-    )
-
-    board.show()
+    print("Grand Library : CLOSED")
 
     print()
     team_status.set_core_ready(True)
-    print("[bold green]STATUS : READY[/]")
+    print(
+        "[bold green]MODESTY : READY[/]"
+        if team_status.system_ready()
+        else "[bold yellow]MODESTY : READY WITH ATTENTION[/]"
+    )
 

@@ -1,7 +1,7 @@
 # System Architecture
 
 **Status:** Current implementation plus approved boundaries
-**Reviewed:** 2026-08-09
+**Reviewed:** 2026-08-15
 
 ## Runtime path
 
@@ -29,11 +29,14 @@ main.py
 | Conversation history | `Brain/Memory/database.py`, SQLite | Implemented and restart-tested |
 | Approved personal facts | `personal_memories` table and memory dialogs | Implemented and tested |
 | Noticeboard | `Runtime/Core/noticeboard.py` | Prototype only |
-| The Team | `Brain/Team/archivist.py`, `Brain/Team/delegation.py` | Archivist implemented and demonstrated |
+| The Team | `Brain/Team/`, `Brain/Team/delegation.py` | Archivist and Researcher demonstrated; Librarian canonical but unimplemented |
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
 | Grand Library gateway | `Runtime/Library/` | Functional, security, quarantine, curation, and truthful Study-state lifecycle demonstrated |
+| Researcher | `Brain/Team/researcher.py`, `Runtime/Research/` | Visible Scribble Hub discovery, bounded extraction, report lifecycle, and truthful Team state demonstrated |
+| Briefing Hologram | `Runtime/Conversation/briefing_hologram.py`, `Runtime/Research/pending_reports.py` | Functional visual surface, gated disposition, and reversible duty movement demonstrated; gesture artwork deferred to polish |
+| Librarian and private reading collection | No software counterpart yet | Canonical role; **The Stacks** is a provisional collection name |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
@@ -44,6 +47,7 @@ main.py
 - The repository stores Modesty's design, contracts, schemas, and implementation record.
 - The Filing Cabinet stores private personal and working knowledge.
 - The Bookshelf stores curated shared knowledge used by Modesty and the authorized Team.
+- The future private reading collection stores books, stories, source editions, repaired derivatives, and reading continuity under the Librarian. It is not the Bookshelf or Filing Cabinet; its working name is **The Stacks** pending approval.
 
 ## Knowledge boundary
 
@@ -62,6 +66,12 @@ Grand Library returns are presently text-only. `Runtime/Library/media_policy.py`
 The Bookshelf should use Markdown compatible with Open Knowledge Format (OKF). The Filing Cabinet may use natural Obsidian Markdown with lighter metadata. OKF is an authoring/interchange convention, not the permission system. Deterministic code must enforce the physical boundary.
 
 The configured roots are currently `E:\Modesty Filing Cabinet` and `E:\Modesty Bookshelf`. They are initialized idempotently during startup. Initialization creates only missing foundations and never replaces an existing file.
+
+No reading-collection root has been created. Its permanent name, location, schema, and relationship to any recovered Calibre library must be approved before implementation.
+
+## Substantial output boundary
+
+The conversation panel carries concise Returns and ordinary dialogue. Substantial interactive output belongs in the Briefing Hologram. A completed Briefing creates a restart-safe Pending Report outside the established knowledge stores. Only Drew's explicit decision may send it to private intake, Bookshelf Inbox, or deletion. The Archivist then governs any chosen knowledge-store destination.
 
 ## Bookshelf growth pipeline
 

@@ -215,6 +215,18 @@ class GrandLibraryDelegationTest(unittest.TestCase):
         self.assertTrue(closed.handled)
         self.assertEqual(team_status.grand_library_state(), "closed")
 
+    def test_researcher_scribblehub_duty_requires_online_mode(self):
+        command = "Ask the Researcher: What are the latest offerings in the harem category?"
+        closed = self.delegator.handle(command)
+        self.assertIn("Grand Library is closed", closed.response)
+        self.assertIsNone(closed.action)
+
+        self.delegator.handle("Open the Grand Library online")
+        started = self.delegator.handle(command)
+        self.assertEqual(started.action, "research_scribblehub_latest_harem")
+        self.assertIn("local visible browser", started.response)
+        self.assertIn("Nothing has been filed", started.response)
+
     def test_failed_approved_loan_is_consumed_once(self):
         self.gateway.select_provider(FailingSmithsonianProvider())
         self.gateway.open()

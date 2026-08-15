@@ -20,6 +20,8 @@ from Brain.Team.delegation import TeamDelegator
 from Runtime.Conversation.client import DEFAULT_MODEL, OllamaChatClient
 from Runtime.Conversation.memory_dialog import PersonalMemoryDialog
 from Runtime.Core import team_status
+from Runtime.Research.browser_window import ScribbleHubResearchWindow
+from Runtime.Research.pending_reports import PendingReportStore
 
 
 SYSTEM_PROMPT = """You are Modesty, Drew's local-first personal AI assistant.
@@ -58,6 +60,9 @@ class ConversationPanel(QWidget):
 
     hide_requested = Signal()
     grand_library_state_changed = Signal(str)
+    briefing_requested = Signal(str)
+    response_received = Signal(str)
+    graceful_exit_requested = Signal()
 
     def __init__(self, memory: ConversationMemory | None = None):
         super().__init__()
@@ -68,6 +73,8 @@ class ConversationPanel(QWidget):
         self.messages: list[dict[str, str]] = []
         self.worker = None
         self.team_delegator = None
+        self.research_window = None
+        self.pending_reports = PendingReportStore()
 
         self._build_ui()
         self._open_memory()
@@ -146,6 +153,12 @@ class ConversationPanel(QWidget):
         self.memories_button.setObjectName("smallButton")
         self.memories_button.clicked.connect(self._open_personal_memories)
         history_row.addWidget(self.memories_button)
+
+        self.briefing_button = QPushButton("Briefing")
+        self.briefing_button.setObjectName("smallButton")
+        self.briefing_button.clicked.connect(self._open_latest_briefing)
+        self.briefing_button.setVisible(self.pending_reports.latest() is not None)
+        history_row.addWidget(self.briefing_button)
 
         self.hide_button = QPushButton("Hide")
         self.hide_button.setObjectName("smallButton")
@@ -327,6 +340,10 @@ class ConversationPanel(QWidget):
             if current_library_state != previous_library_state:
                 self.grand_library_state_changed.emit(current_library_state)
             self._receive(delegated.response)
+            if delegated.action == "research_scribblehub_latest_harem":
+                self._open_scribblehub_research()
+            elif delegated.action == "close_study":
+                self.graceful_exit_requested.emit()
             self._set_input_enabled(True)
             self.input.setFocus()
             return
@@ -345,6 +362,41 @@ class ConversationPanel(QWidget):
         self._save_message("assistant", response, DEFAULT_MODEL)
         self._refresh_history()
         self.status.setText(f"Local conversation · {DEFAULT_MODEL}")
+        self.response_received.emit(response)
+
+    def send_external(self, message: str):
+        if self.worker is not None or not message.strip():
+            return
+        self.input.setText(message.strip())
+        self._send()
+
+    def record_briefing_outcome(self, outcome: str):
+        self._receive(outcome)
+
+    def _open_scribblehub_research(self):
+        self.research_window = ScribbleHubResearchWindow()
+        self.research_window.report_ready.connect(self._research_report_ready)
+        self.research_window.closed.connect(self._research_window_closed)
+        self.research_window.show()
+
+    def _research_report_ready(self, title: str, body: str):
+        pending = self.pending_reports.create(title, body, "scribblehub")
+        self.briefing_button.show()
+        self._receive(
+            "The Researcher has returned with a preliminary discovery briefing. "
+            "It remains pending and nothing has been filed. Select Open Briefing to inspect it."
+        )
+        self.briefing_requested.emit(pending.report_id)
+
+    def _research_window_closed(self):
+        team_status.set_member_state("researcher", "ready")
+
+    def _open_latest_briefing(self):
+        pending = self.pending_reports.latest()
+        if pending is None:
+            self.briefing_button.hide()
+            return
+        self.briefing_requested.emit(pending.report_id)
 
     def _save_message(self, role: str, content: str, model: str | None = None):
         if self.memory is None or self.conversation_id is None:

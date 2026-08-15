@@ -1,7 +1,7 @@
 # Capability Matrix
 
-**Baseline:** Build 0.12.0 complete
-**Reviewed:** 2026-08-09
+**Baseline:** Build 0.13.0 complete
+**Reviewed:** 2026-08-15
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
 |---|---:|---:|---:|---|
@@ -25,9 +25,11 @@
 | Grand Library online mode | Yes | Yes | Yes | Closed-by-default loopback, bounded online provider, text-only media boundary, and truthful Study state demonstrated |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
-| Team readiness display | Yes | Yes | Yes | Archivist presence, absence sign, readiness lamp, and Team headset demonstrated |
+| Librarian | Yes | No | No | Distinct private-reading role canonical; collection name, implementation, and Bobblehead remain pending |
+| Team readiness display | Yes | Yes | Yes | Archivist and Researcher presence, readiness lamp, Team headset, and duty-state changes demonstrated; Researcher pedestal perspective deferred to polish |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
-| Web research gateway | Partial | Partial | Yes | First authenticated Smithsonian retrieval completed through quarantine and Archivist curation; general Researcher remains unimplemented |
+| Web research gateway | Yes | Yes | Yes | Smithsonian and visible bounded Scribble Hub discovery demonstrated without account action or silent filing |
+| Briefing Hologram and Pending Reports | Yes | Yes | Yes | Readable expanding surface, compact questioning, restart-safe pending state, gated disposition, reversible duty movement, and truthful headset state demonstrated; gesture artwork remains polish |
 | Voice | Partial | No | No | Config disabled |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |

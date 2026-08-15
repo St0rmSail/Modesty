@@ -93,6 +93,16 @@ Definition of done:
 
 ## Later functional milestones
 
+### 0.13.0 - The Researcher - Complete
+
+The visible local browser handoff, bounded Scribble Hub discovery, concise Return, Pending Report, functional Briefing Hologram, restart recovery, explicit disposition controls, reversible duty movement, and truthful headset state are implemented and demonstrated. The Researcher Bobblehead and its runtime state are live. The physical Grand Library globe, Bobblehead pedestal perspective, dedicated gesturing sprite, and more characterful movement arcs are deferred visual polish rather than functional blockers. See [RESEARCHER.md](RESEARCHER.md) and [BRIEFING_HOLOGRAM.md](BRIEFING_HOLOGRAM.md).
+
+The Briefing duty movement now uses separate bottom-right geometry, travels with its grounding shadow, suppresses the open Grand Library alcove while the Briefing is visible, and reverses to the exact accepted standing geometry. The dedicated gesturing pose asset and a more characterful movement path remain visual-polishing work; neither may alter the accepted neutral pose or duty endpoints.
+
+### Later - The Librarian
+
+Implement the private reading collection and source inventory before bulk conversion. Begin with a read-only sample, immutable originals, a transformation ledger, one repaired derivative, and explicit review of uncertain corrections. Calibre integration, cross-platform Story Records, update tracking, and reading continuity follow only after that foundation is demonstrated. See [LIBRARIAN.md](LIBRARIAN.md).
+
 - Local voice after the deferred audition and explicit selection recorded in [VOICE.md](VOICE.md), with separate explicit microphone control for listening.
 - Vision, screen understanding, and OCR with visible privacy state.
 - Useful tools with confirmation, logging, and undo where practical.
@@ -106,3 +116,4 @@ Definition of done:
 - Do not add a Team member when a tool or ordinary module is sufficient.
 - Do not polish animations ahead of functional capability.
 - Review this roadmap whenever a build completes or a major decision changes.
+- Treat command help as part of implementation: update the local guide and tolerant deterministic help tests before closing any command-bearing build.

@@ -3,10 +3,17 @@
   "anchor_y": 1.0,
   "height": 0.67,
   "depth": 10,
+  "briefing_presentation": {
+    "anchor_x": 0.85,
+    "anchor_y": 1.105,
+    "height": 0.8,
+    "transition_seconds": 1.8
+  },
   "_notes": {
     "anchor_x": "Horizontal Study coordinate. Values are not restricted to 0.0\u20131.0.",
     "anchor_y": "Vertical floor coordinate. Values may exceed 1.0.",
     "height": "Character image height relative to original Study image height. Use 0.72 when Modesty stands toe-to-toe with the front edge of the window frame (the bottom of the window).",
-    "depth": "Reserved for later layer ordering."
+    "depth": "Reserved for later layer ordering.",
+    "briefing_presentation": "Separate duty geometry. It never replaces or recalibrates the accepted neutral position."
   }
 }

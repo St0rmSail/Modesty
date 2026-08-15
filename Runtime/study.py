@@ -16,7 +16,7 @@ Build:
 
 import sys
 
-from PySide6.QtCore import QTimer, Qt
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QTimer, Qt
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -31,6 +31,7 @@ from PySide6.QtWidgets import (
 )
 
 from Runtime.Conversation import ConversationPanel
+from Runtime.Conversation.briefing_hologram import BriefingHologram
 from Runtime.Rendering.renderer import StudyRenderer
 
 
@@ -111,19 +112,78 @@ class StudyView(QWidget):
         layers = QStackedLayout(self)
         layers.setContentsMargins(0, 0, 0, 0)
         layers.setStackingMode(QStackedLayout.StackingMode.StackAll)
-        layers.addWidget(StudyRenderer())
+        self.renderer = StudyRenderer()
+        layers.addWidget(self.renderer)
 
         overlay = QWidget()
         overlay.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        overlay_layout = QVBoxLayout(overlay)
-        overlay_layout.setContentsMargins(24, 24, 24, 24)
-        overlay_layout.addWidget(
-            ConversationDock(),
+        self.overlay_layout = QHBoxLayout(overlay)
+        self.overlay_layout.setContentsMargins(24, 24, 24, 24)
+        self.briefing = BriefingHologram()
+        self.briefing.hide()
+        self.overlay_layout.addWidget(
+            self.briefing,
             stretch=1,
-            alignment=Qt.AlignmentFlag.AlignRight,
+            alignment=Qt.AlignmentFlag.AlignVCenter,
         )
+        self.conversation = ConversationDock()
+        self.overlay_layout.addWidget(self.conversation, alignment=Qt.AlignmentFlag.AlignRight)
+        self.conversation.panel.briefing_requested.connect(self._open_briefing)
+        self.conversation.panel.response_received.connect(self._briefing_response)
+        self.conversation.panel.graceful_exit_requested.connect(self._graceful_exit)
+        self.briefing.question_submitted.connect(self.conversation.panel.send_external)
+        self.briefing.closed.connect(self._close_briefing)
+        self.briefing.outcome_recorded.connect(self.conversation.panel.record_briefing_outcome)
+        self.briefing_animation = None
         layers.addWidget(overlay)
         layers.setCurrentWidget(overlay)
+
+    def _open_briefing(self, report_id: str):
+        try:
+            self.briefing.open_report(report_id)
+        except ValueError as error:
+            QMessageBox.warning(self, "Briefing unavailable", str(error))
+            return
+        self.conversation.hide()
+        self.renderer.present_briefing()
+        self.briefing.setMaximumWidth(max(640, int(self.contentsRect().width() * 0.72)))
+        self.overlay_layout.setAlignment(
+            self.briefing,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+        )
+        target_height = max(420, self.contentsRect().height() - 48)
+        self.briefing.setMinimumHeight(0)
+        self.briefing.setMaximumHeight(8)
+        self.briefing.show()
+        self.briefing_animation = QPropertyAnimation(self.briefing, b"maximumHeight", self)
+        self.briefing_animation.setDuration(1800)
+        self.briefing_animation.setStartValue(8)
+        self.briefing_animation.setEndValue(target_height)
+        self.briefing_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self.briefing_animation.finished.connect(self._finish_briefing_open)
+        self.briefing_animation.start()
+        self.briefing.question.setFocus()
+
+    def _finish_briefing_open(self):
+        self.overlay_layout.setAlignment(self.briefing, Qt.AlignmentFlag(0))
+        self.briefing.setMaximumHeight(16777215)
+
+    def _close_briefing(self):
+        self.briefing.hide()
+        self.briefing.setMinimumHeight(0)
+        self.briefing.setMaximumHeight(16777215)
+        self.conversation.show()
+        self.renderer.dismiss_briefing()
+        self.conversation.panel.input.setFocus()
+
+    def _briefing_response(self, response: str):
+        if self.briefing.isVisible():
+            self.briefing.append_modesty_response(response)
+
+    @staticmethod
+    def _graceful_exit():
+        # Allow Modesty's goodbye to paint before the normal Qt shutdown.
+        QTimer.singleShot(900, QApplication.instance().quit)
 
 
 class StudyWindow(QMainWindow):
@@ -152,5 +212,5 @@ def run():
         )
         return
 
-    window.show()
+    window.showMaximized()
     app.exec()

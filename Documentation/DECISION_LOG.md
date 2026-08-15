@@ -31,10 +31,23 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-023 | Team members are unseen functional specialists, never chat personalities. Modesty alone speaks to Drew, consults them through a headset, and their tested state is represented by individual Bookshelf Bobbleheads. | Canonical |
 | D-024 | Every specialist must clean up its own operational debris under explicit retention rules; the Archivist governs knowledge hygiene, and a separate Housekeeper is deferred until cross-specialist maintenance becomes a distinct recurring capability. | Canonical |
 | D-025 | Modesty's eventual voice must be local and original; `af_nicole` leads a deferred long-term audition, but no voice is selected or implemented until Drew explicitly approves it after repeated listening. | Canonical direction |
+| D-026 | A Researcher duty returns a coherent, sourced assessment through Modesty before optional Archivist preservation; a file location alone is not a useful report. | Canonical |
+| D-027 | Scribble Hub discovery uses a visible user-controlled browser and public metadata; Modesty will not bypass access controls or infer permission to mirror story text, alter an account, or message anyone. | Canonical boundary |
+| D-028 | WhatsApp belongs to a future Communications specialist; it may carry research results but does not absorb the Researcher's remit. | Canonical boundary |
+| D-029 | The Briefing Hologram is the approved substantial-output surface; Modesty gives a concise Return while the interactive Briefing holds detail and may become a durable Report. | Canonical |
+| D-030 | Completed Briefings remain recoverable Pending Reports until Drew explicitly keeps them privately, sends them to Bookshelf Inbox, or tosses them. | Canonical |
+| D-031 | The Librarian is a new Team member distinct from the Archivist, responsible for private reading works, editions, repairs, cross-post continuity, and reading position. | Canonical |
+| D-032 | Librarian repairs preserve untouched originals and provenance; uncertain or meaning-changing corrections require review, and neither DRM circumvention nor silent redistribution is permitted. | Canonical boundary |
+| D-033 | A build that adds or changes a deterministic user command is incomplete until Modesty's local command guide, tolerant help routing, and help-routing tests are updated with it. | Canonical process rule |
+| D-034 | Command-driven movement follows neutral pose, motivated outward transition, definitive duty pose, and a motivated return to the identical neutral endpoint. Outbound and return paths may differ; reversibility governs state and endpoints rather than mechanical retracing. Duty geometry never mutates the accepted standing baseline. | Canonical animation rule |
+| D-035 | The Researcher Bobblehead's current pillar-side placement is accepted; its apparently forward-tipped pedestal is a deferred perspective-polish item, not a blocker or reason to alter the approved figurine. | Accepted with polishing note |
+| D-036 | Bobbleheads and the readiness lamp mean Team members are present; the headset means active Team communication. Modesty wears it only during a working or waiting Team duty and while presenting that duty's Briefing. | Canonical visual-state rule |
+| D-037 | An active Briefing cannot close while its report is undecided. A successful private, Bookshelf, or toss disposition visibly highlights the chosen control, locks the alternatives, and enables Close. | Canonical interaction rule |
+| D-038 | `Bye` and `Goodbye, Modesty` are deterministic graceful-exit commands: Modesty acknowledges Drew, then the Study follows its normal application shutdown path. | Canonical command |
 
 ## Superseded decisions and names
 
-- **Librarian** is superseded by **Archivist** for the knowledge specialist.
+- **Librarian** remains superseded by **Archivist** as the old name for the knowledge specialist. The newly approved Librarian is a separate reading specialist defined after that terminology change.
 - Early references to Anita and Merry as separate residents or Team members are invalidated by D-007.
 - Early standing placement `height: 0.72` at `anchor_y: 1.10` was superseded after the clear-eyed asset changed scale and grounding.
 - Early proposed model names were superseded by `gemma4:e2b`.

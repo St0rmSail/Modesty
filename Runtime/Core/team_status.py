@@ -1,7 +1,7 @@
 """In-process truthful state for enabled Team members."""
 
 
-_enabled_members = {"archivist"}
+_enabled_members = {"archivist", "researcher"}
 _member_states = {member: "offline" for member in _enabled_members}
 _core_ready = False
 _grand_library_state = "closed"
@@ -25,6 +25,22 @@ def set_member_state(member: str, state: str):
 
 def member_state(member: str) -> str:
     return _member_states.get(member, "offline")
+
+
+def any_member_available() -> bool:
+    return any(
+        state in {"ready", "working", "waiting"}
+        for state in _member_states.values()
+    )
+
+
+def any_member_active() -> bool:
+    """Return whether Modesty is currently communicating on a Team duty."""
+
+    return any(
+        state in {"working", "waiting"}
+        for state in _member_states.values()
+    )
 
 
 def set_core_ready(ready: bool):

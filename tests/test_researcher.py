@@ -1,0 +1,77 @@
+import unittest
+
+from Brain.Team.researcher import Researcher, StoryFinding
+from Runtime.Research.scribblehub import ScribbleHubListingParser, latest_harem_url
+
+
+class ResearcherTest(unittest.TestCase):
+    def test_query_is_exact_and_reproducible(self):
+        url = latest_harem_url()
+        self.assertIn("gi=1015", url)
+        self.assertIn("sort=dateadded", url)
+        self.assertIn("order=desc", url)
+
+    def test_report_returns_findings_assessment_sources_and_limits(self):
+        report = Researcher().report_latest_harem(
+            (
+                StoryFinding(
+                    "A New Quest",
+                    "https://www.scribblehub.com/series/1/a-new-quest/",
+                    "Author",
+                    ("Adventure", "Harem", "Romance"),
+                    "A bounded synopsis.",
+                    8,
+                    12,
+                    "today",
+                    ("Academy",),
+                ),
+                StoryFinding(
+                    "Barely Begun",
+                    "https://www.scribblehub.com/series/2/barely-begun/",
+                    "Author Two",
+                    ("Harem", "Smut"),
+                    "Another synopsis.",
+                    1,
+                    0,
+                    "today",
+                    (),
+                    ("Gore", "Sexual Content"),
+                ),
+            )
+        )
+        self.assertIn("The Researcher found 2", report)
+        self.assertIn("Worth a closer look", report)
+        self.assertIn("Too early to judge", report)
+        self.assertIn("adult sexual content", report)
+        self.assertIn("possible grim or distressing material signalled by Gore", report)
+        self.assertIn("discovery candidates, not endorsements", report)
+        self.assertIn("Nothing has been filed", report)
+        self.assertEqual(report.count("https://www.scribblehub.com/series/"), 2)
+
+    def test_empty_results_do_not_fake_a_report(self):
+        report = Researcher().report_latest_harem(())
+        self.assertIn("no usable current listings", report)
+        self.assertIn("Nothing was filed", report)
+
+    def test_public_listing_parser_extracts_bounded_metadata(self):
+        parser = ScribbleHubListingParser(limit=1)
+        parser.feed(
+            '<div class="search_main_box"><div class="search_body">'
+            '<div class="search_title"><a href="https://www.scribblehub.com/series/1/test/">Test Story</a></div>'
+            '<div class="search_stats"><span>7 Chapters</span><span>12 Readers</span>'
+            '<span title="Last Updated">2 hours ago</span>'
+            '<span title="Author"><a href="https://www.scribblehub.com/profile/1/author/">Writer</a></span></div>'
+            '<div class="search_genre"><a>Adventure</a><a>Harem</a></div>'
+            'A short synopsis.</div></div>'
+        )
+        self.assertEqual(len(parser.findings), 1)
+        finding = parser.findings[0]
+        self.assertEqual(finding.title, "Test Story")
+        self.assertEqual(finding.author, "Writer")
+        self.assertEqual(finding.genres, ("Adventure", "Harem"))
+        self.assertEqual((finding.chapters, finding.readers), (7, 12))
+        self.assertEqual(finding.last_updated, "2 hours ago")
+
+
+if __name__ == "__main__":
+    unittest.main()

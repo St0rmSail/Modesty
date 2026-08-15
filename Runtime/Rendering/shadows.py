@@ -43,12 +43,15 @@ class ShadowRenderer:
         anchor_y: float,
         character_width: float,
         character_height: float,
+        opacity_scale: float = 1.0,
     ):
         if not bool(self.settings.get("enabled", True)):
             return
 
         colour_values = self.settings.get("shadow_colour", [40, 30, 18])
-        opacity = float(self.settings.get("shadow_opacity", 0.16))
+        opacity = float(self.settings.get("shadow_opacity", 0.16)) * max(
+            0.0, opacity_scale
+        )
         width_factor = float(self.settings.get("shadow_width", 0.58))
         height_factor = float(self.settings.get("shadow_height", 0.075))
         offset_x_factor = float(self.settings.get("offset_x", 0.035))

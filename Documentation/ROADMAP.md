@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.17.0 - Story Investigation (complete)
+**Current marker:** Build 0.18.0 - Story Comparison (complete)
 **Reviewed:** 2026-08-16
 
 ## Completed build line
@@ -26,6 +26,22 @@
 | 0.14.0 | Time and Presence | Session truth, elapsed absence, clean/interrupted recovery, local greetings, and offline working-zone conversion |
 
 ## Active build
+
+### 0.18.0 - Story Comparison - Complete
+
+Strengthen Researcher Level 3 with bounded same-source-type corroboration. Drew can collect two or three visible public Scribble Hub story pages and request one comparison Briefing. The Researcher distinguishes shared signals, candidate differences, visible cautions, reader-report limits, and likely duplicate or cross-post leads while retaining every direct source.
+
+Definition of done:
+
+- Collect two or three distinct current story pages without filing or account action.
+- Compare shared and distinguishing metadata rather than concatenating separate reports.
+- Preserve per-story sources and keep reader reports separate from observed page facts.
+- Detect strong title/synopsis similarity as a duplicate or cross-post lead, never proof.
+- Refuse one-item, duplicate-source, and oversized comparison sets.
+- Demonstrate the comparison through the existing Pending Report and Briefing lifecycle in `E:\Modesty`.
+- Keep Level 4 unearned until a later build synthesizes distinctly different source types.
+
+Demonstrated on 2026-08-16: Drew collected distinct live Scribble Hub story pages, returned to the listing between selections, produced the comparison Briefing, inspected its source/evidence boundaries, and completed disposition. All 96 live tests passed.
 
 ### 0.17.0 - Story Investigation - Complete
 

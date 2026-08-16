@@ -7,7 +7,7 @@ from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
-from Brain.Team.researcher import Researcher, StoryFinding
+from Brain.Team.researcher import Researcher, StoryFinding, StoryPageEvidence
 from Runtime.Research.scribblehub import ScribbleHubListingParser, latest_harem_url
 from Runtime.Research.story_page import decode_story_evidence
 
@@ -30,6 +30,7 @@ class ScribbleHubResearchWindow(QWidget):
         super().__init__()
         self.setWindowTitle("Modesty — Scribble Hub Research")
         self.resize(1100, 760)
+        self.comparison_stories: list[StoryPageEvidence] = []
 
         layout = QVBoxLayout(self)
         self.notice = QLabel(
@@ -49,6 +50,16 @@ class ScribbleHubResearchWindow(QWidget):
         self.investigate = QPushButton("Investigate current story page")
         self.investigate.clicked.connect(self._prepare_story_report)
         layout.addWidget(self.investigate)
+        self.listings = QPushButton("Return to latest listings")
+        self.listings.clicked.connect(lambda: self.view.setUrl(QUrl(latest_harem_url())))
+        layout.addWidget(self.listings)
+        self.add_comparison = QPushButton("Add current story to comparison (0/3)")
+        self.add_comparison.clicked.connect(self._add_story_to_comparison)
+        layout.addWidget(self.add_comparison)
+        self.compare = QPushButton("Prepare comparison briefing")
+        self.compare.setEnabled(False)
+        self.compare.clicked.connect(self._prepare_comparison_report)
+        layout.addWidget(self.compare)
         self.view.setUrl(QUrl(latest_harem_url()))
 
     def _prepare_report(self):
@@ -76,12 +87,19 @@ class ScribbleHubResearchWindow(QWidget):
         self.close()
 
     def _prepare_story_report(self):
+        self._read_story_page(self._story_result)
+
+    def _add_story_to_comparison(self):
+        self._read_story_page(self._comparison_story_result)
+
+    def _read_story_page(self, callback):
         source = self.view.url().toString()
         parsed = urlparse(source)
         if parsed.scheme != "https" or parsed.hostname not in {"scribblehub.com", "www.scribblehub.com"} or "/series/" not in parsed.path:
             self.notice.setText("Navigate visibly to a Scribble Hub story Details page first.")
             return
         self.investigate.setEnabled(False)
+        self.add_comparison.setEnabled(False)
         self.notice.setText("The Researcher is reading bounded public story metadata and visible review evidence...")
         script = """(() => JSON.stringify({
           title: (document.querySelector('.fic_title')?.innerText || '').trim(),
@@ -93,7 +111,7 @@ class ScribbleHubResearchWindow(QWidget):
             [...e.querySelectorAll('p')].map(p => p.innerText.trim()).filter(Boolean).join(' ')
           ).filter(Boolean)
         }))()"""
-        self.view.page().runJavaScript(script, lambda page: self._story_result(page, source))
+        self.view.page().runJavaScript(script, lambda page: callback(page, source))
 
     def _story_result(self, page, source: str):
         try:
@@ -102,8 +120,43 @@ class ScribbleHubResearchWindow(QWidget):
         except (TypeError, ValueError) as error:
             self.notice.setText(f"The current story page could not be investigated safely: {error}")
             self.investigate.setEnabled(True)
+            self.add_comparison.setEnabled(len(self.comparison_stories) < 3)
             return
         self.report_ready.emit(f"Story investigation — {evidence.get('title', 'Scribble Hub')}", body)
+        self.close()
+
+    def _comparison_story_result(self, page, source: str):
+        try:
+            evidence = decode_story_evidence(page)
+            story = Researcher().story_page_evidence(evidence, source)
+            if any(existing.source_url == story.source_url for existing in self.comparison_stories):
+                raise ValueError("That story is already in the comparison set.")
+            self.comparison_stories.append(story)
+        except (TypeError, ValueError) as error:
+            self.notice.setText(f"The current story page could not be added safely: {error}")
+        else:
+            self.notice.setText(
+                f"Added {story.title}. Navigate to another story page and add it, or prepare the comparison."
+            )
+        self.investigate.setEnabled(True)
+        count = len(self.comparison_stories)
+        self.add_comparison.setText(f"Add current story to comparison ({count}/3)")
+        self.add_comparison.setEnabled(count < 3)
+        self.compare.setEnabled(count >= 2)
+
+    def _prepare_comparison_report(self):
+        try:
+            body = Researcher().report_story_comparison(
+                self.comparison_stories,
+                QDateTime.currentDateTime().toString(Qt.DateFormat.ISODate),
+            )
+        except ValueError as error:
+            self.notice.setText(f"The comparison could not be prepared safely: {error}")
+            return
+        self.report_ready.emit(
+            f"Story comparison — {len(self.comparison_stories)} Scribble Hub candidates",
+            body,
+        )
         self.close()
 
     def closeEvent(self, event):

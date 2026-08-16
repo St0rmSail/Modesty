@@ -60,6 +60,10 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Investigate current story page", text)
         self.assertIn("does not download chapters", text)
         self.assertIn("ordinary Briefing decision", text)
+        self.assertIn("Add current story to comparison", text)
+        self.assertIn("Return to latest listings", text)
+        self.assertIn("two or three pages", text)
+        self.assertIn("lead rather than proof", text)
 
 
 if __name__ == "__main__":

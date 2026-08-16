@@ -24,6 +24,8 @@ Open the Grand Library online first. The duty opens a visible local Scribble Hub
 
 To investigate one candidate, open its public Scribble Hub story page in that same visible browser and use **Investigate current story page**. The Researcher will prepare a bounded Briefing from visible synopsis, genres, tags, statistics, and review paragraphs. This does not download chapters, change the account, or file the report. The ordinary Briefing decision still controls whether the report is kept or tossed.
 
+To compare candidates, visit a story page and use **Add current story to comparison**. Use **Return to latest listings** to select the next candidate. Repeat for one or two more distinct stories, then use **Prepare comparison briefing**. The Researcher accepts two or three pages, retains each source, and treats possible duplicate or cross-post similarity as a lead rather than proof. Nothing is filed until the ordinary Briefing decision.
+
 ## Briefings
 
 - **Briefing** reopens the latest undecided Pending Report.

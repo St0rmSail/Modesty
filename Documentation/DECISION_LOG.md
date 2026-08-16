@@ -54,6 +54,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-046 | The first schedule is local and deterministic: explicit local dates and times become UTC-backed reminders with stable IDs. Due time creates a notice, never a claim that work occurred; accounts, recurrence, natural-language dates, and background delivery require later controlled builds. | Canonical schedule boundary |
 | D-047 | Research investigations use a source-neutral evidence contract that separates observed facts, reported evidence, cautions, missing evidence, recommendation strength, source, and retrieval time. The first Scribble Hub adapter reads only the current visible public story page; account actions and chapter acquisition require separate authority and design. | Canonical research boundary |
 | D-048 | Every Team specialist uses the common capability benchmark: demonstrated live level, implemented-but-unaccepted level, world comparison, exact active-build increment, remaining gap, and proof required. Code or a mock cannot advance the demonstrated level. | Canonical measurement rule |
+| D-049 | Same-type comparison strengthens evidence-led investigation but does not earn multi-source-synthesis Level 4. Level 4 requires successful synthesis across distinctly different source types with claim-linked provenance and conflict handling. | Canonical benchmark boundary |
 
 ## Superseded decisions and names
 

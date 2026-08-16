@@ -102,6 +102,43 @@ class ResearcherTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             Researcher().report_story_page({"title": "Missing synopsis"}, "https://www.scribblehub.com/series/1/test/", "now")
 
+    def test_story_comparison_separates_agreement_differences_and_sources(self):
+        researcher = Researcher()
+        first = researcher.story_page_evidence(
+            {"title": "Sunlit Quest", "synopsis": "A hero builds a warm household while exploring a bright new world.", "genres": ["Adventure", "Harem"], "tags": ["Found Family", "R-18"], "stats": "20 Chapters", "reviews": ["Creative worldbuilding and well written."]},
+            "https://www.scribblehub.com/series/1/sunlit-quest/",
+        )
+        second = researcher.story_page_evidence(
+            {"title": "Stormbound Court", "synopsis": "A heroine gathers allies while surviving a dangerous magical court.", "genres": ["Adventure", "Harem"], "tags": ["Politics", "Gore"], "stats": "30 Chapters", "reviews": ["I had to drop it after the abuse reveal."]},
+            "https://www.scribblehub.com/series/2/stormbound-court/",
+        )
+        report = researcher.report_story_comparison((first, second), "2026-08-16T12:00:00+02:00")
+        self.assertIn("compared 2 public", report)
+        self.assertIn("Shared genres: Adventure, Harem", report)
+        self.assertIn("Distinguishing signals", report)
+        self.assertIn("one source type", report)
+        self.assertEqual(report.count("https://www.scribblehub.com/series/"), 2)
+
+    def test_story_comparison_flags_likely_duplicate_without_claiming_proof(self):
+        researcher = Researcher()
+        page = {"title": "Same Tale", "synopsis": "A long and unusually specific synopsis about a magical household journey.", "genres": ["Harem"], "tags": [], "reviews": []}
+        first = researcher.story_page_evidence(page, "https://www.scribblehub.com/series/1/same-tale/")
+        second = researcher.story_page_evidence(page, "https://www.scribblehub.com/series/2/same-tale-copy/")
+        report = researcher.report_story_comparison((first, second), "now")
+        self.assertIn("duplicate or cross-posted editions", report)
+        self.assertIn("lead, not proof", report)
+
+    def test_story_comparison_requires_distinct_bounded_set(self):
+        researcher = Researcher()
+        story = researcher.story_page_evidence(
+            {"title": "One", "synopsis": "A complete synopsis.", "genres": [], "tags": [], "reviews": []},
+            "https://www.scribblehub.com/series/1/one/",
+        )
+        with self.assertRaises(ValueError):
+            researcher.report_story_comparison((story,), "now")
+        with self.assertRaises(ValueError):
+            researcher.report_story_comparison((story, story), "now")
+
 
 if __name__ == "__main__":
     unittest.main()

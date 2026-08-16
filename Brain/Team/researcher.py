@@ -1,6 +1,8 @@
 """Evidence-led reports from the unseen Researcher Team member."""
 
 from dataclasses import dataclass
+from difflib import SequenceMatcher
+import re
 from typing import Iterable
 
 from Brain.Team.investigation import Investigation, render_investigation
@@ -18,6 +20,17 @@ class StoryFinding:
     last_updated: str
     tags: tuple[str, ...] = ()
     content_warnings: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class StoryPageEvidence:
+    title: str
+    source_url: str
+    synopsis: str
+    genres: tuple[str, ...]
+    tags: tuple[str, ...]
+    stats: str
+    reviews: tuple[str, ...]
 
 
 class Researcher:
@@ -101,6 +114,16 @@ class Researcher:
         return "\n".join(lines)
 
     def report_story_page(self, page: dict, source_url: str, retrieved_at: str) -> str:
+        story = self.story_page_evidence(page, source_url)
+        cautions, recommendation = self._assess_story(story)
+        observed = [f"Synopsis: {story.synopsis}"]
+        if story.genres: observed.append("Genres: " + ", ".join(story.genres))
+        if story.tags: observed.append("Tags: " + ", ".join(story.tags))
+        if story.stats: observed.append("Visible statistics: " + story.stats)
+        missing = ["A bounded public page cannot rule out hidden tonal changes or establish sustained quality.", "No preference match is claimed unless Drew's approved preferences are supplied separately."]
+        return render_investigation(Investigation(story.title, story.source_url, tuple(observed), story.reviews, cautions, tuple(missing), recommendation, retrieved_at))
+
+    def story_page_evidence(self, page: dict, source_url: str) -> StoryPageEvidence:
         title = " ".join(str(page.get("title", "")).split())[:200]
         synopsis = " ".join(str(page.get("synopsis", "")).split())[:3000]
         genres = tuple(dict.fromkeys(str(value).strip() for value in page.get("genres", ()) if str(value).strip()))[:30]
@@ -109,19 +132,86 @@ class Researcher:
         reviews = tuple(" ".join(str(value).split())[:700] for value in page.get("reviews", ()) if str(value).strip())[:5]
         if not title or not synopsis:
             raise ValueError("This does not appear to be a complete public story page.")
+        if not source_url.startswith("https://www.scribblehub.com/series/"):
+            raise ValueError("The story evidence needs a public Scribble Hub source.")
+        return StoryPageEvidence(title, source_url, synopsis, genres, tags, stats, reviews)
 
-        observed = [f"Synopsis: {synopsis}"]
-        if genres: observed.append("Genres: " + ", ".join(genres))
-        if tags: observed.append("Tags: " + ", ".join(tags))
-        if stats: observed.append("Visible statistics: " + stats)
+    def report_story_comparison(self, stories: Iterable[StoryPageEvidence], retrieved_at: str) -> str:
+        items = tuple(stories)
+        if not 2 <= len(items) <= 3:
+            raise ValueError("A comparison needs two or three story pages.")
+        if len({story.source_url for story in items}) != len(items):
+            raise ValueError("A comparison cannot contain the same story page twice.")
+
+        genre_sets = [set(story.genres) for story in items]
+        tag_sets = [set(story.tags) for story in items]
+        shared_genres = sorted(set.intersection(*genre_sets)) if all(genre_sets) else []
+        shared_tags = sorted(set.intersection(*tag_sets)) if all(tag_sets) else []
+        duplicate_pairs = []
+        for left_index, left in enumerate(items):
+            for right in items[left_index + 1:]:
+                same_title = self._normalise_title(left.title) == self._normalise_title(right.title)
+                synopsis_match = SequenceMatcher(None, left.synopsis.casefold(), right.synopsis.casefold()).ratio()
+                if same_title or synopsis_match >= 0.82:
+                    duplicate_pairs.append(
+                        f"{left.title} and {right.title} may be duplicate or cross-posted editions "
+                        f"(synopsis similarity {synopsis_match:.0%}); this is a lead, not proof."
+                    )
+
+        lines = [
+            f"The Researcher compared {len(items)} public Scribble Hub story pages.",
+            "",
+            "Comparative assessment:",
+        ]
+        for index, story in enumerate(items, 1):
+            cautions, recommendation = self._assess_story(story)
+            unique_genres = sorted(set(story.genres) - set(shared_genres))
+            unique_tags = sorted(set(story.tags) - set(shared_tags))
+            lines.extend(
+                (
+                    f"{index}. {story.title} — {recommendation.upper()}",
+                    f"   Observed genres: {', '.join(story.genres) if story.genres else 'none visible'}.",
+                    f"   Distinguishing signals: {', '.join(unique_genres + unique_tags) if unique_genres or unique_tags else 'none in the bounded metadata'}.",
+                    f"   Reader evidence: {len(story.reviews)} bounded review passage{'s' if len(story.reviews) != 1 else ''}.",
+                    f"   Cautions: {'; '.join(cautions) if cautions else 'none explicit in the bounded evidence'}.",
+                    f"   Source: {story.source_url}",
+                )
+            )
+
+        lines.extend(("", "Agreement across the compared pages:"))
+        lines.append("- Shared genres: " + (", ".join(shared_genres) if shared_genres else "none established across every page"))
+        lines.append("- Shared tags: " + (", ".join(shared_tags) if shared_tags else "none established across every page"))
+        lines.extend(("", "Duplicate or cross-post checks:"))
+        lines.extend(f"- {finding}" for finding in duplicate_pairs)
+        if not duplicate_pairs:
+            lines.append("- No likely duplicate was detected from title and synopsis similarity.")
+        lines.extend(
+            (
+                "",
+                "Limits:",
+                "- This compares public pages of one source type; it does not independently corroborate their claims.",
+                "- Visible reviews are reader reports, not observed story facts.",
+                "- No personal preference match or hidden-content guarantee is claimed.",
+                "",
+                f"Retrieved: {retrieved_at}",
+                "Nothing has been filed or added to an account.",
+            )
+        )
+        return "\n".join(lines)
+
+    @staticmethod
+    def _assess_story(story: StoryPageEvidence) -> tuple[tuple[str, ...], str]:
         cautions = []
         caution_terms = {"Gore", "Rape", "Sexual Violence", "Tragedy", "Psychological", "Futanari", "R-18", "Pregnancy"}
-        visible = sorted(caution_terms.intersection(set(tags) | set(genres)))
+        visible = sorted(caution_terms.intersection(set(story.tags) | set(story.genres)))
         if visible: cautions.append("Explicitly signalled: " + ", ".join(visible))
         negative_terms = ("drop", "stalking", "disgust", "ruin", "rape", "grim", "abuse")
-        conflicts = [review for review in reviews if any(term in review.casefold() for term in negative_terms)]
+        conflicts = [review for review in story.reviews if any(term in review.casefold() for term in negative_terms)]
         if conflicts: cautions.append("At least one visible reader report raises a substantive late-story concern.")
-        positive = bool(reviews) and any(term in " ".join(reviews).casefold() for term in ("well written", "worldbuilding", "enjoy", "creative"))
+        positive = bool(story.reviews) and any(term in " ".join(story.reviews).casefold() for term in ("well written", "worldbuilding", "enjoy", "creative"))
         recommendation = "mixed" if cautions and positive else "unlikely" if cautions else "promising" if positive else "insufficient"
-        missing = ["A bounded public page cannot rule out hidden tonal changes or establish sustained quality.", "No preference match is claimed unless Drew's approved preferences are supplied separately."]
-        return render_investigation(Investigation(title, source_url, tuple(observed), reviews, tuple(cautions), tuple(missing), recommendation, retrieved_at))
+        return tuple(cautions), recommendation
+
+    @staticmethod
+    def _normalise_title(value: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "", value.casefold())

@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.17.0 - Story Investigation (complete)
-**Current focus:** Select the next capability increment from the benchmark and roadmap
+**Current build:** 0.18.0 - Story Comparison (complete)
+**Current focus:** Prepare the mixed-source increment required for Researcher Level 4
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -133,4 +133,14 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Route the result into the existing Pending Report and Briefing lifecycle.
 - [x] Update deterministic Researcher help and focused tests.
 - [x] Demonstrate extraction, Briefing presentation, and disposition in `E:\Modesty`.
+- [x] Complete the restore-point audit and milestone commit after acceptance.
+
+## Build 0.18.0 - Complete
+
+- [x] Add an in-window comparison set limited to two or three distinct story pages.
+- [x] Compare shared and distinguishing metadata with per-story sources and cautions.
+- [x] Flag likely duplicate or cross-post candidates as leads rather than proof.
+- [x] Refuse incomplete, duplicate-source, one-item, and oversized comparison inputs.
+- [x] Update Researcher help and the common capability benchmark honestly.
+- [x] Demonstrate collection, comparison Briefing, and disposition in `E:\Modesty`.
 - [x] Complete the restore-point audit and milestone commit after acceptance.

@@ -31,6 +31,8 @@ Levels are cumulative. A specialist cannot honestly claim a higher level while p
 
 **Implemented, awaiting live acceptance:** None beyond the demonstrated level.
 
+**Build 0.18 increment achieved:** same-type corroboration within Level 3. Two or three public Scribble Hub story pages retain individual sources, expose agreements and differences, and identify duplicate/cross-post leads. This prepares but does not satisfy Level 4 because the evidence is not independently corroborated across different source types.
+
 **Build 0.17 increment achieved:** bridged Level 2 to Level 3 by turning one discovered candidate into a structured investigation with observed facts, bounded reader reports, cautions, missing evidence, recommendation strength, source, retrieval time, and explicit report disposition.
 
 **Not yet present:** source planning, cross-source corroboration, claim-level citations, preference modelling, conflict resolution, general website adapters, YouTube transcript evidence, long-running research plans, automatic recovery, and measured report quality.
@@ -57,7 +59,7 @@ Update the entry when a build begins, after live acceptance, and during every re
 | Specialist | Demonstrated | Current increment |
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
-| Researcher | Level 3 | Build 0.17's real single-story evidence pass is demonstrated; the next major threshold is Level 4 multi-source synthesis. |
+| Researcher | Level 3 | Same-type comparison is demonstrated; Level 4 still requires mixed-source synthesis such as website evidence plus YouTube transcript evidence. |
 | Librarian | Level 0 | Canonical role only; first executable duty and private collection remain unbuilt. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

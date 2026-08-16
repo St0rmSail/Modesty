@@ -1,8 +1,10 @@
 # The Researcher
 
-**Status:** Build 0.17 story investigation complete
+**Status:** Build 0.18 story comparison complete
 
 **Capability benchmark:** Level 3 demonstrated. Build 0.17 bridged bounded discovery to one evidence-led story investigation. See [AGENT_CAPABILITY_BENCHMARK.md](AGENT_CAPABILITY_BENCHMARK.md).
+
+Build 0.18 strengthens Level 3 without claiming Level 4. The visible Researcher browser retains two or three distinct story-page evidence packets, then produces one comparison Briefing. Shared genres and tags, distinguishing signals, caution differences, direct sources, and likely duplicate/cross-post leads are made explicit. Because every page is still the same source type, this is comparison preparation rather than independent multi-source corroboration. The complete live lifecycle passed on 2026-08-16.
 
 The Researcher is an unseen Team specialist. She gathers and evaluates evidence; she is not a second chat personality. Modesty frames the assignment, obtains required consent, and returns the result to Drew in her own voice. The Archivist preserves an accepted result only after the ordinary Inbox and Workbench checks.
 
@@ -38,6 +40,8 @@ Build 0.17 adds that individual evidence pass for the currently visible Scribble
 5. source URL and retrieval time.
 
 Reviewer identities and account metadata are not collected. If a page does not expose enough public evidence, the Researcher refuses to manufacture an investigation. A visible page can reveal warning signs, but it cannot prove that a long story contains no hidden tonal turn or establish a personal match without approved preference evidence.
+
+For a comparison, Drew opens each candidate page and selects **Add current story to comparison**. After two or three distinct pages have been added, **Prepare comparison briefing** creates one Pending Report. The comparison set exists only in that Researcher window until the report is created.
 
 Scribble Hub currently challenges ordinary automated HTTP access. Modesty must not bypass that protection. Live intake will use a visible, user-controlled local browser session. Account changes, reading-list changes, messages, ratings, follows, and downloads require their own explicit authority.
 

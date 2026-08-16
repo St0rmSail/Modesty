@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.17.0 complete
+**Baseline:** Build 0.18.0 complete
 **Reviewed:** 2026-08-16
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -30,6 +30,7 @@
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Yes | Yes | Yes | Smithsonian, bounded Scribble Hub discovery, and one current-story evidence pass demonstrated without account action or silent filing |
 | Story-page investigation | Yes | Yes | Yes | Visible public Scribble Hub page facts and bounded review evidence feed the established Briefing lifecycle; chapters and account actions excluded |
+| Same-type story comparison | Yes | Yes | Yes | Two or three visible Scribble Hub pages compare with source retention, explicit limits, and duplicate leads rather than false proof |
 | Briefing Hologram and Pending Reports | Yes | Yes | Yes | Readable expanding surface, compact questioning, restart-safe pending state, gated disposition, reversible duty movement, and truthful headset state demonstrated; gesture artwork remains polish |
 | Local time and session presence | Yes | Yes | Yes | Afternoon and sub-minute greetings, graceful shutdown, nine-minute absence, clean restart, and isolated interrupted recovery demonstrated |
 | Offline working time zones | Yes | Yes | Yes | Fixed African/GMT and DST-aware Britain, Europe, Thailand, Australia, New Zealand, and US named zones demonstrated locally |

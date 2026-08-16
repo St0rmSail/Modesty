@@ -22,6 +22,8 @@ The first implemented duty is:
 
 Open the Grand Library online first. The duty opens a visible local Scribble Hub browser. When listings are visible, use **Prepare Briefing from visible listings**. No account action or filing occurs merely because the page opened.
 
+To investigate one candidate, open its public Scribble Hub story page in that same visible browser and use **Investigate current story page**. The Researcher will prepare a bounded Briefing from visible synopsis, genres, tags, statistics, and review paragraphs. This does not download chapters, change the account, or file the report. The ordinary Briefing decision still controls whether the report is kept or tossed.
+
 ## Briefings
 
 - **Briefing** reopens the latest undecided Pending Report.

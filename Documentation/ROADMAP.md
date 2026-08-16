@@ -1,7 +1,7 @@
 # Roadmap
 
-**Current marker:** Build 0.16.0 - Schedule and Reminders (complete)
-**Reviewed:** 2026-08-15
+**Current marker:** Build 0.17.0 - Story Investigation (complete)
+**Reviewed:** 2026-08-16
 
 ## Completed build line
 
@@ -26,6 +26,21 @@
 | 0.14.0 | Time and Presence | Session truth, elapsed absence, clean/interrupted recovery, local greetings, and offline working-zone conversion |
 
 ## Active build
+
+### 0.17.0 - Story Investigation - Complete
+
+Extend the proven visible-browser Researcher workflow from category discovery to one bounded story-page evidence pass. The generic investigation contract separates observed facts, reported evidence, cautions, missing evidence, recommendation strength, sources, and retrieval time. The first adapter reads only the current visible public Scribble Hub story page. Account actions, chapter acquisition, mirroring, and access-control bypass remain excluded.
+
+Definition of done:
+
+- Investigate the currently visible public Scribble Hub story page without account action.
+- Distinguish page facts from reader reports and retain a direct source.
+- State cautions and missing evidence instead of implying certainty about hidden content.
+- Return the investigation through the existing Pending Report and Briefing lifecycle.
+- Document the visible control in deterministic Researcher help.
+- Demonstrate the complete flow in `E:\Modesty` before marking the build complete.
+
+Demonstrated on 2026-08-16: a real public Scribble Hub story page produced the evidence-led Briefing after the embedded-browser JSON transport was made explicit. All 93 live tests passed.
 
 ### 0.16.0 - Schedule and Reminders - Complete
 

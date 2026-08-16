@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.16.0 - Schedule and Reminders (complete)
-**Current focus:** Select the next functional build from the reconciled roadmap
+**Current build:** 0.17.0 - Story Investigation (complete)
+**Current focus:** Select the next capability increment from the benchmark and roadmap
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -123,3 +123,14 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Add bounded overdue and due-today opening notices.
 - [x] Demonstrate restart persistence, overdue greeting, review, and confirmed deletion.
 - [x] Run all 89 live tests and perform the restore-point paperwork audit.
+
+## Build 0.17.0 - Complete
+
+- [x] Define a reusable investigation report contract.
+- [x] Add bounded extraction for the current visible public Scribble Hub story page.
+- [x] Separate observed page facts, reader-reported evidence, cautions, and missing evidence.
+- [x] Keep account actions, chapters, mirroring, and access-control bypass out of scope.
+- [x] Route the result into the existing Pending Report and Briefing lifecycle.
+- [x] Update deterministic Researcher help and focused tests.
+- [x] Demonstrate extraction, Briefing presentation, and disposition in `E:\Modesty`.
+- [x] Complete the restore-point audit and milestone commit after acceptance.

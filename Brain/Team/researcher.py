@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from typing import Iterable
 
+from Brain.Team.investigation import Investigation, render_investigation
+
 
 @dataclass(frozen=True)
 class StoryFinding:
@@ -97,3 +99,29 @@ class Researcher:
             )
         )
         return "\n".join(lines)
+
+    def report_story_page(self, page: dict, source_url: str, retrieved_at: str) -> str:
+        title = " ".join(str(page.get("title", "")).split())[:200]
+        synopsis = " ".join(str(page.get("synopsis", "")).split())[:3000]
+        genres = tuple(dict.fromkeys(str(value).strip() for value in page.get("genres", ()) if str(value).strip()))[:30]
+        tags = tuple(dict.fromkeys(str(value).strip() for value in page.get("tags", ()) if str(value).strip()))[:60]
+        stats = " ".join(str(page.get("stats", "")).split())[:500]
+        reviews = tuple(" ".join(str(value).split())[:700] for value in page.get("reviews", ()) if str(value).strip())[:5]
+        if not title or not synopsis:
+            raise ValueError("This does not appear to be a complete public story page.")
+
+        observed = [f"Synopsis: {synopsis}"]
+        if genres: observed.append("Genres: " + ", ".join(genres))
+        if tags: observed.append("Tags: " + ", ".join(tags))
+        if stats: observed.append("Visible statistics: " + stats)
+        cautions = []
+        caution_terms = {"Gore", "Rape", "Sexual Violence", "Tragedy", "Psychological", "Futanari", "R-18", "Pregnancy"}
+        visible = sorted(caution_terms.intersection(set(tags) | set(genres)))
+        if visible: cautions.append("Explicitly signalled: " + ", ".join(visible))
+        negative_terms = ("drop", "stalking", "disgust", "ruin", "rape", "grim", "abuse")
+        conflicts = [review for review in reviews if any(term in review.casefold() for term in negative_terms)]
+        if conflicts: cautions.append("At least one visible reader report raises a substantive late-story concern.")
+        positive = bool(reviews) and any(term in " ".join(reviews).casefold() for term in ("well written", "worldbuilding", "enjoy", "creative"))
+        recommendation = "mixed" if cautions and positive else "unlikely" if cautions else "promising" if positive else "insufficient"
+        missing = ["A bounded public page cannot rule out hidden tonal changes or establish sustained quality.", "No preference match is claimed unless Drew's approved preferences are supplied separately."]
+        return render_investigation(Investigation(title, source_url, tuple(observed), reviews, tuple(cautions), tuple(missing), recommendation, retrieved_at))

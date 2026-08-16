@@ -24,13 +24,15 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.16.0 - Schedule and Reminders (complete)**
+**0.17.0 - Story Investigation (complete)**
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 
 Build 0.15 adds inspectable, explicitly narrative autobiography with bounded topic recall, correction and retirement controls, prompt-grounded fidelity, and a strict factual-evidence boundary. Autonomous episode creation remains deliberately disabled. See [Modesty's Personal Chronicle](Documentation/PERSONAL_CHRONICLE.md).
 
 Build 0.16 adds persistent local reminders, deterministic lifecycle commands, a visible Schedule window, and bounded due/overdue opening notices. See [Schedule and Reminders](Documentation/SCHEDULE_AND_REMINDERS.md).
+
+Build 0.17 extends the Researcher from listing discovery to a bounded evidence pass over the currently visible public Scribble Hub story page. It separates page facts, reader reports, cautions, missing evidence, recommendation strength, source, and retrieval time while excluding chapter acquisition and account actions. The complete live Briefing flow passed on 2026-08-16. See [The Researcher](Documentation/RESEARCHER.md).
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

@@ -1,7 +1,7 @@
 # System Architecture
 
 **Status:** Current implementation plus approved boundaries
-**Reviewed:** 2026-08-15
+**Reviewed:** 2026-08-16
 
 ## Runtime path
 
@@ -34,7 +34,7 @@ main.py
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
 | Grand Library gateway | `Runtime/Library/` | Functional, security, quarantine, curation, and truthful Study-state lifecycle demonstrated |
-| Researcher | `Brain/Team/researcher.py`, `Runtime/Research/` | Visible Scribble Hub discovery, bounded extraction, report lifecycle, and truthful Team state demonstrated |
+| Researcher | `Brain/Team/investigation.py`, `Brain/Team/researcher.py`, `Runtime/Research/` | Visible discovery and the generic evidence-led Scribble Hub story-page investigation are demonstrated |
 | Briefing Hologram | `Runtime/Conversation/briefing_hologram.py`, `Runtime/Research/pending_reports.py` | Functional visual surface, gated disposition, and reversible duty movement demonstrated; gesture artwork deferred to polish |
 | Time and presence | `Runtime/Time/presence.py`, local `Data/presence.json` | Local time, session heartbeat, clean/interrupted shutdown, greeting, and presence-state foundation implemented |
 | Personal Chronicle | `chronicle_episodes` in `Data/modesty.db`, `Runtime/Conversation/chronicle_dialog.py` | Explicitly narrative structured storage, visible lifecycle controls, and bounded active-only recall demonstrated |

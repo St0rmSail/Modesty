@@ -191,3 +191,9 @@ Build 0.16.0 - Schedule and Reminders (complete)
 Modesty gained a local SQLite reminder ledger with explicit local dates, UTC storage, stable IDs, pending/completed state, and deterministic create, list, complete, and delete commands. Command help records the exact syntax and plainly excludes ambiguous natural dates, recurrence, account calendars, and background notifications.
 
 A readable Schedule window shows pending and completed items and permits confirmed lifecycle actions without crowding the conversation controls. Startup now appends a bounded notice for overdue and due-today reminders while future items remain quiet. Drew demonstrated command creation, restart persistence, the overdue opening notice, readable controls, visible review, and permanent deletion. All eighty-nine live tests passed.
+
+Build 0.17.0 - Story Investigation (complete)
+
+The Researcher now has a source-neutral investigation structure that keeps observed facts separate from reported evidence, cautions, missing evidence, recommendation strength, source, and retrieval time. Its first adapter extracts bounded public metadata and review paragraphs from the currently visible Scribble Hub story page, refuses incomplete or non-HTTPS evidence, and sends the result into the established Pending Report and Briefing lifecycle. It does not acquire chapters, alter accounts, or bypass access controls.
+
+The first live attempt exposed a Qt transport mismatch: valid JavaScript page evidence did not arrive as a Python dictionary and the safety gate correctly refused an apparently incomplete page. The browser boundary now serializes the bounded evidence explicitly as JSON and validates the decoded object in Python. A regression test protects that transport. Drew accepted the complete live story investigation and Briefing flow on 2026-08-16; all ninety-three live tests passed. The Researcher therefore advances from demonstrated benchmark Level 2 to Level 3.

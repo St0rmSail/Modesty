@@ -1,6 +1,8 @@
 # The Researcher
 
-**Status:** Build 0.13 complete; identified visual refinements deferred to polishing
+**Status:** Build 0.17 story investigation complete
+
+**Capability benchmark:** Level 3 demonstrated. Build 0.17 bridged bounded discovery to one evidence-led story investigation. See [AGENT_CAPABILITY_BENCHMARK.md](AGENT_CAPABILITY_BENCHMARK.md).
 
 The Researcher is an unseen Team specialist. She gathers and evaluates evidence; she is not a second chat personality. Modesty frames the assignment, obtains required consent, and returns the result to Drew in her own voice. The Archivist preserves an accepted result only after the ordinary Inbox and Workbench checks.
 
@@ -27,6 +29,16 @@ The first approved question is **What are the latest offerings in the harem cate
 
 The first pass may collect public discovery metadata only: title, author, source URL, synopsis, genres, tags, content warnings, chapter count, visible reception signals, and update state. Modesty must distinguish discovery candidates from recommendations. Hidden tonal turns cannot be ruled out from a listing; a recommendation requires an individual evidence pass.
 
+Build 0.17 adds that individual evidence pass for the currently visible Scribble Hub story page. **Investigate current story page** creates a Pending Report that separates:
+
+1. observed public page facts, including synopsis, genres, tags, and visible statistics;
+2. reported reader evidence, quoted only from bounded visible review paragraphs;
+3. caution signals and missing evidence;
+4. a deliberately limited recommendation strength; and
+5. source URL and retrieval time.
+
+Reviewer identities and account metadata are not collected. If a page does not expose enough public evidence, the Researcher refuses to manufacture an investigation. A visible page can reveal warning signs, but it cannot prove that a long story contains no hidden tonal turn or establish a personal match without approved preference evidence.
+
 Scribble Hub currently challenges ordinary automated HTTP access. Modesty must not bypass that protection. Live intake will use a visible, user-controlled local browser session. Account changes, reading-list changes, messages, ratings, follows, and downloads require their own explicit authority.
 
 ## Story text and reading continuity
@@ -44,7 +56,9 @@ Discovery metadata is not permission to mirror a story. Full chapter acquisition
 ## Implemented foundation
 
 - `Brain/Team/researcher.py` defines the evidence-led assessment and report contract.
+- `Brain/Team/investigation.py` defines the reusable source-neutral investigation structure.
 - `Runtime/Research/scribblehub.py` defines the exact first query and a bounded public-listing parser.
+- `Runtime/Research/browser_window.py` performs bounded extraction from the user-visible current story page.
 - Tests ensure empty evidence cannot become a fake report and every candidate retains a source.
 
 The visible local browser handoff, bounded listing extraction, Pending Report creation, concise conversational Return, and Briefing Hologram handoff were demonstrated in `E:\Modesty`. The Researcher earned an approved adult archaeologist Bobblehead with expedition gear, research notebook, coiled rope, and a lit Lamp of Learning. Her runtime presence reflects real Researcher readiness and duty state.

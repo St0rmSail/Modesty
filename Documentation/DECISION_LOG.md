@@ -1,6 +1,6 @@
 # Decision Log
 
-**Reviewed:** 2026-08-15
+**Reviewed:** 2026-08-16
 
 This compact register records settled decisions. Create a separate detailed decision record only when consequences or alternatives need more space.
 
@@ -52,6 +52,8 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-044 | Every milestone commit is a restore point and requires a repository-wide reconciliation of status documents, commands, tests, configuration, assets, and live behavior before commit. Stale paperwork is a completion defect. | Canonical process rule |
 | D-045 | The Personal Chronicle is authoritative for Modesty's narrative autobiography. Relevant recall must use concrete recorded details; generic model invention, stale conversational wording, and user premises cannot silently create or replace an episode. | Canonical narrative-integrity rule |
 | D-046 | The first schedule is local and deterministic: explicit local dates and times become UTC-backed reminders with stable IDs. Due time creates a notice, never a claim that work occurred; accounts, recurrence, natural-language dates, and background delivery require later controlled builds. | Canonical schedule boundary |
+| D-047 | Research investigations use a source-neutral evidence contract that separates observed facts, reported evidence, cautions, missing evidence, recommendation strength, source, and retrieval time. The first Scribble Hub adapter reads only the current visible public story page; account actions and chapter acquisition require separate authority and design. | Canonical research boundary |
+| D-048 | Every Team specialist uses the common capability benchmark: demonstrated live level, implemented-but-unaccepted level, world comparison, exact active-build increment, remaining gap, and proof required. Code or a mock cannot advance the demonstrated level. | Canonical measurement rule |
 
 ## Superseded decisions and names
 

@@ -1,8 +1,8 @@
 # Project Ledger
 
 **Status:** Authoritative index
-**Reviewed:** 2026-08-15
-**Current build:** 0.16.0 - Schedule and Reminders (complete)
+**Reviewed:** 2026-08-16
+**Current build:** 0.17.0 - Story Investigation (complete)
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 
@@ -40,6 +40,7 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Time and Presence](TIME_AND_PRESENCE.md): session truth, presence states, greeting, scheduling direction, and narrative boundary.
 - [Personal Chronicle](PERSONAL_CHRONICLE.md): compact persistent fictional autobiography and its evidence boundary.
 - [Schedule and Reminders](SCHEDULE_AND_REMINDERS.md): persistent local reminders, due context, commands, and future calendar boundary.
+- [Agent Capability Benchmark](AGENT_CAPABILITY_BENCHMARK.md): common maturity scale, world comparison, and active-build increment for each specialist.
 
 ## Evidence reviewed for Build 0.8.1
 
@@ -63,5 +64,6 @@ A milestone is not complete until:
 4. the capability matrix, roadmap, decision log, and build log are updated where affected.
 5. every new or changed deterministic user command is present in `COMMANDS.md`, reachable through Modesty's help routing in natural language, and protected by a help-routing test.
 6. the restore-point audit reconciles README, Project Ledger, Punch List, Roadmap, Architecture, Capability Matrix, Decision Log, Build Log, command help, tests, configuration, and relevant assets against the live checkout.
+7. every active specialist records its demonstrated level, implemented level, world comparison, exact build increment, and proof required in `AGENT_CAPABILITY_BENCHMARK.md`.
 
 The restore-point audit happens before the milestone commit. Stale status markers are defects, even when the code itself works.

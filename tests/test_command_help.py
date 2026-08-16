@@ -55,6 +55,12 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Remind me on 2026-08-16 at 09:30", result.response)
         self.assertIn("not implemented yet", result.response)
 
+    def test_researcher_help_explains_story_investigation_boundary(self):
+        text = command_help("researcher")
+        self.assertIn("Investigate current story page", text)
+        self.assertIn("does not download chapters", text)
+        self.assertIn("ordinary Briefing decision", text)
+
 
 if __name__ == "__main__":
     unittest.main()

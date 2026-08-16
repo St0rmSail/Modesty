@@ -1,7 +1,7 @@
 # Capability Matrix
 
-**Baseline:** Build 0.16.0 complete
-**Reviewed:** 2026-08-15
+**Baseline:** Build 0.17.0 complete
+**Reviewed:** 2026-08-16
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
 |---|---:|---:|---:|---|
@@ -28,7 +28,8 @@
 | Librarian | Yes | No | No | Distinct private-reading role canonical; collection name, implementation, and Bobblehead remain pending |
 | Team readiness display | Yes | Yes | Yes | Archivist and Researcher presence, readiness lamp, Team headset, and duty-state changes demonstrated; Researcher pedestal perspective deferred to polish |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
-| Web research gateway | Yes | Yes | Yes | Smithsonian and visible bounded Scribble Hub discovery demonstrated without account action or silent filing |
+| Web research gateway | Yes | Yes | Yes | Smithsonian, bounded Scribble Hub discovery, and one current-story evidence pass demonstrated without account action or silent filing |
+| Story-page investigation | Yes | Yes | Yes | Visible public Scribble Hub page facts and bounded review evidence feed the established Briefing lifecycle; chapters and account actions excluded |
 | Briefing Hologram and Pending Reports | Yes | Yes | Yes | Readable expanding surface, compact questioning, restart-safe pending state, gated disposition, reversible duty movement, and truthful headset state demonstrated; gesture artwork remains polish |
 | Local time and session presence | Yes | Yes | Yes | Afternoon and sub-minute greetings, graceful shutdown, nine-minute absence, clean restart, and isolated interrupted recovery demonstrated |
 | Offline working time zones | Yes | Yes | Yes | Fixed African/GMT and DST-aware Britain, Europe, Thailand, Australia, New Zealand, and US named zones demonstrated locally |

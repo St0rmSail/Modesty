@@ -2,13 +2,14 @@
 
 from urllib.parse import urlparse
 
-from PySide6.QtCore import QUrl, Signal
+from PySide6.QtCore import QDateTime, Qt, QUrl, Signal
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from Brain.Team.researcher import Researcher, StoryFinding
 from Runtime.Research.scribblehub import ScribbleHubListingParser, latest_harem_url
+from Runtime.Research.story_page import decode_story_evidence
 
 
 class ScribbleHubPage(QWebEnginePage):
@@ -45,6 +46,9 @@ class ScribbleHubResearchWindow(QWidget):
         self.prepare = QPushButton("Prepare Briefing from visible listings")
         self.prepare.clicked.connect(self._prepare_report)
         layout.addWidget(self.prepare)
+        self.investigate = QPushButton("Investigate current story page")
+        self.investigate.clicked.connect(self._prepare_story_report)
+        layout.addWidget(self.investigate)
         self.view.setUrl(QUrl(latest_harem_url()))
 
     def _prepare_report(self):
@@ -69,6 +73,37 @@ class ScribbleHubResearchWindow(QWidget):
             self.prepare.setEnabled(True)
             return
         self.report_ready.emit("Latest Harem offerings on Scribble Hub", body)
+        self.close()
+
+    def _prepare_story_report(self):
+        source = self.view.url().toString()
+        parsed = urlparse(source)
+        if parsed.scheme != "https" or parsed.hostname not in {"scribblehub.com", "www.scribblehub.com"} or "/series/" not in parsed.path:
+            self.notice.setText("Navigate visibly to a Scribble Hub story Details page first.")
+            return
+        self.investigate.setEnabled(False)
+        self.notice.setText("The Researcher is reading bounded public story metadata and visible review evidence...")
+        script = """(() => JSON.stringify({
+          title: (document.querySelector('.fic_title')?.innerText || '').trim(),
+          synopsis: (document.querySelector('.wi_fic_desc')?.innerText || '').trim(),
+          genres: [...document.querySelectorAll('a.fic_genre')].map(e => e.innerText.trim()).filter(Boolean),
+          tags: [...document.querySelectorAll("a[href*='/tag/']")].map(e => e.innerText.trim()).filter(Boolean),
+          stats: (document.querySelector('.fic_stats')?.innerText || '').trim(),
+          reviews: [...document.querySelectorAll('.w-comments-item')].slice(0, 5).map(e =>
+            [...e.querySelectorAll('p')].map(p => p.innerText.trim()).filter(Boolean).join(' ')
+          ).filter(Boolean)
+        }))()"""
+        self.view.page().runJavaScript(script, lambda page: self._story_result(page, source))
+
+    def _story_result(self, page, source: str):
+        try:
+            evidence = decode_story_evidence(page)
+            body = Researcher().report_story_page(evidence, source, QDateTime.currentDateTime().toString(Qt.DateFormat.ISODate))
+        except (TypeError, ValueError) as error:
+            self.notice.setText(f"The current story page could not be investigated safely: {error}")
+            self.investigate.setEnabled(True)
+            return
+        self.report_ready.emit(f"Story investigation — {evidence.get('title', 'Scribble Hub')}", body)
         self.close()
 
     def closeEvent(self, event):

@@ -1,10 +1,17 @@
 import unittest
 
 from Brain.Team.researcher import Researcher, StoryFinding
+from Runtime.Research.story_page import decode_story_evidence
 from Runtime.Research.scribblehub import ScribbleHubListingParser, latest_harem_url
 
 
 class ResearcherTest(unittest.TestCase):
+    def test_embedded_browser_story_evidence_uses_explicit_json_transport(self):
+        evidence = decode_story_evidence('{"title":"A Story","synopsis":"Visible synopsis"}')
+        self.assertEqual(evidence["title"], "A Story")
+        self.assertEqual(decode_story_evidence({"title": "unreliable Qt object"}), {})
+        self.assertEqual(decode_story_evidence('["not", "an", "object"]'), {})
+
     def test_query_is_exact_and_reproducible(self):
         url = latest_harem_url()
         self.assertIn("gi=1015", url)
@@ -71,6 +78,29 @@ class ResearcherTest(unittest.TestCase):
         self.assertEqual(finding.genres, ("Adventure", "Harem"))
         self.assertEqual((finding.chapters, finding.readers), (7, 12))
         self.assertEqual(finding.last_updated, "2 hours ago")
+
+    def test_story_investigation_separates_facts_reviews_and_limits(self):
+        report = Researcher().report_story_page(
+            {
+                "title": "A Complicated Voyage",
+                "synopsis": "A heroine explores a difficult fantasy world.",
+                "genres": ["Adventure", "Harem"],
+                "tags": ["Character Growth", "R-18"],
+                "stats": "20 Chapters 100 Readers",
+                "reviews": ["Well written and creative worldbuilding.", "I had to drop it after a stalking reveal ruined the romance."],
+            },
+            "https://www.scribblehub.com/series/1/a-complicated-voyage/",
+            "2026-08-16T10:00:00+02:00",
+        )
+        self.assertIn("Observed on the source page", report)
+        self.assertIn("Reader-reported evidence", report)
+        self.assertIn("Recommendation: MIXED", report)
+        self.assertIn("late-story concern", report)
+        self.assertIn("Nothing has been filed", report)
+
+    def test_story_investigation_refuses_incomplete_or_non_https_evidence(self):
+        with self.assertRaises(ValueError):
+            Researcher().report_story_page({"title": "Missing synopsis"}, "https://www.scribblehub.com/series/1/test/", "now")
 
 
 if __name__ == "__main__":

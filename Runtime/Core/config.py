@@ -41,3 +41,4 @@ KNOWLEDGE = DATA / "Knowledge"
 # External knowledge stores are configured in Config/knowledge_stores.json.
 # The legacy Data/Obsidian and Data/Knowledge paths above are placeholders only.
 KNOWLEDGE_STORES_CONFIG = ROOT / "Config" / "knowledge_stores.json"
+READING_COLLECTION_CONFIG = ROOT / "Config" / "reading_collection.json"

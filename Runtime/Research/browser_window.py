@@ -2,14 +2,35 @@
 
 from urllib.parse import urlparse
 
-from PySide6.QtCore import QDateTime, Qt, QUrl, Signal
+from PySide6.QtCore import QDateTime, QObject, QRunnable, Qt, QThreadPool, QUrl, Signal
 from PySide6.QtWebEngineCore import QWebEnginePage
 from PySide6.QtWebEngineWidgets import QWebEngineView
-from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QVBoxLayout, QWidget
 
 from Brain.Team.researcher import Researcher, StoryFinding, StoryPageEvidence
 from Runtime.Research.scribblehub import ScribbleHubListingParser, latest_harem_url
 from Runtime.Research.story_page import decode_story_evidence
+from Runtime.Research.youtube import TranscriptUnavailable, YouTubeTranscriptProvider
+
+
+class TranscriptWorkerSignals(QObject):
+    ready = Signal(object)
+    failed = Signal(str)
+
+
+class TranscriptWorker(QRunnable):
+    def __init__(self, url: str):
+        super().__init__()
+        self.url = url
+        self.signals = TranscriptWorkerSignals()
+
+    def run(self):
+        try:
+            evidence = YouTubeTranscriptProvider().fetch(self.url)
+        except TranscriptUnavailable as error:
+            self.signals.failed.emit(str(error))
+        else:
+            self.signals.ready.emit(evidence)
 
 
 class ScribbleHubPage(QWebEnginePage):
@@ -60,6 +81,17 @@ class ScribbleHubResearchWindow(QWidget):
         self.compare.setEnabled(False)
         self.compare.clicked.connect(self._prepare_comparison_report)
         layout.addWidget(self.compare)
+        self.youtube_url = QLineEdit()
+        self.youtube_url.setPlaceholderText("Public YouTube video URL for mixed-source research")
+        layout.addWidget(self.youtube_url)
+        self.research_focus = QLineEdit()
+        self.research_focus.setPlaceholderText("Research focus, e.g. How does the Dormammu bargain establish the time-loop premise?")
+        layout.addWidget(self.research_focus)
+        self.youtube = QPushButton("Add YouTube transcript and prepare mixed-source briefing")
+        self.youtube.setEnabled(False)
+        self.youtube.clicked.connect(self._prepare_mixed_report)
+        layout.addWidget(self.youtube)
+        self.transcript_worker = None
         self.view.setUrl(QUrl(latest_harem_url()))
 
     def _prepare_report(self):
@@ -143,6 +175,7 @@ class ScribbleHubResearchWindow(QWidget):
         self.add_comparison.setText(f"Add current story to comparison ({count}/3)")
         self.add_comparison.setEnabled(count < 3)
         self.compare.setEnabled(count >= 2)
+        self.youtube.setEnabled(count == 1)
 
     def _prepare_comparison_report(self):
         try:
@@ -158,6 +191,38 @@ class ScribbleHubResearchWindow(QWidget):
             body,
         )
         self.close()
+
+    def _prepare_mixed_report(self):
+        if len(self.comparison_stories) != 1:
+            self.notice.setText("Add exactly one story page before preparing mixed-source research.")
+            return
+        url = self.youtube_url.text().strip()
+        focus = self.research_focus.text().strip()
+        if not focus:
+            self.notice.setText("State the mixed-source research focus before retrieving the transcript.")
+            return
+        self.youtube.setEnabled(False)
+        self.notice.setText("The Researcher is retrieving one bounded public English YouTube transcript...")
+        worker = TranscriptWorker(url)
+        worker.signals.ready.connect(self._mixed_transcript_ready)
+        worker.signals.failed.connect(self._mixed_transcript_failed)
+        self.transcript_worker = worker
+        QThreadPool.globalInstance().start(worker)
+
+    def _mixed_transcript_ready(self, transcript):
+        story = self.comparison_stories[0]
+        body = Researcher().report_mixed_story_youtube(
+            story,
+            transcript,
+            self.research_focus.text().strip(),
+            QDateTime.currentDateTime().toString(Qt.DateFormat.ISODate),
+        )
+        self.report_ready.emit(f"Mixed-source investigation — {story.title}", body)
+        self.close()
+
+    def _mixed_transcript_failed(self, message: str):
+        self.notice.setText(f"The YouTube transcript could not be used safely: {message}")
+        self.youtube.setEnabled(len(self.comparison_stories) == 1)
 
     def closeEvent(self, event):
         self.closed.emit()

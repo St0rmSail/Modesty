@@ -2,7 +2,7 @@
 
 **Status:** Authoritative index
 **Reviewed:** 2026-08-16
-**Current build:** 0.18.0 - Story Comparison (complete)
+**Current build:** 0.20.0 - The Librarian's First Catalogue (complete); 0.19 acceptance paused
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 
@@ -41,6 +41,7 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Personal Chronicle](PERSONAL_CHRONICLE.md): compact persistent fictional autobiography and its evidence boundary.
 - [Schedule and Reminders](SCHEDULE_AND_REMINDERS.md): persistent local reminders, due context, commands, and future calendar boundary.
 - [Agent Capability Benchmark](AGENT_CAPABILITY_BENCHMARK.md): common maturity scale, world comparison, and active-build increment for each specialist.
+- [YouTube Research Boundary](YOUTUBE_RESEARCH.md): public-transcript access route, limits, provenance, and first mixed-source duty.
 
 ## Evidence reviewed for Build 0.8.1
 

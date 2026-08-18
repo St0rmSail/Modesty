@@ -2,7 +2,7 @@
 
 **Status:** Authoritative user command reference
 
-Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
+Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Librarian**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
 
 ## Grand Library
 
@@ -25,6 +25,16 @@ Open the Grand Library online first. The duty opens a visible local Scribble Hub
 To investigate one candidate, open its public Scribble Hub story page in that same visible browser and use **Investigate current story page**. The Researcher will prepare a bounded Briefing from visible synopsis, genres, tags, statistics, and review paragraphs. This does not download chapters, change the account, or file the report. The ordinary Briefing decision still controls whether the report is kept or tossed.
 
 To compare candidates, visit a story page and use **Add current story to comparison**. Use **Return to latest listings** to select the next candidate. Repeat for one or two more distinct stories, then use **Prepare comparison briefing**. The Researcher accepts two or three pages, retains each source, and treats possible duplicate or cross-post similarity as a lead rather than proof. Nothing is filed until the ordinary Briefing decision.
+
+For mixed-source research, add exactly one story with **Add current story to comparison**, paste one complete public YouTube video URL, and state the research focus in the field below it. Then use **Add YouTube transcript and prepare mixed-source briefing**. Modesty requests a bounded public English transcript without account access. Missing or restricted captions fail plainly. Timestamped transcript passages are speaker-reported evidence, not verified story facts, and focus-only relevance is not reported as page corroboration. The ordinary Briefing decision still governs retention.
+
+If Scribble Hub shows a Cloudflare 522 error, stop refreshing and postpone the duty. That response means the external site's origin is not answering Cloudflare; it is not permission to bypass the site and does not by itself show that Modesty or the YouTube transcript adapter failed.
+
+## Librarian
+
+- `Ask the Librarian to inventory The Stacks`
+
+This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
 
 ## Briefings
 

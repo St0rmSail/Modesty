@@ -22,6 +22,22 @@ class Investigation:
         return self
 
 
+@dataclass(frozen=True)
+class TranscriptSnippet:
+    text: str
+    start: float
+    duration: float
+
+
+@dataclass(frozen=True)
+class YouTubeTranscriptEvidence:
+    video_id: str
+    source_url: str
+    language: str
+    is_generated: bool
+    snippets: tuple[TranscriptSnippet, ...]
+
+
 def render_investigation(investigation: Investigation) -> str:
     item = investigation.validate()
     lines = [item.subject, "", f"Recommendation: {item.recommendation.upper()}", "", "Observed on the source page:", *(f"- {fact}" for fact in item.observed_facts), "", "Reader-reported evidence:", *(f"- {evidence}" for evidence in item.reported_evidence)]

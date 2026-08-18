@@ -73,6 +73,6 @@ Local capability is the default. Internet, voice, vision, and consequential tool
 - **Filing Cabinet:** Modesty's locked private memory and working records. It is local-only and never available to online agents.
 - **Bookshelf:** Modesty's living, curated local collection of knowledge and resources that the authorized Team may use. It contains more than books and is designed to grow.
 - **Grand Library:** an explicit online mode, not a storage directory. When invoked, it connects the Bookshelf to approved external agents and sources through a controlled gateway.
-- **Private reading collection:** the Librarian's future domain for works, editions, repairs, and reading continuity. **The Stacks** is its provisional rather than canonical name.
+- **The Stacks:** the Librarian's canonical private reading collection for works, editions, repairs, and reading continuity. It grows from material Drew currently possesses and does not depend on recovering the lost Calibre library.
 
 The Bookshelf is a working collection, not a museum display. Knowledge may be created, borrowed, returned, corrected, linked, superseded, or archived. Online contributions return to a local intake area; they do not silently overwrite established knowledge. The Archivist's purpose is to turn growing information into growing capability without allowing clutter, contradiction, or weakly sourced material to overwhelm Drew.

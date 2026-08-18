@@ -1,7 +1,7 @@
 """In-process truthful state for enabled Team members."""
 
 
-_enabled_members = {"archivist", "researcher"}
+_enabled_members = {"archivist", "researcher", "librarian"}
 _member_states = {member: "offline" for member in _enabled_members}
 _core_ready = False
 _grand_library_state = "closed"

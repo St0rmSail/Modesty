@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.18.0 - Story Comparison (complete)
+**Current marker:** Build 0.20.0 - The Librarian's First Catalogue (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-16
 
 ## Completed build line
@@ -25,7 +25,46 @@
 | 0.13.0 | The Researcher | Visible bounded Scribble Hub discovery, coherent Briefings, explicit disposition, and truthful Team presentation |
 | 0.14.0 | Time and Presence | Session truth, elapsed absence, clean/interrupted recovery, local greetings, and offline working-zone conversion |
 
+## Paused build
+
+### 0.19.0 - Mixed-Source Research - Implemented; Live Acceptance Paused
+
+Attempt the Researcher's Level 4 threshold with one bounded mixed-source duty: synthesize observed Scribble Hub story-page evidence and speaker-reported YouTube transcript passages in one claim-linked Briefing.
+
+Definition of done:
+
+- Accept one explicit public YouTube video URL after exactly one story page is selected.
+- Retrieve a bounded public English transcript without login, cookies, account action, or API key.
+- Keep the network operation off the Study interface thread.
+- Preserve direct story and timestamped video provenance.
+- Distinguish observed page metadata from statements made by a video's speaker.
+- Surface overlap, conflicts, missing corroboration, generated-caption status, and retrieval limits.
+- Fail closed when captions are unavailable or YouTube refuses access.
+- Demonstrate the complete mixed-source Briefing and disposition in `E:\Modesty`.
+- Award Level 4 only after the live report is coherent, source-linked, and honest about what it did not prove.
+
+Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
+
 ## Active build
+
+### 0.20.0 - The Librarian's First Catalogue - Complete
+
+Give the Librarian her first callable Level 1 duty without risking irreplaceable reading material. Establish canonical **The Stacks** at `E:\Modesty Stacks`, inventory only copied Intake samples, persist a local generated catalogue, and report what was seen without altering a source file.
+
+Definition of done:
+
+- Create only missing `Intake`, `Originals`, `Workbench`, `Reading`, and `Archive` foundations outside the repository.
+- Preserve an existing index and every reading file byte-for-byte.
+- Inventory at most 5,000 Intake files on explicit request, never during startup.
+- Record relative path, format, size, modification identity, SHA-256, obvious container warnings, and last-seen time.
+- Report unsupported files, exact duplicate groups, and stale catalogue entries without acting on them.
+- Add deterministic command help and truthful readiness state.
+- Demonstrate the command on expendable copied samples in `E:\Modesty Stacks\Intake`.
+- Keep repair, conversion, rename, move, deletion, OCR, reading position, and Bobblehead work out of this build.
+
+The vanished Calibre library is not a prerequisite or expected migration source. If fragments ever reappear, they are merely optional Intake material.
+
+Demonstrated on 2026-08-18: all 108 live tests passed, startup reported the Librarian ready, and the user-facing duty catalogued six supported copied files with no unsupported or damaged items and no source mutation. The Librarian advances from Level 0 to demonstrated Level 1.
 
 ### 0.18.0 - Story Comparison - Complete
 
@@ -157,9 +196,9 @@ Truthful local time, an atomic session heartbeat ledger, clean-versus-interrupte
 
 Background hosting, schedule editing, calendar integration, authorized maintenance windows, narrative vignettes, day/night visuals, and tablet access build on this foundation later. A readable Study clock is welcome polish but cannot block the operational milestone.
 
-### Later - The Librarian
+### Later - The Librarian Repairs and Reading Continuity
 
-Implement the private reading collection and source inventory before bulk conversion. Begin with a read-only sample, immutable originals, a transformation ledger, one repaired derivative, and explicit review of uncertain corrections. Calibre integration, cross-platform Story Records, update tracking, and reading continuity follow only after that foundation is demonstrated. See [LIBRARIAN.md](LIBRARIAN.md).
+After the read-only catalogue is demonstrated, add a transformation ledger, one repaired derivative, and explicit review of uncertain corrections. Cross-platform Story Records, update tracking, and reading continuity follow only after that foundation. No step depends on recovery of the lost Calibre library. See [LIBRARIAN.md](LIBRARIAN.md).
 
 - Local voice after the deferred audition and explicit selection recorded in [VOICE.md](VOICE.md), with separate explicit microphone control for listening.
 - Vision, screen understanding, and OCR with visible privacy state.

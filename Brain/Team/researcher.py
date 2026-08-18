@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 import re
 from typing import Iterable
 
-from Brain.Team.investigation import Investigation, render_investigation
+from Brain.Team.investigation import Investigation, YouTubeTranscriptEvidence, render_investigation
 
 
 @dataclass(frozen=True)
@@ -199,6 +199,101 @@ class Researcher:
         )
         return "\n".join(lines)
 
+    def report_mixed_story_youtube(
+        self,
+        story: StoryPageEvidence,
+        transcript: YouTubeTranscriptEvidence,
+        focus: str,
+        retrieved_at: str,
+    ) -> str:
+        focus = " ".join(focus.split())[:500]
+        if not focus:
+            raise ValueError("Mixed-source research needs an explicit focus question.")
+        story_terms = self._evidence_terms(story)
+        focus_terms = self._focus_terms(focus)
+        terms = tuple(dict.fromkeys((*story_terms, *focus_terms)))
+        matched = []
+        caution_phrases = (
+            "not harem", "isn't harem", "not really harem", "gets dark",
+            "grimdark", "stalking", "rape", "abuse", "dropped it", "drop it",
+        )
+        cautions = []
+        page_overlap = False
+        focus_overlap = False
+        for snippet in transcript.snippets:
+            lower = snippet.text.casefold()
+            score = sum(1 for term in terms if term in lower)
+            story_score = sum(1 for term in story_terms if term in lower)
+            focus_score = sum(1 for term in focus_terms if term in lower)
+            has_caution = score >= 1 and any(phrase in lower for phrase in caution_phrases)
+            if has_caution:
+                cautions.append((snippet, "The speaker raises a possible tonal or suitability concern."))
+            if score >= 2 or has_caution:
+                matched.append((score, snippet))
+                page_overlap = page_overlap or story_score >= 2
+                focus_overlap = focus_overlap or focus_score >= 2
+        selected = []
+        seen = set()
+        for _, snippet in sorted(matched, key=lambda item: (-item[0], item[1].start)):
+            key = (snippet.text.casefold(), int(snippet.start))
+            if key not in seen:
+                seen.add(key)
+                selected.append(snippet)
+            if len(selected) == 6:
+                break
+
+        lines = [
+            f"Mixed-source investigation — {story.title}",
+            "",
+            f"Research focus: {focus}",
+            "",
+            "Source roles:",
+            f"- Scribble Hub supplies observed public story-page metadata: {story.source_url}",
+            f"- YouTube supplies speaker-reported transcript evidence ({transcript.language}; {'automatically generated' if transcript.is_generated else 'creator-supplied or unspecified'} captions): {transcript.source_url}",
+            "",
+            "Observed on the story page:",
+            f"- Synopsis: {story.synopsis}",
+            f"- Genres: {', '.join(story.genres) if story.genres else 'none visible'}",
+            f"- Tags: {', '.join(story.tags) if story.tags else 'none visible'}",
+            "",
+            "Relevant YouTube transcript passages:",
+        ]
+        if selected:
+            for snippet in selected:
+                seconds = max(0, int(snippet.start))
+                lines.append(
+                    f"- [{seconds // 60}:{seconds % 60:02d}] {snippet.text} "
+                    f"— {transcript.source_url}&t={seconds}s"
+                )
+        else:
+            lines.append("- No transcript passage directly overlapped the bounded story-page signals.")
+
+        lines.extend(("", "Agreement and conflict assessment:"))
+        if page_overlap:
+            lines.append("- The transcript overlaps multiple title, genre, or tag signals visible on the story page.")
+        elif focus_overlap:
+            lines.append("- The transcript is relevant to the explicit research focus, but the bounded story-page metadata does not independently corroborate that focus.")
+        else:
+            lines.append("- The transcript does not corroborate the selected story-page signals in this bounded pass.")
+        if cautions:
+            lines.append("- One or more speaker-reported passages raise a possible conflict or suitability concern; inspect the timestamped wording above.")
+        else:
+            lines.append("- No configured caution phrase was found; that is not proof that the video or story contains no concern.")
+        lines.extend(
+            (
+                "",
+                "Limits:",
+                "- Story-page metadata is observed; transcript statements remain claims by the video's speaker.",
+                "- Keyword overlap establishes relevance, not truth. The Researcher has not watched imagery or independently verified the speaker.",
+                "- Missing, disabled, non-English, or YouTube-restricted captions fail closed.",
+                "- No account action, cookie access, chapter acquisition, or filing occurred.",
+                "",
+                f"Retrieved: {retrieved_at}",
+                "Nothing has been filed or added to an account.",
+            )
+        )
+        return "\n".join(lines)
+
     @staticmethod
     def _assess_story(story: StoryPageEvidence) -> tuple[tuple[str, ...], str]:
         cautions = []
@@ -215,3 +310,21 @@ class Researcher:
     @staticmethod
     def _normalise_title(value: str) -> str:
         return re.sub(r"[^a-z0-9]+", "", value.casefold())
+
+    @staticmethod
+    def _evidence_terms(story: StoryPageEvidence) -> tuple[str, ...]:
+        raw = [story.title, *story.genres, *story.tags]
+        stop = {"the", "and", "with", "from", "this", "that", "story", "novel"}
+        terms = []
+        for value in raw:
+            clean = " ".join(str(value).casefold().split())
+            if len(clean) >= 4 and clean not in stop:
+                terms.append(clean)
+            terms.extend(word for word in re.findall(r"[a-z0-9]+", clean) if len(word) >= 5 and word not in stop)
+        return tuple(dict.fromkeys(terms))[:40]
+
+    @staticmethod
+    def _focus_terms(focus: str) -> tuple[str, ...]:
+        stop = {"what", "when", "where", "which", "with", "that", "this", "from", "does", "about", "into", "have", "story"}
+        words = [word for word in re.findall(r"[a-z0-9]+", focus.casefold()) if len(word) >= 4 and word not in stop]
+        return tuple(dict.fromkeys(words))[:30]

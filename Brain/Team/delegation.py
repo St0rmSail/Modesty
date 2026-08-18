@@ -5,12 +5,14 @@ from pathlib import Path
 import re
 
 from Brain.Team.archivist import Archivist
+from Brain.Team.librarian import Librarian, LibrarianError
 from Runtime.Knowledge.catalog import KnowledgeCatalog
 from Runtime.Knowledge.stores import KnowledgeStores
 from Runtime.Library import GatewayError, GrandLibraryGateway
 from Runtime.Library.credentials import CredentialStore
 from Runtime.Library.providers import LoopbackProvider, SmithsonianProvider
 from Runtime.Library.smithsonian import DEFAULT_KEY_PATH, SmithsonianAccess
+from Runtime.Reading import ReadingCollection
 from Runtime.Core import team_status
 from Runtime.Core.command_help import command_help
 from Runtime.Time import ReminderStore, handle_schedule_command, handle_time_command
@@ -98,6 +100,11 @@ class TeamDelegator:
         r"what\s+are\s+the\s+latest\s+offerings\s+in\s+the\s+harem\s+category\??\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_INVENTORY_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
+        r"(?:inventory|catalogue|catalog)\s+(?:the\s+)?stacks\s*$",
+        re.IGNORECASE,
+    )
     HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help|show\s+(?:me\s+)?(?:the\s+)?commands|"
         r"what\s+commands\s+can\s+i\s+use|how\s+do\s+i\s+use\s+modesty)\??\s*$",
@@ -105,20 +112,20 @@ class TeamDelegator:
     )
     TOPIC_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help(?:\s+me)?\s+with|show\s+(?:me\s+)?(?:the\s+)?)\s+"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:commands?|please|again|help|open))?\??\s*$",
         re.IGNORECASE,
     )
     NATURAL_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:remind\s+me\s+(?:how\s+to|about)|"
         r"what(?:'s|\s+is)\s+the\s+command\s+for)\s+(?:open\s+|use\s+)?"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:please|again))?\??\s*$",
         re.IGNORECASE,
     )
     HELP_FOLLOWUP_PATTERN = re.compile(
         r"^(?:the\s+)?(?:(?:one|section|commands?)\s+(?:about|for)\s+)?"
-        r"(?P<topic>grand\s+library|researcher|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
+        r"(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:please|thanks|thank\s+you|help))?\??\s*$",
         re.IGNORECASE,
     )
@@ -132,6 +139,7 @@ class TeamDelegator:
         archivist: Archivist | None = None,
         gateway: GrandLibraryGateway | None = None,
         smithsonian_provider=None,
+        librarian: Librarian | None = None,
     ):
         if archivist is None:
             paths = KnowledgeStores().initialize()
@@ -141,6 +149,7 @@ class TeamDelegator:
         self.smithsonian_provider = smithsonian_provider or SmithsonianProvider(
             SmithsonianAccess(CredentialStore(DEFAULT_KEY_PATH))
         )
+        self.librarian = librarian
         self.reminders = ReminderStore()
         self._help_active = False
 
@@ -183,6 +192,27 @@ class TeamDelegator:
                 "The Researcher is opening the approved Scribble Hub discovery query in a local visible browser. "
                 "Nothing has been filed or added to your account.",
                 "research_scribblehub_latest_harem",
+            )
+        if self.LIBRARIAN_INVENTORY_PATTERN.match(message.strip()):
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                report = self.librarian.inventory()
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            return DelegationResult(
+                True,
+                "The Librarian completed a read-only catalogue of The Stacks Intake.\n\n"
+                f"Files seen: {report.scanned}\n"
+                f"Supported reading files: {report.supported}\n"
+                f"Unsupported files retained untouched: {report.unsupported}\n"
+                f"Items needing attention: {report.attention}\n"
+                f"Exact duplicate groups: {report.duplicate_groups}\n"
+                f"Stale catalogue entries removed: {report.stale_removed}\n\n"
+                "No reading file was renamed, moved, repaired, converted, deleted, or published.",
             )
         if self.GRAND_LIBRARY_ONLINE_OPEN_PATTERN.match(message.strip()):
             if self.gateway.is_open and self.gateway.provider.name != "smithsonian":

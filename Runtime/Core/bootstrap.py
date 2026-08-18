@@ -24,7 +24,9 @@ from Runtime.Core import team_status
 from Runtime.Knowledge import KnowledgeStores
 from Runtime.Knowledge.stores import KnowledgeStoreError
 from Brain.Team.archivist import Archivist
+from Brain.Team.librarian import Librarian
 from Brain.Team.researcher import Researcher
+from Runtime.Reading import ReadingCollection, ReadingCollectionError
 
 from Runtime.Core import config
 from Runtime.Time import PresenceSession
@@ -65,6 +67,15 @@ def startup(presence: PresenceSession | None = None):
     else:
         team_status.set_member_state("researcher", "ready")
         print("[green]Researcher    : READY[/]  bounded discovery")
+
+    try:
+        stacks = ReadingCollection(config.READING_COLLECTION_CONFIG).initialize()
+        Librarian(stacks)
+    except (ReadingCollectionError, OSError, ValueError) as error:
+        print(f"[yellow]Librarian     : ATTENTION  {error}[/]")
+    else:
+        team_status.set_member_state("librarian", "ready")
+        print(f"[green]Librarian     : READY[/]  read-only Intake catalogue at {stacks.root}")
 
     print("Grand Library : CLOSED")
     if presence is not None:

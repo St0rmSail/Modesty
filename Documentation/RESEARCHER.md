@@ -1,10 +1,14 @@
 # The Researcher
 
-**Status:** Build 0.18 story comparison complete
+**Status:** Build 0.18 story comparison complete; Build 0.19 mixed-source research implemented with live acceptance paused
 
 **Capability benchmark:** Level 3 demonstrated. Build 0.17 bridged bounded discovery to one evidence-led story investigation. See [AGENT_CAPABILITY_BENCHMARK.md](AGENT_CAPABILITY_BENCHMARK.md).
 
 Build 0.18 strengthens Level 3 without claiming Level 4. The visible Researcher browser retains two or three distinct story-page evidence packets, then produces one comparison Briefing. Shared genres and tags, distinguishing signals, caution differences, direct sources, and likely duplicate/cross-post leads are made explicit. Because every page is still the same source type, this is comparison preparation rather than independent multi-source corroboration. The complete live lifecycle passed on 2026-08-16.
+
+Build 0.19 attempts Level 4 with a second evidence type. After exactly one story page is added, Drew supplies one public YouTube video URL. A bounded English transcript is retrieved away from the interface thread, relevant passages retain timestamp links, and the Briefing separates page observation from speaker-reported claims. See [YOUTUBE_RESEARCH.md](YOUTUBE_RESEARCH.md).
+
+All 102 live automated tests pass. The real end-to-end pairing was postponed on 2026-08-16 after Scribble Hub returned Cloudflare 522 origin timeouts for several hours. The implemented workflow is preserved, but it is not yet a demonstrated Level 4 capability.
 
 The Researcher is an unseen Team specialist. She gathers and evaluates evidence; she is not a second chat personality. Modesty frames the assignment, obtains required consent, and returns the result to Drew in her own voice. The Archivist preserves an accepted result only after the ordinary Inbox and Workbench checks.
 

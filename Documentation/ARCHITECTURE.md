@@ -29,17 +29,17 @@ main.py
 | Conversation history | `Brain/Memory/database.py`, SQLite | Implemented and restart-tested |
 | Approved personal facts | `personal_memories` table and memory dialogs | Implemented and tested |
 | Noticeboard | `Runtime/Core/noticeboard.py` | Prototype only |
-| The Team | `Brain/Team/`, `Brain/Team/delegation.py` | Archivist and Researcher demonstrated; Librarian canonical but unimplemented |
+| The Team | `Brain/Team/`, `Brain/Team/delegation.py` | Archivist, Researcher, and Librarian have demonstrated duties |
 | Filing Cabinet vault | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Bookshelf repository | `Runtime/Knowledge/stores.py`, external configured root | Implemented and demonstrated |
 | Local Library search | `Runtime/Knowledge/catalog.py`, SQLite FTS5 | Implemented and demonstrated |
 | Grand Library gateway | `Runtime/Library/` | Functional, security, quarantine, curation, and truthful Study-state lifecycle demonstrated |
-| Researcher | `Brain/Team/investigation.py`, `Brain/Team/researcher.py`, `Runtime/Research/` | Visible discovery, single-page investigation, and bounded same-type story comparison demonstrated |
+| Researcher | `Brain/Team/investigation.py`, `Brain/Team/researcher.py`, `Runtime/Research/` | Discovery, investigation, and same-type comparison demonstrated; mixed Scribble Hub/YouTube synthesis implemented and tested, with live acceptance paused by source outage |
 | Briefing Hologram | `Runtime/Conversation/briefing_hologram.py`, `Runtime/Research/pending_reports.py` | Functional visual surface, gated disposition, and reversible duty movement demonstrated; gesture artwork deferred to polish |
 | Time and presence | `Runtime/Time/presence.py`, local `Data/presence.json` | Local time, session heartbeat, clean/interrupted shutdown, greeting, and presence-state foundation implemented |
 | Personal Chronicle | `chronicle_episodes` in `Data/modesty.db`, `Runtime/Conversation/chronicle_dialog.py` | Explicitly narrative structured storage, visible lifecycle controls, and bounded active-only recall demonstrated |
 | Local schedule | `Runtime/Time/schedule.py`, `reminders` in `Data/modesty.db`, `Runtime/Conversation/schedule_dialog.py` | Persistent explicit reminders, due greeting context, commands, and visible lifecycle demonstrated |
-| Librarian and private reading collection | No software counterpart yet | Canonical role; **The Stacks** is a provisional collection name |
+| Librarian and private reading collection | `Brain/Team/librarian.py`, `Runtime/Reading/`, `Config/reading_collection.json` | **The Stacks** canonical; read-only Intake catalogue demonstrated at Level 1 |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
@@ -51,7 +51,7 @@ main.py
 - The repository stores Modesty's design, contracts, schemas, and implementation record.
 - The Filing Cabinet stores private personal and working knowledge.
 - The Bookshelf stores curated shared knowledge used by Modesty and the authorized Team.
-- The future private reading collection stores books, stories, source editions, repaired derivatives, and reading continuity under the Librarian. It is not the Bookshelf or Filing Cabinet; its working name is **The Stacks** pending approval.
+- The Stacks stores books, stories, source editions, repaired derivatives, and reading continuity under the Librarian. It is not the Bookshelf or Filing Cabinet. Build 0.20 creates only its folder foundation and a local generated Intake catalogue.
 
 ## Knowledge boundary
 
@@ -71,7 +71,7 @@ The Bookshelf should use Markdown compatible with Open Knowledge Format (OKF). T
 
 The configured roots are currently `E:\Modesty Filing Cabinet` and `E:\Modesty Bookshelf`. They are initialized idempotently during startup. Initialization creates only missing foundations and never replaces an existing file.
 
-No reading-collection root has been created. Its permanent name, location, schema, and relationship to any recovered Calibre library must be approved before implementation.
+The configured reading-collection root is `E:\Modesty Stacks`. Startup creates only missing foundation folders and never replaces existing files. Catalogue scans are explicit rather than automatic. The lost Calibre library imposes no schema, migration, or recovery requirement.
 
 ## Substantial output boundary
 

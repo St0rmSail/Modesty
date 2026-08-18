@@ -64,6 +64,22 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Return to latest listings", text)
         self.assertIn("two or three pages", text)
         self.assertIn("lead rather than proof", text)
+        self.assertIn("Add YouTube transcript and prepare mixed-source briefing", text)
+        self.assertIn("speaker-reported evidence", text)
+        self.assertIn("without account access", text)
+        self.assertIn("state the research focus", text)
+        self.assertIn("focus-only relevance", text)
+
+    def test_librarian_help_is_bounded_and_deterministic(self):
+        text = command_help("librarian")
+        self.assertIn("Ask the Librarian to inventory The Stacks", text)
+        self.assertIn("Intake", text)
+        self.assertIn("does not rename", text)
+
+        delegator = TeamDelegator.__new__(TeamDelegator)
+        result = delegator.handle("Help with the Librarian")
+        self.assertTrue(result.handled)
+        self.assertIn("read-only", result.response)
 
 
 if __name__ == "__main__":

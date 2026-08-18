@@ -13,11 +13,14 @@ class TeamStatusTest(unittest.TestCase):
         team_status.set_member_state("archivist", "ready")
         self.assertFalse(team_status.system_ready())
         team_status.set_member_state("researcher", "ready")
+        self.assertFalse(team_status.system_ready())
+        team_status.set_member_state("librarian", "ready")
         self.assertTrue(team_status.system_ready())
 
     def test_missing_member_stays_visibly_offline(self):
         self.assertEqual(team_status.member_state("archivist"), "offline")
         self.assertEqual(team_status.member_state("researcher"), "offline")
+        self.assertEqual(team_status.member_state("librarian"), "offline")
         self.assertEqual(team_status.member_state("unimplemented"), "offline")
 
     def test_ready_member_is_available_but_not_on_headset(self):

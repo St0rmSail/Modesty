@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.18.0 - Story Comparison (complete)
-**Current focus:** Prepare the mixed-source increment required for Researcher Level 4
+**Current build:** 0.20.0 - The Librarian's First Catalogue (complete); 0.19 acceptance paused
+**Current focus:** Select the next milestone
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -143,4 +143,31 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Refuse incomplete, duplicate-source, one-item, and oversized comparison inputs.
 - [x] Update Researcher help and the common capability benchmark honestly.
 - [x] Demonstrate collection, comparison Briefing, and disposition in `E:\Modesty`.
+- [x] Complete the restore-point audit and milestone commit after acceptance.
+
+## Build 0.19.0 - Implemented; Live Acceptance Paused
+
+- [x] Establish the API-key versus OAuth versus public-transcript boundary.
+- [x] Add bounded public English YouTube transcript intake with safe URL parsing.
+- [x] Keep transcript retrieval off the Study interface thread.
+- [x] Add timestamp-linked mixed-source synthesis with explicit source roles and limits.
+- [x] Fail closed for unavailable transcripts without leaking transport detail.
+- [x] Pin and validate the local transcript dependency on the live Windows environment.
+- [x] Pass all 102 automated tests in `E:\Modesty`.
+- [x] Record the persistent Scribble Hub Cloudflare 522 outage as an external acceptance blocker, not a product failure.
+- [ ] Demonstrate the mixed-source Briefing and disposition in `E:\Modesty`.
+- [ ] Decide the Level 4 award from the actual report, not merely passing code.
+- [ ] Complete the restore-point audit and milestone commit after acceptance.
+
+## Build 0.20.0 - Complete
+
+- [x] Canonise The Stacks at `E:\Modesty Stacks`.
+- [x] Remove recovery of the lost Calibre library from every implementation gate.
+- [x] Add safe idempotent external collection initialization.
+- [x] Add a bounded persistent read-only Intake catalogue.
+- [x] Detect supported formats, unsupported files, obvious damaged containers, exact duplicates, and stale entries without acting on them.
+- [x] Add the deterministic Librarian command, help section, readiness state, and focused tests.
+- [x] Pass all 108 live tests, create the empty Stacks foundation, and reach `MODESTY : READY` with Librarian ready.
+- [x] Demonstrate startup and the inventory command on six expendable copied samples in `E:\Modesty`.
+- [x] Award Librarian Level 1 and the right to a future truthful Bobblehead.
 - [x] Complete the restore-point audit and milestone commit after acceptance.

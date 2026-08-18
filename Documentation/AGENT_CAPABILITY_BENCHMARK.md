@@ -1,7 +1,7 @@
 # Agent Capability Benchmark
 
 **Status:** Canonical comparative framework
-**Reviewed:** 2026-08-16
+**Reviewed:** 2026-08-18
 
 This benchmark keeps every Team specialist honest about three different things:
 
@@ -29,17 +29,33 @@ Levels are cumulative. A specialist cannot honestly claim a higher level while p
 
 **Demonstrated:** Level 3 — one evidence-led investigation of the current visible public Scribble Hub story page, accepted live on 2026-08-16.
 
-**Implemented, awaiting live acceptance:** None beyond the demonstrated level.
+**Other implemented capability awaiting acceptance:** None beyond the Build 0.19 candidate recorded below.
 
 **Build 0.18 increment achieved:** same-type corroboration within Level 3. Two or three public Scribble Hub story pages retain individual sources, expose agreements and differences, and identify duplicate/cross-post leads. This prepares but does not satisfy Level 4 because the evidence is not independently corroborated across different source types.
 
+**Implemented, acceptance paused:** Build 0.19's Level 4 attempt combines observed Scribble Hub page evidence with timestamped speaker-reported YouTube transcript evidence. All 102 live automated tests pass, but the real report could not complete while Scribble Hub returned persistent Cloudflare 522 origin timeouts. The report must still demonstrate meaningful overlap or conflict handling, claim-linked provenance, and honest missing corroboration before Level 4 is awarded.
+
 **Build 0.17 increment achieved:** bridged Level 2 to Level 3 by turning one discovered candidate into a structured investigation with observed facts, bounded reader reports, cautions, missing evidence, recommendation strength, source, retrieval time, and explicit report disposition.
 
-**Not yet present:** source planning, cross-source corroboration, claim-level citations, preference modelling, conflict resolution, general website adapters, YouTube transcript evidence, long-running research plans, automatic recovery, and measured report quality.
+**Not yet demonstrated or present:** live cross-source synthesis and conflict handling are not yet demonstrated; source planning, preference modelling, general website adapters, long-running research plans, automatic recovery, and measured report quality are not present. YouTube transcript evidence and claim-linked timestamp provenance are implemented but remain inside the paused Level 4 acceptance gate.
 
 Against the wider field, strong locally hosted research-agent systems commonly reach Level 4 when carefully assembled with capable models, browser/search tools, document processing, citation pipelines, and substantial hardware. Experimental or heavily engineered systems may approach Level 5 on constrained tasks. Hosted frontier research products can reach Levels 5–6 more often because they combine stronger models, large tool infrastructure, and managed compute. Modesty is therefore behind the world leaders in breadth and autonomy, but ahead of a raw local chatbot in safety boundaries, truthful state, explicit evidence separation, and user-governed retention.
 
 This comparison is architectural and deliberately approximate. “Locally hosted research agent” has no single audited world league table, hardware varies dramatically, and polished demonstrations do not prove dependable daily operation.
+
+## Librarian — current world position
+
+**Demonstrated:** Level 1 — on 2026-08-18 Modesty invoked the Librarian's bounded Intake catalogue over six supported copied files and reported the result without changing a source.
+
+**Implemented beyond the demonstrated level:** None.
+
+**Build 0.20 increment achieved:** bridged Level 0 to Level 1 by proving that Modesty can invoke the Librarian, catalogue copied samples, report supported and unsupported formats, obvious container damage, exact duplicates, and stale records, and leave every source byte untouched.
+
+**Not yet present:** bibliographic identity, edition relationships, semantic metadata extraction, repair or conversion, OCR, reading position, update tracking, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
+
+Capable contemporary local library systems such as Calibre already provide mature metadata editing, conversion, device support, and large-catalogue management. Document-management and ebook-repair toolchains can add OCR and validation. Modesty's Librarian is therefore far behind established library software in breadth. Her intended advantage is not replacing those tools prematurely: it is a governable assistant layer that preserves originals, joins provenance and reading continuity across formats, and presents uncertain changes for approval.
+
+**Proof required:** all automated tests, idempotent live startup, a disposable mixed-format Intake sample, byte-for-byte before/after verification, truthful command output, and no unexpected files outside The Stacks foundations plus the Git-ignored local catalogue.
 
 ## Required specialist entry
 
@@ -59,7 +75,7 @@ Update the entry when a build begins, after live acceptance, and during every re
 | Specialist | Demonstrated | Current increment |
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
-| Researcher | Level 3 | Same-type comparison is demonstrated; Level 4 still requires mixed-source synthesis such as website evidence plus YouTube transcript evidence. |
-| Librarian | Level 0 | Canonical role only; first executable duty and private collection remain unbuilt. |
+| Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
+| Librarian | Level 1 | Build 0.20 complete; first read-only catalogue accepted. Next increment is not yet selected. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

@@ -13,6 +13,7 @@ from Runtime.Library.credentials import CredentialStore
 from Runtime.Library.providers import LoopbackProvider, SmithsonianProvider
 from Runtime.Library.smithsonian import DEFAULT_KEY_PATH, SmithsonianAccess
 from Runtime.Reading import ReadingCollection
+from Runtime.Research.pending_reports import PendingReportStore
 from Runtime.Core import team_status
 from Runtime.Core.command_help import command_help
 from Runtime.Time import ReminderStore, handle_schedule_command, handle_time_command
@@ -105,6 +106,11 @@ class TeamDelegator:
         r"(?:inventory|catalogue|catalog)\s+(?:the\s+)?stacks\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_REPAIR_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
+        r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
     HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help|show\s+(?:me\s+)?(?:the\s+)?commands|"
         r"what\s+commands\s+can\s+i\s+use|how\s+do\s+i\s+use\s+modesty)\??\s*$",
@@ -140,6 +146,7 @@ class TeamDelegator:
         gateway: GrandLibraryGateway | None = None,
         smithsonian_provider=None,
         librarian: Librarian | None = None,
+        pending_reports: PendingReportStore | None = None,
     ):
         if archivist is None:
             paths = KnowledgeStores().initialize()
@@ -150,6 +157,7 @@ class TeamDelegator:
             SmithsonianAccess(CredentialStore(DEFAULT_KEY_PATH))
         )
         self.librarian = librarian
+        self.pending_reports = pending_reports or PendingReportStore()
         self.reminders = ReminderStore()
         self._help_active = False
 
@@ -213,6 +221,34 @@ class TeamDelegator:
                 f"Exact duplicate groups: {report.duplicate_groups}\n"
                 f"Stale catalogue entries removed: {report.stale_removed}\n\n"
                 "No reading file was renamed, moved, repaired, converted, deleted, or published.",
+            )
+        repair_match = self.LIBRARIAN_REPAIR_PATTERN.match(message.strip())
+        if repair_match:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                proposal = self.librarian.prepare_text_repair(repair_match.group("filename"))
+                pending_store = getattr(self, "pending_reports", None) or PendingReportStore()
+                self.pending_reports = pending_store
+                try:
+                    pending = pending_store.create(
+                        f"Librarian repair — {proposal.source_relative_path}",
+                        self.librarian.repair_briefing(proposal),
+                        f"librarian:{proposal.repair_id}",
+                    )
+                except (OSError, ValueError):
+                    self.librarian.resolve_repair(proposal.repair_id, keep=False)
+                    raise
+            except (LibrarianError, RuntimeError, ValueError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting")
+            return DelegationResult(
+                True,
+                "The Librarian prepared a provisional repaired copy in The Stacks Workbench. "
+                "The original is unchanged. Review the local Briefing, then choose Keep Repair or Toss Repair.",
+                f"open_briefing:{pending.report_id}",
             )
         if self.GRAND_LIBRARY_ONLINE_OPEN_PATTERN.match(message.strip()):
             if self.gateway.is_open and self.gateway.provider.name != "smithsonian":

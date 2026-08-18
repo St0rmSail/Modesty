@@ -7,6 +7,7 @@ from Brain.Team.delegation import TeamDelegator
 from Brain.Team.librarian import Librarian, LibrarianError
 from Runtime.Core import team_status
 from Runtime.Reading import ReadingCollection, ReadingCollectionError
+from Runtime.Research.pending_reports import PendingReportStore
 
 
 class LibrarianTest(unittest.TestCase):
@@ -103,6 +104,113 @@ class LibrarianTest(unittest.TestCase):
             self.assertIn("Files seen: 1", result.response)
             self.assertIn("No reading file was renamed", result.response)
             self.assertEqual(team_status.member_state("librarian"), "ready")
+
+    def test_text_repair_preserves_original_and_keeps_a_logged_derivative(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            catalogue = root / "catalogue.db"
+            source = paths.intake / "rough-story.txt"
+            original = b"Chapter One  \r\n\r\n\r\n\r\nA\xc2\xa0quiet line"
+            source.write_bytes(original)
+            librarian = Librarian(paths, catalogue)
+
+            proposal = librarian.prepare_text_repair(source.name)
+
+            self.assertEqual(source.read_bytes(), original)
+            derivative = paths.root / proposal.derivative_relative_path
+            self.assertEqual(
+                derivative.read_text(encoding="utf-8"),
+                "Chapter One\n\n\nA quiet line\n",
+            )
+            self.assertIn("trailing spaces", " ".join(proposal.actions))
+            self.assertIn("non-breaking spaces", " ".join(proposal.actions))
+            self.assertIn("Original SHA-256", librarian.repair_briefing(proposal))
+
+            kept = librarian.resolve_repair(proposal.repair_id, keep=True)
+            self.assertEqual(kept, derivative)
+            self.assertTrue(derivative.exists())
+            connection = sqlite3.connect(catalogue)
+            try:
+                status = connection.execute(
+                    "SELECT status FROM repair_jobs WHERE repair_id = ?",
+                    (proposal.repair_id,),
+                ).fetchone()[0]
+            finally:
+                connection.close()
+            self.assertEqual(status, "kept")
+
+    def test_keep_refuses_stale_original_or_changed_derivative(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "rough.txt"
+            source.write_bytes(b"Rough line   ")
+            librarian = Librarian(paths, root / "catalogue.db")
+
+            stale_source = librarian.prepare_text_repair(source.name)
+            source.write_bytes(b"Externally changed")
+            with self.assertRaisesRegex(LibrarianError, "original changed"):
+                librarian.resolve_repair(stale_source.repair_id, keep=True)
+
+            source.write_bytes(b"Rough line   ")
+            changed_derivative = librarian.prepare_text_repair(source.name)
+            derivative = paths.root / changed_derivative.derivative_relative_path
+            derivative.write_text("tampered", encoding="utf-8")
+            with self.assertRaisesRegex(LibrarianError, "derivative changed"):
+                librarian.resolve_repair(changed_derivative.repair_id, keep=True)
+
+    def test_toss_removes_only_derivative_and_unsafe_repairs_fail_closed(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "rough.md"
+            source.write_bytes(b"Line with spaces   ")
+            librarian = Librarian(paths, root / "catalogue.db")
+            proposal = librarian.prepare_text_repair(source.name)
+            derivative = paths.root / proposal.derivative_relative_path
+
+            self.assertIsNone(librarian.resolve_repair(proposal.repair_id, keep=False))
+            self.assertFalse(derivative.exists())
+            self.assertEqual(source.read_bytes(), b"Line with spaces   ")
+            with self.assertRaisesRegex(LibrarianError, "directly inside"):
+                librarian.prepare_text_repair("../rough.md")
+            (paths.intake / "book.pdf").write_bytes(b"%PDF-")
+            with self.assertRaisesRegex(LibrarianError, "only UTF-8"):
+                librarian.prepare_text_repair("book.pdf")
+            (paths.intake / "clean.txt").write_bytes(b"Already clean\n")
+            with self.assertRaisesRegex(LibrarianError, "no safe mechanical repair"):
+                librarian.prepare_text_repair("clean.txt")
+
+    def test_repair_command_creates_a_local_pending_briefing(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            (paths.intake / "rough.txt").write_bytes(b"Rough line   ")
+            pending = PendingReportStore(root / "pending")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator.pending_reports = pending
+            delegator._help_active = False
+            team_status.reset()
+
+            result = delegator.handle("Ask the Librarian to repair: rough.txt")
+
+            self.assertTrue(result.handled)
+            self.assertIn("original is unchanged", result.response.casefold())
+            self.assertTrue(result.action.startswith("open_briefing:BR-"))
+            report = pending.load(result.action.partition(":")[2])
+            self.assertTrue(report.provider.startswith("librarian:LR-"))
+            self.assertIn("Provisional derivative", report.body)
+            self.assertEqual(team_status.member_state("librarian"), "waiting")
 
     @staticmethod
     def _write_config(project: Path, stacks: Path) -> Path:

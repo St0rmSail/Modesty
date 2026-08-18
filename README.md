@@ -24,7 +24,7 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.20.0 - The Librarian's First Catalogue (complete)**
+**0.21.0 - The Librarian's First Repair (complete)**
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 
@@ -43,6 +43,8 @@ The implementation and 102-test live suite are complete. The final end-to-end ac
 Build 0.20 establishes canonical **The Stacks** at `E:\Modesty Stacks` and gives the Librarian a bounded read-only catalogue of copied Intake samples. The lost Calibre library is no longer a prerequisite. No repair, conversion, rename, move, deletion, publication, or reading-continuity work enters this first duty.
 
 Drew accepted the live duty on 2026-08-18: the Librarian catalogued six supported Intake files, reported no unsupported or damaged items, and changed no reading file. She therefore earns demonstrated capability Level 1. Her earned Alexandrian Librarian Bobblehead is now fitted truthfully between the Archivist and Researcher.
+
+Build 0.21 adds one deliberately bounded repair path for a named UTF-8 Markdown or plain-text Intake file. The original remains byte-for-byte untouched; a mechanically repaired derivative, source/output hashes, action log, cautions, and resolution state remain local to The Stacks. The existing Briefing Hologram presents Keep Repair or Toss Repair rather than filing copyrighted reading material through the Archivist. Drew accepted both live dispositions: Keep retained only the repaired Workbench derivative, Toss removed only its provisional derivative, and both originals retained their pre-test hashes. The Librarian therefore advances to demonstrated Level 2.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

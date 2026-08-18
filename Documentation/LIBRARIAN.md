@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.20 read-only catalogue foundation and truthful Bobblehead complete
+**Status:** Build 0.21 first reversible repair complete; demonstrated Level 2
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -58,6 +58,16 @@ The old Calibre library is presumed lost after multiple house moves, hard-drive 
 The first live test should use expendable copied samples. The real collection can grow organically after this boundary is demonstrated; no vanished legacy catalogue is required.
 
 Live acceptance passed on 2026-08-18. The Librarian catalogued six supported Intake files, found no unsupported or damaged items, and reported that no file was renamed, moved, repaired, converted, deleted, or published. Combined with the 108-test suite, this earns demonstrated Level 1.
+
+## Build 0.21 first repair
+
+`Ask the Librarian to repair: <filename>` accepts one explicitly named UTF-8 `.txt` or `.md` file directly inside Intake, up to 2 MiB. It applies only mechanical line-ending, non-breaking-space, trailing-whitespace, excessive-blank-line, and final-newline corrections. Possible hyphenation and suspicious short wrapped lines are reported as cautions and remain unchanged.
+
+The original remains in Intake and is never overwritten. A provisional derivative is created in Workbench with a unique repair identifier. The local Librarian catalogue stores source and derivative hashes, paths, every applied action and caution, creation and resolution timestamps, and pending, kept, or discarded state. Approval re-checks both hashes so a stale Briefing cannot silently approve externally changed content.
+
+The existing Briefing Hologram becomes a local repair review for this provider. **Keep Repair** retains the derivative in Workbench. **Toss Repair** deletes only the provisional derivative. Neither route sends copyrighted reading material to the Filing Cabinet or Bookshelf. This implementation does not perform paragraph reflow, dehyphenation, OCR, PDF repair, conversion, semantic correction, bulk work, or promotion into Reading.
+
+Live acceptance passed on 2026-08-18. Keep Repair retained the expected hashed derivative in Workbench; Toss Repair removed only its provisional derivative. Both Intake samples retained their pre-test hashes, both ledger dispositions persisted, and the Briefing controls and conversational outcomes were accepted. Combined with all 113 live tests, this advances the Librarian to demonstrated Level 2.
 
 ## Visual representation
 

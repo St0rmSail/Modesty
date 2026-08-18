@@ -33,8 +33,11 @@ If Scribble Hub shows a Cloudflare 522 error, stop refreshing and postpone the d
 ## Librarian
 
 - `Ask the Librarian to inventory The Stacks`
+- `Ask the Librarian to repair: <filename>`
 
 This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
+
+The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly inside `The Stacks/Intake`, up to 2 MiB. It creates a provisional derivative in `The Stacks/Workbench`, records source and derivative hashes plus every mechanical change, and opens a local Briefing. **Keep Repair** retains the derivative in Workbench; **Toss Repair** deletes only that derivative. The original is never renamed, moved, overwritten, or deleted. Hyphenation and uncertain paragraph joining remain unchanged for review.
 
 ## Briefings
 
@@ -43,6 +46,8 @@ This performs a bounded read-only scan of copied files in `The Stacks/Intake`. I
 - **Bookshelf Inbox** sends it to shared intake for later curation.
 - **Toss** deletes the Pending Report content without filing it.
 - **Close** remains unavailable until one of those three dispositions succeeds. The selected disposition lights visibly, then Close becomes available.
+
+Librarian repair Briefings use **Keep Repair** and **Toss Repair** instead. They govern only the provisional Workbench derivative and never file the reading material in the Filing Cabinet or Bookshelf.
 
 ## Archivist
 

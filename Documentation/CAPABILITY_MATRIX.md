@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.18.0 complete; Build 0.19 acceptance paused; Build 0.20 complete
+**Baseline:** Build 0.18.0 complete; Build 0.19 acceptance paused; Build 0.21 complete
 **Reviewed:** 2026-08-18
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -25,7 +25,7 @@
 | Grand Library online mode | Yes | Yes | Yes | Closed-by-default loopback, bounded online provider, text-only media boundary, and truthful Study state demonstrated |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
-| Librarian | Yes | Yes | Yes | The Stacks and bounded read-only Intake catalogue demonstrated on six supported files; Level 1 earned and Alexandrian Bobblehead accepted |
+| Librarian | Yes | Yes | Yes | Level 2 demonstrated: read-only catalogue plus one reversible hashed UTF-8 repair with accepted local Keep/Toss Briefings; broader formats and semantic repair remain absent |
 | Team readiness display | Yes | Yes | Yes | Archivist, Researcher, and Librarian presence, readiness lamp, Team headset, and duty-state changes demonstrated; pedestal perspective and pale extraction halos deferred to polish |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Yes | Yes | Yes | Smithsonian, bounded Scribble Hub discovery, and one current-story evidence pass demonstrated without account action or silent filing |

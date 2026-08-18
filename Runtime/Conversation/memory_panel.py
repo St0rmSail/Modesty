@@ -419,7 +419,9 @@ class ConversationPanel(QWidget):
         self._set_input_enabled(False)
 
         try:
-            self.team_delegator = self.team_delegator or TeamDelegator()
+            self.team_delegator = self.team_delegator or TeamDelegator(
+                pending_reports=self.pending_reports
+            )
             previous_library_state = team_status.grand_library_state()
             delegated = self.team_delegator.handle(message)
         except (OSError, RuntimeError, sqlite3.Error, UnicodeError, ValueError) as error:
@@ -433,6 +435,9 @@ class ConversationPanel(QWidget):
             self._receive(delegated.response)
             if delegated.action == "research_scribblehub_latest_harem":
                 self._open_scribblehub_research()
+            elif delegated.action and delegated.action.startswith("open_briefing:"):
+                self.briefing_button.show()
+                self.briefing_requested.emit(delegated.action.partition(":")[2])
             elif delegated.action == "close_study":
                 self.graceful_exit_requested.emit()
             self._set_input_enabled(True)

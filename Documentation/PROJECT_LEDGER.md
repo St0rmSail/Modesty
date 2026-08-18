@@ -2,7 +2,7 @@
 
 **Status:** Authoritative index
 **Reviewed:** 2026-08-18
-**Current build:** 0.20.0 - The Librarian's First Catalogue (complete); 0.19 acceptance paused
+**Current build:** 0.21.0 - The Librarian's First Repair (complete); 0.19 acceptance paused
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 

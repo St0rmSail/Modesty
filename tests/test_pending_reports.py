@@ -44,6 +44,26 @@ class PendingReportStoreTest(unittest.TestCase):
             self.assertEqual(briefing.selected_destination, "toss")
             self.assertTrue(briefing.disposition_buttons["toss"].property("selected"))
 
+    @unittest.skipUnless(QApplication is not None, "Qt runtime is not installed")
+    def test_librarian_repair_briefing_uses_local_keep_or_toss_controls(self):
+        app = QApplication.instance() or QApplication([])
+        with TemporaryDirectory() as temporary:
+            store = PendingReportStore(Path(temporary))
+            pending = store.create(
+                "Repair",
+                "Mechanical repair details",
+                "librarian:LR-1234ABCD",
+            )
+            briefing = BriefingHologram(store)
+
+            briefing.open_report(pending.report_id)
+
+            self.assertEqual(briefing.mode.text(), "LOCAL BRIEFING")
+            self.assertEqual(briefing.disposition_buttons["private"].text(), "Keep Repair")
+            self.assertEqual(briefing.disposition_buttons["toss"].text(), "Toss Repair")
+            self.assertFalse(briefing.disposition_buttons["bookshelf"].isVisible())
+            self.assertFalse(briefing.close_button.isEnabled())
+
 
 if __name__ == "__main__":
     unittest.main()

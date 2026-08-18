@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.20.0 - The Librarian's First Catalogue (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.21.0 - The Librarian's First Repair (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-18
 
 ## Completed build line
@@ -46,6 +46,24 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.21.0 - The Librarian's First Repair - Complete
+
+Prove one reversible transformation without risking an original. The Librarian accepts one explicitly named UTF-8 `.txt` or `.md` file directly inside Intake, limited to 2 MiB, and creates a provisional mechanically repaired derivative in Workbench. A persistent transformation ledger records source and derivative identity, hashes, applied actions, cautions, timestamps, and final disposition.
+
+Definition of done:
+
+- Preserve the named Intake original byte-for-byte and never rename or move it.
+- Restrict the first repair to safe newline and whitespace normalization; do not guess hyphenation, paragraph joins, missing text, or meaning-changing corrections.
+- Create only one hashed provisional derivative in Workbench.
+- Record every applied action and caution in the local Librarian ledger.
+- Re-check source and derivative hashes before approval.
+- Present the result through a local Briefing with Keep Repair and Toss Repair controls.
+- Keep leaves the derivative in Workbench; Toss deletes only that derivative; neither route files reading material through the Archivist.
+- Document the deterministic command and demonstrate both dispositions on expendable samples.
+- Pass the complete live automated suite and restart cleanly.
+
+Demonstrated on 2026-08-18: all 113 live tests passed. Drew completed both local Briefing dispositions. Keep retained `build-021-keep-sample.repaired-cce43288.txt` in Workbench; Toss removed the provisional derivative for the second sample. Both Intake originals retained their recorded pre-test SHA-256 hashes, the ledger records `kept` and `discarded` resolution states, and no repair Pending Report remains from either trial. The Librarian advances from demonstrated Level 1 to Level 2.
 
 ### 0.20.0 - The Librarian's First Catalogue - Complete
 

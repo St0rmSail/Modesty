@@ -73,8 +73,12 @@ class CommandHelpTest(unittest.TestCase):
     def test_librarian_help_is_bounded_and_deterministic(self):
         text = command_help("librarian")
         self.assertIn("Ask the Librarian to inventory The Stacks", text)
+        self.assertIn("Ask the Librarian to repair: <filename>", text)
         self.assertIn("Intake", text)
         self.assertIn("does not rename", text)
+        self.assertIn("Keep Repair", text)
+        self.assertIn("Toss Repair", text)
+        self.assertIn("2 MiB", text)
 
         delegator = TeamDelegator.__new__(TeamDelegator)
         result = delegator.handle("Help with the Librarian")

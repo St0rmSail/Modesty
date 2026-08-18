@@ -1,6 +1,6 @@
 # Modesty Project Punch List
 
-**Current build:** 0.20.0 - The Librarian's First Catalogue (complete); 0.19 acceptance paused
+**Current build:** 0.21.0 - The Librarian's First Repair (complete); 0.19 acceptance paused
 **Current focus:** Select the next milestone
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
@@ -175,3 +175,17 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 ## Shared visual polishing
 
 - [ ] Remove residual white or pale extraction halos from Bobblehead edges without changing approved figures, placement, scale, or shelf contact.
+
+## Build 0.21.0 - Complete
+
+- [x] Limit repair to one named UTF-8 Markdown or plain-text Intake file no larger than 2 MiB.
+- [x] Preserve the original and create a separate provisional Workbench derivative.
+- [x] Record source/output hashes, mechanical actions, cautions, timestamps, and disposition.
+- [x] Refuse stale approval if either source or derivative changes after preparation.
+- [x] Reuse the Briefing Hologram with local Keep Repair and Toss Repair controls.
+- [x] Add deterministic command documentation and tests.
+- [x] Pass all 113 live automated tests.
+- [x] Demonstrate Keep Repair and verify the original and derivative physically.
+- [x] Demonstrate Toss Repair and verify that only the provisional derivative is deleted.
+- [x] Complete the restore-point paperwork audit and milestone commit after acceptance.
+- [ ] Push the milestone commit to `origin/main`.

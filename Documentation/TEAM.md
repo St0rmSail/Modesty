@@ -1,7 +1,7 @@
 # The Team
 
 **Status:** Canonical framework; Archivist, Researcher, and Librarian have demonstrated duties
-**Reviewed:** 2026-08-15
+**Reviewed:** 2026-08-18
 
 The Team is a group of unseen functional specialists working behind the scenes. They are not chat personalities and never speak to Drew as alternate characters. Modesty is the sole conversational presence: she consults the Team through her headset and communicates their results. Team activity is monitored through corresponding Bobbleheads on her Bookshelf.
 
@@ -41,7 +41,7 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 | **Modesty / Executive** | Understand intent, converse, obtain consent, route work, and report results | Does not replace every specialist | Role canonical; orchestration not implemented |
 | **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Inventory, retrieval, filing, and approval-gated Bookshelf curation demonstrated; visual representation remains |
 | **Researcher** | Conduct explicit online research and return evidence-led findings through Modesty | Borrows task-relevant Bookshelf packets; no local filesystem access; cannot silently file, message, or download | Scribble Hub and Briefing lifecycle demonstrated; archaeologist Bobblehead with lit Lamp of Learning approved |
-| **Librarian** | Maintain The Stacks, editions, manuscript repairs, reading position, and cross-post continuity | Never overwrites originals, defeats DRM, republishes works, or silently places copyrighted material on the Bookshelf | Read-only Intake catalogue demonstrated; Level 1 and future Bobblehead earned |
+| **Librarian** | Maintain The Stacks, editions, manuscript repairs, reading position, and cross-post continuity | Never overwrites originals, defeats DRM, republishes works, or silently places copyrighted material on the Bookshelf | Read-only Intake catalogue demonstrated; Level 1 and Alexandrian Bobblehead accepted |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |
 | **Vision** | Webcam, screen, screenshot, and OCR perception | Explicit indicators and hard-off controls required | Conceptual |
@@ -62,5 +62,7 @@ Modesty is small by design and should not curate these collections herself. She 
 Bobbleheads are varied, collected anime-style figurines, roughly similar in scale rather than a matching set. They are visual ambassadors, not literal portraits. A Bobblehead is earned only when its Team member exists and has been tested.
 
 The first earned Bobblehead is the Archivist: a typically stern librarian in a tweed pencil skirt and oversized glasses. Her design should remain readable at bookshelf scale. Modesty's headset is the visible communication channel between Modesty and the unseen Team; it is not evidence that the Team can speak directly to Drew.
+
+The Librarian's earned Bobblehead is Alex, an Alexandrian-inspired adult librarian seated on a level stack of books and holding a papyrus scroll. She occupies the shelf position between the Archivist and Researcher. Bobblehead source extraction may leave thin white or pale edge halos; removing those halos belongs to the shared polishing pass and must not alter an approved figure, placement, scale, or grounding.
 
 Expected states are Idle, Working, Waiting, Needs Attention, and Offline/Absent. Their behaviour must report real subsystem state.

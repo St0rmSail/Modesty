@@ -63,6 +63,9 @@ ARCHIVIST_IMAGE = (
 RESEARCHER_IMAGE = (
     PROJECT_ROOT / "Assets" / "Team" / "Researcher" / "researcher_bobblehead_v1.png"
 )
+LIBRARIAN_IMAGE = (
+    PROJECT_ROOT / "Assets" / "Team" / "Librarian" / "librarian_bobblehead_v1.png"
+)
 MODESTY_IMAGE = (
     PROJECT_ROOT
     / "Assets"
@@ -124,6 +127,7 @@ class StudyRenderer(QWidget):
         self.modesty_headset = QPixmap(str(MODESTY_HEADSET_IMAGE))
         self.archivist = QPixmap(str(ARCHIVIST_IMAGE))
         self.researcher = QPixmap(str(RESEARCHER_IMAGE))
+        self.librarian = QPixmap(str(LIBRARIAN_IMAGE))
 
         if self.study.isNull():
             raise FileNotFoundError(
@@ -159,6 +163,11 @@ class StudyRenderer(QWidget):
         if self.researcher.isNull():
             raise FileNotFoundError(
                 f"Researcher Bobblehead could not be loaded:\n{RESEARCHER_IMAGE}"
+            )
+
+        if self.librarian.isNull():
+            raise FileNotFoundError(
+                f"Librarian Bobblehead could not be loaded:\n{LIBRARIAN_IMAGE}"
             )
 
         self.position = load_json(POSITION_FILE)
@@ -445,7 +454,11 @@ class StudyRenderer(QWidget):
         painter.restore()
 
     def _draw_team(self, painter: QPainter, geometry: dict):
-        images = {"archivist": self.archivist, "researcher": self.researcher}
+        images = {
+            "archivist": self.archivist,
+            "researcher": self.researcher,
+            "librarian": self.librarian,
+        }
         for member, image in images.items():
             state = team_status.member_state(member)
             settings = self.team_display["members"][member]

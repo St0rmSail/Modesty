@@ -40,9 +40,9 @@ Build 0.19 attempts the Researcher's Level 4 threshold by combining one visible 
 
 The implementation and 102-test live suite are complete. The final end-to-end acceptance run was paused on 2026-08-16 because Scribble Hub returned Cloudflare 522 origin timeouts for several hours. This is an external source outage, not a demonstrated Modesty failure. Build 0.19 remains uncommitted and the Researcher remains at demonstrated Level 3 until a real mixed-source Briefing and disposition pass after Scribble Hub recovers.
 
-Build 0.20 establishes canonical **The Stacks** at `E:\Modesty Stacks` and gives the Librarian a bounded read-only catalogue of copied Intake samples. The lost Calibre library is no longer a prerequisite. No repair, conversion, rename, move, deletion, publication, reading-continuity, or Bobblehead work enters this first duty.
+Build 0.20 establishes canonical **The Stacks** at `E:\Modesty Stacks` and gives the Librarian a bounded read-only catalogue of copied Intake samples. The lost Calibre library is no longer a prerequisite. No repair, conversion, rename, move, deletion, publication, or reading-continuity work enters this first duty.
 
-Drew accepted the live duty on 2026-08-18: the Librarian catalogued six supported Intake files, reported no unsupported or damaged items, and changed no reading file. She therefore earns demonstrated capability Level 1 and the right to a future truthful Bobblehead.
+Drew accepted the live duty on 2026-08-18: the Librarian catalogued six supported Intake files, reported no unsupported or damaged items, and changed no reading file. She therefore earns demonstrated capability Level 1. Her earned Alexandrian Librarian Bobblehead is now fitted truthfully between the Archivist and Researcher.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

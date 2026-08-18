@@ -25,6 +25,12 @@
       "anchor_x": 0.160,
       "anchor_y": 0.592,
       "height": 0.070
+    },
+    "librarian": {
+      "pedestal": 3,
+      "anchor_x": 0.1395,
+      "anchor_y": 0.592,
+      "height": 0.070
     }
   }
 }

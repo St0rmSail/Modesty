@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.20 read-only catalogue foundation complete
+**Status:** Build 0.20 read-only catalogue foundation and truthful Bobblehead complete
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -61,6 +61,6 @@ Live acceptance passed on 2026-08-18. The Librarian catalogued six supported Int
 
 ## Visual representation
 
-The Librarian earned a new, separate Bobblehead by completing her first functional contract on 2026-08-18. Her outfit, prop, expression, and pedestal state remain intentionally unresolved and belong to the next visual step.
+The Librarian earned a new, separate Bobblehead by completing her first functional contract on 2026-08-18. Drew accepted Alex as an Alexandrian-inspired adult librarian in a low-backed white Grecian dress, tall hairstyle, jewel-coloured pharaonic collar, Egyptian brassard, and papyrus scroll, seated on a level stack of five books. Her transparent runtime asset is fitted between the Archivist and Researcher at their established height and common shelf baseline. Fine pale edge-halo removal remains a non-blocking shared Bobblehead polishing task.
 
 Earlier project documents used *Librarian* as a preliminary name for today's Archivist. That synonym remains superseded. This document establishes a newly approved, separate Librarian role concerned with reading works rather than knowledge curation.

@@ -169,5 +169,9 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Add the deterministic Librarian command, help section, readiness state, and focused tests.
 - [x] Pass all 108 live tests, create the empty Stacks foundation, and reach `MODESTY : READY` with Librarian ready.
 - [x] Demonstrate startup and the inventory command on six expendable copied samples in `E:\Modesty`.
-- [x] Award Librarian Level 1 and the right to a future truthful Bobblehead.
+- [x] Award Librarian Level 1 and fit her accepted truthful Alexandrian Bobblehead between the Archivist and Researcher.
 - [x] Complete the restore-point audit and milestone commit after acceptance.
+
+## Shared visual polishing
+
+- [ ] Remove residual white or pale extraction halos from Bobblehead edges without changing approved figures, placement, scale, or shelf contact.

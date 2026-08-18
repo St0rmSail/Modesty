@@ -1,7 +1,7 @@
 # Roadmap
 
 **Current marker:** Build 0.20.0 - The Librarian's First Catalogue (complete); Build 0.19 acceptance paused externally
-**Reviewed:** 2026-08-16
+**Reviewed:** 2026-08-18
 
 ## Completed build line
 
@@ -60,11 +60,11 @@ Definition of done:
 - Report unsupported files, exact duplicate groups, and stale catalogue entries without acting on them.
 - Add deterministic command help and truthful readiness state.
 - Demonstrate the command on expendable copied samples in `E:\Modesty Stacks\Intake`.
-- Keep repair, conversion, rename, move, deletion, OCR, reading position, and Bobblehead work out of this build.
+- Keep repair, conversion, rename, move, deletion, OCR, and reading position out of this build's functional duty.
 
 The vanished Calibre library is not a prerequisite or expected migration source. If fragments ever reappear, they are merely optional Intake material.
 
-Demonstrated on 2026-08-18: all 108 live tests passed, startup reported the Librarian ready, and the user-facing duty catalogued six supported copied files with no unsupported or damaged items and no source mutation. The Librarian advances from Level 0 to demonstrated Level 1.
+Demonstrated on 2026-08-18: all 108 live tests passed, startup reported the Librarian ready, and the user-facing duty catalogued six supported copied files with no unsupported or damaged items and no source mutation. The Librarian advances from Level 0 to demonstrated Level 1. Her subsequently earned Alexandrian Bobblehead is accepted on the live shelf between the Archivist and Researcher; pale edge-halo cleanup remains shared visual polish.
 
 ### 0.18.0 - Story Comparison - Complete
 

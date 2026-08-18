@@ -1,6 +1,6 @@
 # Decision Log
 
-**Reviewed:** 2026-08-16
+**Reviewed:** 2026-08-18
 
 This compact register records settled decisions. Create a separate detailed decision record only when consequences or alternatives need more space.
 
@@ -59,6 +59,7 @@ This compact register records settled decisions. Create a separate detailed deci
 | D-051 | An external source outage pauses, but does not fail, an acceptance run. Implemented and automated-test status remain distinct from demonstrated capability; Build 0.19 and the Level 4 award stay open until the real mixed-source Briefing passes after Scribble Hub recovers. | Canonical verification rule |
 | D-052 | **The Stacks** is the canonical private reading collection at `E:\Modesty Stacks`. Its first duty inventories only copied Intake material and may not alter a reading file. | Canonical Librarian foundation |
 | D-053 | The old Calibre library is presumed lost and imposes no recovery, migration, schema, authority, or implementation constraint. Any fragment rediscovered later is optional Intake material like any other source. | Canonical scope correction |
+| D-054 | The Librarian's earned Bobblehead is Alex: an Alexandrian-inspired adult librarian with Grecian dress and hair, jewel-coloured pharaonic collar, brassard, papyrus scroll, and a level five-book seat. Her accepted position is between the Archivist and Researcher at the common Team scale and shelf baseline. Residual white or pale Bobblehead extraction halos are deferred to shared polishing without changing approved figures or geometry. | Canonical visual decision |
 
 ## Superseded decisions and names
 

@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.21 first reversible repair complete; demonstrated Level 2
+**Status:** Build 0.22 catalogue and reading complete; demonstrated Level 2 strengthened
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -68,6 +68,16 @@ The original remains in Intake and is never overwritten. A provisional derivativ
 The existing Briefing Hologram becomes a local repair review for this provider. **Keep Repair** retains the derivative in Workbench. **Toss Repair** deletes only the provisional derivative. Neither route sends copyrighted reading material to the Filing Cabinet or Bookshelf. This implementation does not perform paragraph reflow, dehyphenation, OCR, PDF repair, conversion, semantic correction, bulk work, or promotion into Reading.
 
 Live acceptance passed on 2026-08-18. Keep Repair retained the expected hashed derivative in Workbench; Toss Repair removed only its provisional derivative. Both Intake samples retained their pre-test hashes, both ledger dispositions persisted, and the Briefing controls and conversational outcomes were accepted. Combined with all 113 live tests, this advances the Librarian to demonstrated Level 2.
+
+## Build 0.22 catalogue, reading, and first shelving
+
+The Librarian can now interpret one explicitly named work beneath Intake rather than merely count its container. `Ask the Librarian to examine: <relative Intake path>` supports TXT, Markdown, HTML, DOCX, EPUB, and PDFs with an existing text layer. The reader does not execute embedded content. It extracts embedded title and author where available, counts the readable extent, returns a bounded opening passage, and records local source-linked passages for later retrieval. Very large PDFs are bounded honestly; image-only PDFs fail with an explicit future-OCR requirement.
+
+`Ask the Librarian to find: <words or phrase>` searches only works she has actually examined and returns bounded passages with title, author, section or page, and exact Stacks source. The full manuscript is never copied into chat, the Filing Cabinet, or the Bookshelf.
+
+Inspection proposes a conservative `Originals/Author/Title/original-file` destination and issues a unique `LS-ID`. Nothing moves during inspection. `Approve Librarian shelving: <LS-ID>` rechecks the source SHA-256, refuses an occupied destination, creates only the needed shelf folders, and moves the byte-identical original from Intake to Originals. Unknown metadata stays visibly labelled rather than guessed from prose. MOBI, AZW3, RTF, legacy DOC, LIT, archive containers, DRM, OCR, batch approval, duplicate merging, and automatic renaming remain outside this bounded build.
+
+Live acceptance passed on 2026-08-19 using the real `Axeman` EPUB. The Librarian extracted 167,521 words across all nine EPUB spine documents and retrieved five passages for distinctive wording known to occur in Chapter 12. EPUB spine documents are currently labelled `Section 1`, `Section 2`, and so forth; a single spine document may contain several human chapters. Human chapter-heading detection and chapter-aware citations belong to the later reading-continuity work and do not invalidate complete text extraction or passage retrieval.
 
 ## Visual representation
 

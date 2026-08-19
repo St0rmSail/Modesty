@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
+import re
 import sqlite3
 from tempfile import TemporaryDirectory
 import unittest
+import zipfile
 from Brain.Team.delegation import TeamDelegator
 from Brain.Team.librarian import Librarian, LibrarianError
 from Runtime.Core import team_status
@@ -211,6 +213,88 @@ class LibrarianTest(unittest.TestCase):
             self.assertTrue(report.provider.startswith("librarian:LR-"))
             self.assertIn("Provisional derivative", report.body)
             self.assertEqual(team_status.member_state("librarian"), "waiting")
+
+    def test_inspection_reads_indexes_and_shelves_an_unchanged_nested_text(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            nested = paths.intake / "Loose"
+            nested.mkdir()
+            source = nested / "Voyage.txt"
+            original = b"A voyage around Madagascar taught patience with every changing wind.\n"
+            source.write_bytes(original)
+            librarian = Librarian(paths, root / "catalogue.db")
+
+            inspection = librarian.inspect_book("Loose/Voyage.txt")
+
+            self.assertEqual(inspection.title, "Voyage")
+            self.assertIn("Madagascar", inspection.preview)
+            hits = librarian.search_reading("changing wind")
+            self.assertEqual(len(hits), 1)
+            self.assertIn("Madagascar", hits[0].passage)
+            destination = librarian.approve_shelving(inspection.shelving_id)
+            self.assertFalse(source.exists())
+            self.assertEqual(destination.read_bytes(), original)
+            self.assertEqual(destination.relative_to(paths.originals).as_posix(), "Unknown Author/Voyage/Voyage.txt")
+
+    def test_epub_reader_uses_metadata_spine_and_nested_intake_path(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "sample.epub"
+            with zipfile.ZipFile(source, "w") as archive:
+                archive.writestr("META-INF/container.xml", '<container><rootfiles><rootfile full-path="OPS/package.opf"/></rootfiles></container>')
+                archive.writestr(
+                    "OPS/package.opf",
+                    '<package xmlns:dc="urn:dc"><metadata><dc:title>The Lamp</dc:title><dc:creator>Alex Example</dc:creator></metadata>'
+                    '<manifest><item id="c1" href="chapter.xhtml"/></manifest><spine><itemref idref="c1"/></spine></package>',
+                )
+                archive.writestr("OPS/chapter.xhtml", "<html><body><h1>Chapter One</h1><p>The Alexandrian lamp was lit.</p></body></html>")
+            librarian = Librarian(paths, root / "catalogue.db")
+
+            inspection = librarian.inspect_book("sample.epub")
+
+            self.assertEqual(inspection.title, "The Lamp")
+            self.assertEqual(inspection.author, "Alex Example")
+            self.assertIn("Alexandrian lamp", inspection.preview)
+            self.assertEqual(inspection.proposed_relative_path, "Alex Example/The Lamp/sample.epub")
+
+    def test_inspection_refuses_unsafe_or_unreadable_input(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            librarian = Librarian(paths, root / "catalogue.db")
+            with self.assertRaisesRegex(LibrarianError, "unsafe"):
+                librarian.inspect_book("../outside.txt")
+            (paths.intake / "locked.mobi").write_bytes(b"not readable")
+            with self.assertRaisesRegex(LibrarianError, "not implemented"):
+                librarian.inspect_book("locked.mobi")
+
+    def test_commands_report_reading_search_and_require_exact_shelving_approval(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            (paths.intake / "story.txt").write_text("The brass telescope stood beside the window.", encoding="utf-8")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+
+            inspected = delegator.handle("Ask the Librarian to examine: story.txt")
+            self.assertIn("Nothing has moved", inspected.response)
+            shelving_id = re.search(r"LS-[A-F0-9]{8}", inspected.response).group(0)
+            found = delegator.handle("Ask the Librarian to find: brass telescope")
+            self.assertIn("story.txt", found.response)
+            approved = delegator.handle(f"Approve Librarian shelving: {shelving_id}")
+            self.assertIn("unchanged original", approved.response)
 
     @staticmethod
     def _write_config(project: Path, stacks: Path) -> Path:

@@ -111,6 +111,20 @@ class TeamDelegator:
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
         re.IGNORECASE,
     )
+    LIBRARIAN_INSPECT_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
+        r"(?:inspect|examine|catalogue\s+and\s+read|catalog\s+and\s+read)\s*:\s*(?P<path>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_FIND_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
+        r"(?:find|search\s+the\s+stacks\s+for)\s*:\s*(?P<query>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_SHELVE_PATTERN = re.compile(
+        r"^approve\s+(?:the\s+)?librarian\s+shelving\s*:\s*(?P<shelving_id>LS-[A-F0-9]{8})\s*$",
+        re.IGNORECASE,
+    )
     HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help|show\s+(?:me\s+)?(?:the\s+)?commands|"
         r"what\s+commands\s+can\s+i\s+use|how\s+do\s+i\s+use\s+modesty)\??\s*$",
@@ -221,6 +235,54 @@ class TeamDelegator:
                 f"Exact duplicate groups: {report.duplicate_groups}\n"
                 f"Stale catalogue entries removed: {report.stale_removed}\n\n"
                 "No reading file was renamed, moved, repaired, converted, deleted, or published.",
+            )
+        inspect_match = self.LIBRARIAN_INSPECT_PATTERN.match(message.strip())
+        if inspect_match:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                inspection = self.librarian.inspect_book(inspect_match.group("path"))
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting")
+            return DelegationResult(True, self.librarian.inspection_report(inspection))
+        find_match = self.LIBRARIAN_FIND_PATTERN.match(message.strip())
+        if find_match:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                hits = self.librarian.search_reading(find_match.group("query"))
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            if not hits:
+                return DelegationResult(True, "The Librarian found no matching passage in works she has inspected.")
+            passages = "\n\n".join(
+                f"{index}. {hit.title} — {hit.author}\n{hit.passage}\n"
+                f"Source: The Stacks/{hit.source_relative_path} ({hit.section})"
+                for index, hit in enumerate(hits, 1)
+            )
+            return DelegationResult(True, f"The Librarian found {len(hits)} matching passage(s):\n\n{passages}")
+        shelve_match = self.LIBRARIAN_SHELVE_PATTERN.match(message.strip())
+        if shelve_match:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                destination = self.librarian.approve_shelving(shelve_match.group("shelving_id"))
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            relative = destination.relative_to(self.librarian.paths.root).as_posix()
+            return DelegationResult(
+                True,
+                f"Approved. The Librarian shelved the unchanged original at The Stacks/{relative}. "
+                "Its recorded SHA-256 identity was preserved.",
             )
         repair_match = self.LIBRARIAN_REPAIR_PATTERN.match(message.strip())
         if repair_match:

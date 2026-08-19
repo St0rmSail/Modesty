@@ -11,6 +11,7 @@ import sqlite3
 import zipfile
 
 from Runtime.Reading import DEFAULT_CATALOGUE, StacksPaths
+from Runtime.Reading.book_reader import BookReadError, BookText, read_book
 
 
 class LibrarianError(RuntimeError):
@@ -39,11 +40,36 @@ class RepairProposal:
     created_at: str
 
 
+@dataclass(frozen=True)
+class BookInspection:
+    shelving_id: str
+    source_relative_path: str
+    source_sha256: str
+    title: str
+    author: str
+    format_name: str
+    word_count: int
+    section_count: int
+    proposed_relative_path: str
+    preview: str
+    truncated: bool
+
+
+@dataclass(frozen=True)
+class ReadingHit:
+    title: str
+    author: str
+    source_relative_path: str
+    section: str
+    passage: str
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
     MAX_FILES = 5_000
     MAX_REPAIR_BYTES = 2 * 1024 * 1024
+    MAX_INDEX_PASSAGES = 10_000
     REPAIRABLE = {".md", ".txt"}
     SUPPORTED = {
         ".epub": "EPUB",
@@ -77,6 +103,7 @@ class Librarian:
         seen: set[str] = set()
         supported = unsupported = attention = 0
         timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        connection = None
         connection = None
         try:
             connection = sqlite3.connect(self.catalogue_path)
@@ -144,6 +171,160 @@ class Librarian:
             attention=attention,
             duplicate_groups=int(duplicate_groups),
             stale_removed=stale_removed,
+        )
+
+    def inspect_book(self, relative_path: str) -> BookInspection:
+        """Read one named Intake file, index its text, and propose a shelf path."""
+
+        source = self._safe_collection_path(self.paths.intake, relative_path)
+        if source.is_symlink() or not source.is_file():
+            raise LibrarianError("That Intake reading file is unavailable or unsafe.")
+        try:
+            book = read_book(source)
+            digest = self._sha256(source)
+        except (OSError, BookReadError) as error:
+            raise LibrarianError(str(error)) from error
+        shelving_id = f"LS-{secrets.token_hex(4).upper()}"
+        proposed = self._proposed_original_path(book, source)
+        preview = self._opening_preview(book)
+        created = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        self.catalogue_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            connection = sqlite3.connect(self.catalogue_path)
+            with connection:
+                self._initialize_reading_schema(connection)
+                connection.execute("DELETE FROM reading_passages WHERE source_sha256 = ?", (digest,))
+                passages = self._passages(book)
+                if len(passages) > self.MAX_INDEX_PASSAGES:
+                    passages = passages[: self.MAX_INDEX_PASSAGES]
+                connection.executemany(
+                    """
+                    INSERT INTO reading_passages
+                        (source_sha256, source_relative_path, title, author, section, passage)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    [
+                        (digest, f"Intake/{relative_path}", book.title, book.author, section, passage)
+                        for section, passage in passages
+                    ],
+                )
+                connection.execute(
+                    """
+                    INSERT INTO shelving_jobs
+                        (shelving_id, source_relative_path, source_sha256, title, author,
+                         proposed_relative_path, created_at, status, resolved_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', '')
+                    """,
+                    (shelving_id, relative_path, digest, book.title, book.author, proposed, created),
+                )
+        except sqlite3.DatabaseError as error:
+            raise LibrarianError("The Librarian could not record that reading safely.") from error
+        finally:
+            if connection is not None:
+                connection.close()
+        return BookInspection(
+            shelving_id=shelving_id,
+            source_relative_path=relative_path,
+            source_sha256=digest,
+            title=book.title,
+            author=book.author,
+            format_name=self.SUPPORTED.get(source.suffix.casefold(), source.suffix),
+            word_count=book.word_count,
+            section_count=len(book.sections),
+            proposed_relative_path=proposed,
+            preview=preview,
+            truncated=book.truncated,
+        )
+
+    def search_reading(self, query: str, limit: int = 5) -> tuple[ReadingHit, ...]:
+        """Find bounded passages in works the Librarian has actually inspected."""
+
+        terms = re.findall(r"[\w'-]+", query, flags=re.UNICODE)
+        if not terms:
+            raise LibrarianError("Give the Librarian a meaningful word or phrase to find.")
+        expression = " AND ".join(f'"{term.replace(chr(34), chr(34) * 2)}"' for term in terms[:10])
+        connection = None
+        try:
+            connection = sqlite3.connect(self.catalogue_path)
+            self._initialize_reading_schema(connection)
+            rows = connection.execute(
+                """
+                SELECT title, author, source_relative_path, section,
+                       snippet(reading_passages, 5, '[', ']', ' ... ', 24)
+                FROM reading_passages
+                WHERE reading_passages MATCH ?
+                ORDER BY bm25(reading_passages)
+                LIMIT ?
+                """,
+                (expression, max(1, min(limit, 10))),
+            ).fetchall()
+        except sqlite3.DatabaseError as error:
+            raise LibrarianError("The Librarian could not search her reading catalogue.") from error
+        finally:
+            if connection is not None:
+                connection.close()
+        return tuple(ReadingHit(*row) for row in rows)
+
+    def approve_shelving(self, shelving_id: str) -> Path:
+        """Move one unchanged Intake original to its reviewed Originals shelf."""
+
+        clean_id = shelving_id.strip().upper()
+        if not re.fullmatch(r"LS-[A-F0-9]{8}", clean_id):
+            raise LibrarianError("That shelving identifier is invalid.")
+        connection = None
+        try:
+            connection = sqlite3.connect(self.catalogue_path)
+            self._initialize_reading_schema(connection)
+            row = connection.execute(
+                """SELECT source_relative_path, source_sha256, proposed_relative_path, status
+                   FROM shelving_jobs WHERE shelving_id = ?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[3] != "pending":
+                raise LibrarianError("That shelving proposal is unavailable or already resolved.")
+            source = self._safe_collection_path(self.paths.intake, row[0])
+            destination = self._safe_collection_path(self.paths.originals, row[2], require_exists=False)
+            if not source.is_file() or self._sha256(source) != row[1]:
+                raise LibrarianError("The Intake original changed after inspection; inspect it again.")
+            if destination.exists():
+                raise LibrarianError("The proposed shelf destination already exists; nothing was moved.")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            source.replace(destination)
+            if self._sha256(destination) != row[1]:
+                raise LibrarianError("The shelved original did not retain its recorded identity.")
+            with connection:
+                connection.execute(
+                    "UPDATE shelving_jobs SET status='shelved', resolved_at=? WHERE shelving_id=?",
+                    (datetime.now(timezone.utc).isoformat(timespec="seconds"), clean_id),
+                )
+                connection.execute(
+                    "UPDATE reading_passages SET source_relative_path=? WHERE source_sha256=?",
+                    (f"Originals/{row[2]}", row[1]),
+                )
+            return destination
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not complete that approved shelving safely.") from error
+        finally:
+            if connection is not None:
+                connection.close()
+
+    @staticmethod
+    def inspection_report(inspection: BookInspection) -> str:
+        extent = " (bounded extraction; more text remains)" if inspection.truncated else ""
+        return (
+            f"The Librarian read and catalogued one Intake work.\n\n"
+            f"Title: {inspection.title}\nAuthor: {inspection.author}\n"
+            f"Format: {inspection.format_name}\n"
+            f"Readable extent: {inspection.word_count:,} words in {inspection.section_count} sections{extent}\n"
+            f"Source: The Stacks/Intake/{inspection.source_relative_path}\n"
+            f"SHA-256: {inspection.source_sha256}\n\n"
+            f"Opening text:\n{inspection.preview}\n\n"
+            f"Proposed shelf: The Stacks/Originals/{inspection.proposed_relative_path}\n"
+            f"Shelving proposal: {inspection.shelving_id}\n\n"
+            f"Nothing has moved. To approve this exact destination, say: "
+            f"Approve Librarian shelving: {inspection.shelving_id}"
         )
 
     def prepare_text_repair(self, relative_path: str) -> RepairProposal:
@@ -313,6 +494,60 @@ class Librarian:
         return source
 
     @staticmethod
+    def _safe_collection_path(root: Path, relative_path: str, require_exists: bool = True) -> Path:
+        raw = relative_path.strip().replace("\\", "/")
+        candidate = Path(raw)
+        if not raw or candidate.is_absolute() or ".." in candidate.parts:
+            raise LibrarianError("That reading path is unsafe.")
+        path = (root / candidate).resolve()
+        try:
+            path.relative_to(root.resolve())
+        except ValueError as error:
+            raise LibrarianError("That reading path is unsafe.") from error
+        if require_exists and not path.exists():
+            raise LibrarianError("That reading file was not found.")
+        return path
+
+    @classmethod
+    def _proposed_original_path(cls, book: BookText, source: Path) -> str:
+        author = cls._safe_shelf_name(book.author, "Unknown Author")
+        title = cls._safe_shelf_name(book.title, source.stem)
+        return (Path(author) / title / source.name).as_posix()
+
+    @staticmethod
+    def _safe_shelf_name(value: str, fallback: str) -> str:
+        cleaned = re.sub(r'[<>:"/\\|?*\x00-\x1f]', " ", value)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip(" .")
+        return (cleaned or fallback)[:120]
+
+    @staticmethod
+    def _opening_preview(book: BookText, limit: int = 900) -> str:
+        text = next((text for _, text in book.sections if text.strip()), "")
+        preview = text[:limit].strip()
+        return preview + (" ..." if len(text) > limit else "")
+
+    @staticmethod
+    def _passages(book: BookText, size: int = 1600) -> list[tuple[str, str]]:
+        passages = []
+        for section, text in book.sections:
+            paragraphs = [part.strip() for part in re.split(r"\n{2,}", text) if part.strip()]
+            current = ""
+            for paragraph in paragraphs:
+                if current and len(current) + len(paragraph) + 2 > size:
+                    passages.append((section, current))
+                    current = ""
+                if len(paragraph) > size:
+                    if current:
+                        passages.append((section, current))
+                        current = ""
+                    passages.extend((section, paragraph[index:index + size]) for index in range(0, len(paragraph), size))
+                else:
+                    current = f"{current}\n\n{paragraph}".strip()
+            if current:
+                passages.append((section, current))
+        return passages
+
+    @staticmethod
     def _clean_repair_id(repair_id: str) -> str:
         clean = repair_id.strip().upper()
         if not re.fullmatch(r"LR-[A-F0-9]{8}", clean):
@@ -392,6 +627,36 @@ class Librarian:
                 created_at TEXT NOT NULL,
                 status TEXT NOT NULL,
                 resolved_at TEXT NOT NULL
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_reading_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS shelving_jobs (
+                shelving_id TEXT PRIMARY KEY,
+                source_relative_path TEXT NOT NULL,
+                source_sha256 TEXT NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT NOT NULL,
+                proposed_relative_path TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE VIRTUAL TABLE IF NOT EXISTS reading_passages USING fts5(
+                source_sha256 UNINDEXED,
+                source_relative_path UNINDEXED,
+                title,
+                author,
+                section,
+                passage
             )
             """
         )

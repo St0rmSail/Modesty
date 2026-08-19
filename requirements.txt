@@ -2,3 +2,4 @@ PySide6==6.11.1
 rich==15.0.0
 tzdata==2026.3
 youtube-transcript-api==1.2.4
+pypdf==6.1.1

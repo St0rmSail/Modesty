@@ -1,7 +1,7 @@
 # Roadmap
 
-**Current marker:** Build 0.21.0 - The Librarian's First Repair (complete); Build 0.19 acceptance paused externally
-**Reviewed:** 2026-08-18
+**Current marker:** Build 0.22.0 - The Librarian Reads the Stacks (accepted); Build 0.19 acceptance paused externally
+**Reviewed:** 2026-08-19
 
 ## Completed build line
 
@@ -46,6 +46,24 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.22.0 - The Librarian Reads the Stacks - Complete
+
+Turn the Intake manifest into a useful private catalogue. The Librarian reads one named supported work, records honest bibliographic identity and source-linked passages, proposes coherent shelving, and moves the unchanged original only after exact approval.
+
+Definition of done:
+
+- Read TXT, Markdown, HTML, DOCX, EPUB, and text-layer PDF without executing embedded content.
+- Accept safe relative paths beneath nested Intake folders.
+- Report title, author, readable extent, bounded opening text, source hash, and extraction limits.
+- Build a private local passage index and return bounded source-linked matches from examined works.
+- Propose `Originals/Author/Title/original-file` without pretending uncertain metadata is known.
+- Move nothing until exact `LS-ID` approval; recheck the source hash and refuse collisions.
+- Keep originals byte-identical and keep copyrighted contents out of the Filing Cabinet and Bookshelf.
+- Fail clearly for image-only PDF, DRM, archive containers, and formats whose reader is not implemented.
+- Update deterministic command help and pass the full live test suite before acceptance.
+
+Accepted on 2026-08-19: the Librarian read the real `Axeman` EPUB as 167,521 words across nine EPUB spine sections and returned five indexed matches for distinctive Chapter 12 wording. This proves that extraction reached the later chapter; the displayed section numbers describe EPUB spine documents rather than human chapter numbers. Detecting chapter headings and reporting human chapter labels is deferred explicitly to reading continuity. The common capability level remains Level 2 because this build strengthens bounded retrieval and collection handling rather than performing an evidence-led investigation.
 
 ### 0.21.0 - The Librarian's First Repair - Complete
 

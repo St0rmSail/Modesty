@@ -41,6 +41,7 @@ If Scribble Hub shows a Cloudflare 522 error, stop refreshing and postpone the d
 - `Continue reading: <RP-ID>`
 - `Mark my place: <RP-ID>`
 - `Ask the Librarian to resume: <title or Stacks path>`
+- `Ask the Librarian to identify works and editions`
 
 This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
 
@@ -49,6 +50,8 @@ The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly insi
 **Examine** reads one explicitly named TXT, Markdown, HTML, DOCX, EPUB, or text-layer PDF beneath Intake. It reports embedded title and author where available, a bounded opening passage, readable extent, and a proposed `Originals/Author/Title/original-file` destination. It also creates a private local passage index so **find** can return source-linked passages from works actually examined. Nothing moves until the exact `LS-ID` approval. Approval rechecks the source hash, refuses collisions, and shelves the unchanged original. Scanned PDFs require later OCR; DRM and access-control bypass are never attempted.
 
 **Open** returns a bounded passage from the named exact edition. EPUB chapter headings such as `Chapter 12`, `Prologue`, and `Epilogue` are recognized when they appear as standalone headings. **Continue reading** displays the next passage but does not silently alter saved progress. **Mark my place** explicitly confirms the end of the latest displayed passage as the next unread position. **Resume** uses only that confirmed position and only for the same SHA-256 edition; changed or ambiguous editions fail safely. Reading positions remain private local generated data.
+
+**Identify works and editions** incrementally reads source-supplied title, author, strong identifiers, series, series number, publisher, language, and publication date from supported files in Intake and Originals. Each invocation refreshes at most 25 changed or new files so the Study remains responsive; repeat until the reported remaining count is zero. It reports exact byte duplicates separately from shared identifiers and normalized title/author review leads. It reuses unchanged catalogue entries and never merges, renames, moves, deletes, or overwrites a file.
 
 ## Briefings
 

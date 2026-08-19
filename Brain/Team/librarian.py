@@ -11,7 +11,7 @@ import sqlite3
 import zipfile
 
 from Runtime.Reading import DEFAULT_CATALOGUE, StacksPaths
-from Runtime.Reading.book_reader import BookReadError, BookText, read_book
+from Runtime.Reading.book_reader import BookReadError, BookText, read_book, read_book_metadata
 
 
 class LibrarianError(RuntimeError):
@@ -76,6 +76,20 @@ class ReadingExcerpt:
     resumed: bool
 
 
+@dataclass(frozen=True)
+class EditionCatalogueReport:
+    files_seen: int
+    metadata_read: int
+    reused: int
+    attention: int
+    identified_authors: int
+    identified_series: int
+    exact_duplicate_groups: int
+    shared_identifier_groups: int
+    possible_same_work_groups: int
+    remaining_to_refresh: int
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -83,6 +97,8 @@ class Librarian:
     MAX_REPAIR_BYTES = 2 * 1024 * 1024
     MAX_INDEX_PASSAGES = 10_000
     READING_CHUNK = 1_800
+    IDENTITY_FORMATS = {".epub", ".pdf", ".docx", ".txt", ".md", ".html", ".htm"}
+    EDITION_REFRESH_BATCH = 25
     REPAIRABLE = {".md", ".txt"}
     SUPPORTED = {
         ".epub": "EPUB",
@@ -263,6 +279,117 @@ class Librarian:
             if connection is not None:
                 connection.close()
         return tuple(ReadingHit(*row) for row in rows)
+
+    def catalogue_editions(self) -> EditionCatalogueReport:
+        """Incrementally record source-supplied work and edition identity."""
+
+        files = []
+        for label, root in (("Intake", self.paths.intake), ("Originals", self.paths.originals)):
+            files.extend(
+                (label, root, path)
+                for path in root.rglob("*")
+                if path.is_file() and path.suffix.casefold() in self.IDENTITY_FORMATS
+            )
+        files.sort(key=lambda item: f"{item[0]}/{item[2].relative_to(item[1]).as_posix()}".casefold())
+        if len(files) > self.MAX_FILES:
+            raise LibrarianError(f"The Stacks contains more than {self.MAX_FILES} readable files; use a smaller bounded collection.")
+        connection = sqlite3.connect(self.catalogue_path)
+        read_count = reused = attention = remaining = 0
+        seen = set()
+        try:
+            self._initialize_schema(connection)
+            self._initialize_edition_schema(connection)
+            for label, root, path in files:
+                relative = f"{label}/{path.relative_to(root).as_posix()}"
+                seen.add(relative)
+                stat = path.stat()
+                cached = connection.execute(
+                    "SELECT size_bytes, modified_ns FROM edition_items WHERE source_relative_path=?",
+                    (relative,),
+                ).fetchone()
+                if cached == (stat.st_size, stat.st_mtime_ns):
+                    reused += 1
+                    continue
+                if read_count >= self.EDITION_REFRESH_BATCH:
+                    remaining += 1
+                    continue
+                warning = ""
+                try:
+                    metadata = read_book_metadata(path)
+                    digest = self._cached_intake_digest(connection, label, path, root, stat) or self._sha256(path)
+                except (OSError, BookReadError) as error:
+                    attention += 1
+                    warning = str(error)
+                    metadata = None
+                    digest = ""
+                read_count += 1
+                with connection:
+                    connection.execute(
+                        """
+                        INSERT INTO edition_items
+                            (source_relative_path, filename, extension, size_bytes, modified_ns,
+                             sha256, title, author, identifiers_json, series, series_index,
+                             publisher, language, published, warning, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT(source_relative_path) DO UPDATE SET
+                            filename=excluded.filename, extension=excluded.extension,
+                            size_bytes=excluded.size_bytes, modified_ns=excluded.modified_ns,
+                            sha256=excluded.sha256, title=excluded.title, author=excluded.author,
+                            identifiers_json=excluded.identifiers_json, series=excluded.series,
+                            series_index=excluded.series_index, publisher=excluded.publisher,
+                            language=excluded.language, published=excluded.published,
+                            warning=excluded.warning, updated_at=excluded.updated_at
+                        """,
+                        (
+                            relative, path.name, path.suffix.casefold(), stat.st_size, stat.st_mtime_ns,
+                            digest, metadata.title if metadata else "", metadata.author if metadata else "",
+                            json.dumps(metadata.identifiers if metadata else ()), metadata.series if metadata else "",
+                            metadata.series_index if metadata else "", metadata.publisher if metadata else "",
+                            metadata.language if metadata else "", metadata.published if metadata else "", warning,
+                            datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                        ),
+                    )
+            stale = [row[0] for row in connection.execute("SELECT source_relative_path FROM edition_items") if row[0] not in seen]
+            with connection:
+                connection.executemany("DELETE FROM edition_items WHERE source_relative_path=?", [(path,) for path in stale])
+            rows = connection.execute(
+                "SELECT sha256,title,author,identifiers_json,series,warning FROM edition_items"
+            ).fetchall()
+        finally:
+            connection.close()
+        exact = self._group_count(row[0] for row in rows if row[0])
+        identifiers = []
+        for row in rows:
+            for scheme, value in json.loads(row[3] or "[]"):
+                if scheme.casefold() not in {"uuid", "identifier"}:
+                    identifiers.append(f"{scheme.casefold()}:{self._identity_key(value)}")
+        shared_ids = self._group_count(value for value in identifiers if value.partition(":")[2])
+        works = [f"{self._identity_key(row[2])}|{self._identity_key(row[1])}" for row in rows if row[1]]
+        return EditionCatalogueReport(
+            len(files), read_count, reused, attention,
+            len({self._identity_key(row[2]) for row in rows if row[2] and row[2] != "Unknown Author"}),
+            len({self._identity_key(row[4]) for row in rows if row[4]}),
+            exact, shared_ids, self._group_count(works),
+            remaining,
+        )
+
+    @staticmethod
+    def edition_catalogue_response(report: EditionCatalogueReport) -> str:
+        return (
+            "The Librarian completed an incremental work-and-edition catalogue.\n\n"
+            f"Readable files seen: {report.files_seen}\n"
+            f"Metadata newly read or refreshed: {report.metadata_read}\n"
+            f"Unchanged catalogue entries reused: {report.reused}\n"
+            f"Items needing attention: {report.attention}\n"
+            f"Named authors represented: {report.identified_authors}\n"
+            f"Named series represented: {report.identified_series}\n"
+            f"Exact duplicate groups: {report.exact_duplicate_groups}\n"
+            f"Shared strong-identifier groups: {report.shared_identifier_groups}\n"
+            f"Possible same-work title/author groups: {report.possible_same_work_groups}\n\n"
+            f"Files still awaiting metadata refresh: {report.remaining_to_refresh}\n\n"
+            "No file was renamed, moved, merged, deleted, converted, or overwritten. "
+            "Exact hashes prove identical bytes; shared identifiers and similar title/author records are review leads, not permission to consolidate."
+        )
 
     def approve_shelving(self, shelving_id: str) -> Path:
         """Move one unchanged Intake original to its reviewed Originals shelf."""
@@ -753,6 +880,36 @@ class Librarian:
         return clean
 
     @staticmethod
+    def _cached_intake_digest(
+        connection: sqlite3.Connection,
+        label: str,
+        path: Path,
+        root: Path,
+        stat,
+    ) -> str:
+        if label != "Intake":
+            return ""
+        relative = path.relative_to(root).as_posix()
+        row = connection.execute(
+            "SELECT sha256,size_bytes,modified_ns FROM reading_items WHERE relative_path=?",
+            (relative,),
+        ).fetchone()
+        if row and row[0] and row[1] == stat.st_size and row[2] == stat.st_mtime_ns:
+            return row[0]
+        return ""
+
+    @staticmethod
+    def _identity_key(value: str) -> str:
+        return re.sub(r"[^a-z0-9]+", "", value.casefold())
+
+    @staticmethod
+    def _group_count(values) -> int:
+        counts = {}
+        for value in values:
+            counts[value] = counts.get(value, 0) + 1
+        return sum(1 for count in counts.values() if count > 1)
+
+    @staticmethod
     def _opening_preview(book: BookText, limit: int = 900) -> str:
         text = next((text for _, text in book.sections if text.strip()), "")
         preview = text[:limit].strip()
@@ -937,6 +1094,31 @@ class Librarian:
                 author,
                 section,
                 passage
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_edition_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS edition_items (
+                source_relative_path TEXT PRIMARY KEY,
+                filename TEXT NOT NULL,
+                extension TEXT NOT NULL,
+                size_bytes INTEGER NOT NULL,
+                modified_ns INTEGER NOT NULL,
+                sha256 TEXT NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT NOT NULL,
+                identifiers_json TEXT NOT NULL,
+                series TEXT NOT NULL,
+                series_index TEXT NOT NULL,
+                publisher TEXT NOT NULL,
+                language TEXT NOT NULL,
+                published TEXT NOT NULL,
+                warning TEXT NOT NULL,
+                updated_at TEXT NOT NULL
             )
             """
         )

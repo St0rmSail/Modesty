@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.23.0 - Reading Continuity (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.24.0 - Work and Edition Identity (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-19
 
 ## Completed build line
@@ -46,6 +46,26 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.24.0 - Work and Edition Identity - Complete
+
+Establish trustworthy bibliographic identity before any bulk shelving or consolidation.
+
+Definition of done:
+
+- Incrementally catalogue supported reading files beneath Intake and Originals.
+- Preserve source-supplied title, author, identifiers, series, series number, publisher, language, and publication date.
+- Reuse unchanged records by path, size, and modification identity.
+- Refresh at most 25 changed or new files per invocation and report the remainder.
+- Prove exact duplicates only by matching SHA-256.
+- Treat shared strong identifiers as same-publication leads and normalized title/author as weaker same-work leads.
+- Report metadata failures without preventing unrelated files from being catalogued.
+- Never merge, rename, move, delete, overwrite, or select a preferred edition automatically.
+- Update deterministic help and pass the complete live suite.
+
+Acceptance should demonstrate the command on the real Stacks, confirm useful series/identifier counts, then repeat it to prove incremental reuse. Review screens, preferred-edition decisions, and bulk shelving follow this identity foundation.
+
+Accepted on 2026-08-19: three bounded refresh passes catalogued 75 readable files with no metadata failures. The completed catalogue represents 27 named authors, 10 named series, three exact duplicate groups, two shared strong-identifier groups, and six possible title/author same-work groups. A fourth pass refreshed zero files, reused all 75 unchanged entries, and reported zero remaining. No reading file moved or changed. All 122 automated tests passed.
 
 ### 0.23.0 - Reading Continuity - Complete
 

@@ -24,6 +24,18 @@ class BookText:
         return sum(len(text.split()) for _, text in self.sections)
 
 
+@dataclass(frozen=True)
+class BookMetadata:
+    title: str
+    author: str
+    identifiers: tuple[tuple[str, str], ...] = ()
+    series: str = ""
+    series_index: str = ""
+    publisher: str = ""
+    language: str = ""
+    published: str = ""
+
+
 class _TextHTMLParser(HTMLParser):
     BLOCKS = {"p", "div", "br", "li", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "tr"}
 
@@ -70,6 +82,75 @@ def read_book(path: Path, max_characters: int = 8_000_000, max_pdf_pages: int = 
     if extension == ".pdf":
         return _read_pdf(path, max_characters, max_pdf_pages)
     raise BookReadError(f"Reading {extension or 'that format'} is not implemented yet.")
+
+
+def read_book_metadata(path: Path) -> BookMetadata:
+    """Read source-supplied bibliographic fields without extracting a manuscript."""
+
+    extension = path.suffix.casefold()
+    if extension == ".epub":
+        try:
+            with zipfile.ZipFile(path) as archive:
+                container = ET.fromstring(archive.read("META-INF/container.xml"))
+                rootfile = next(node.attrib["full-path"] for node in container.iter() if _local(node.tag) == "rootfile")
+                package = ET.fromstring(archive.read(rootfile))
+        except (OSError, KeyError, StopIteration, zipfile.BadZipFile, ET.ParseError) as error:
+            raise BookReadError("The EPUB metadata could not be read safely.") from error
+        meta = {
+            node.attrib.get("name", "").casefold(): node.attrib.get("content", "").strip()
+            for node in package.iter() if _local(node.tag) == "meta"
+        }
+        identifiers = []
+        for node in package.iter():
+            if _local(node.tag) != "identifier" or not (node.text or "").strip():
+                continue
+            scheme = next((value for key, value in node.attrib.items() if _local(key) == "scheme"), "identifier")
+            identifiers.append((scheme.upper(), (node.text or "").strip()))
+        return BookMetadata(
+            title=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "title"), "") or path.stem,
+            author=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "creator"), "") or "Unknown Author",
+            identifiers=tuple(identifiers),
+            series=meta.get("calibre:series", ""),
+            series_index=meta.get("calibre:series_index", ""),
+            publisher=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "publisher"), ""),
+            language=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "language"), ""),
+            published=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "date"), ""),
+        )
+    if extension == ".docx":
+        try:
+            with zipfile.ZipFile(path) as archive:
+                core = _optional_xml(archive, "docProps/core.xml")
+        except (OSError, zipfile.BadZipFile) as error:
+            raise BookReadError("The Word metadata could not be read safely.") from error
+        return BookMetadata(
+            _xml_value(core, "title") or path.stem,
+            _xml_value(core, "creator") or "Unknown Author",
+            publisher=_xml_value(core, "lastModifiedBy"),
+            language=_xml_value(core, "language"),
+            published=_xml_value(core, "created"),
+        )
+    if extension == ".pdf":
+        try:
+            from pypdf import PdfReader
+            values = PdfReader(path, strict=False).metadata or {}
+        except Exception as error:
+            raise BookReadError("The PDF metadata could not be read safely.") from error
+        identifiers = []
+        joined = " ".join(str(value) for value in values.values())
+        for match in re.findall(r"(?i)\bISBN(?:-1[03])?\s*[: ]\s*([0-9Xx -]{10,20})", joined):
+            normalized = re.sub(r"[^0-9X]", "", match.upper())
+            if len(normalized) in {10, 13}:
+                identifiers.append(("ISBN", normalized))
+        return BookMetadata(
+            str(values.get("/Title") or path.stem).strip(),
+            str(values.get("/Author") or "Unknown Author").strip(),
+            tuple(identifiers),
+            publisher=str(values.get("/Producer") or "").strip(),
+            published=str(values.get("/CreationDate") or "").strip(),
+        )
+    if extension in {".txt", ".md", ".html", ".htm"}:
+        return BookMetadata(path.stem, "Unknown Author")
+    raise BookReadError(f"Bibliographic reading for {extension or 'that format'} is not implemented yet.")
 
 
 def _read_docx(path: Path, limit: int) -> BookText:

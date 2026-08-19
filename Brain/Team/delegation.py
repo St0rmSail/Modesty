@@ -106,6 +106,11 @@ class TeamDelegator:
         r"(?:inventory|catalogue|catalog)\s+(?:the\s+)?stacks\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_EDITION_CATALOGUE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
+        r"(?:identify|catalogue|catalog)\s+(?:the\s+)?(?:works\s+and\s+editions|editions)\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_REPAIR_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
@@ -232,6 +237,17 @@ class TeamDelegator:
                 "Nothing has been filed or added to your account.",
                 "research_scribblehub_latest_harem",
             )
+        if self.LIBRARIAN_EDITION_CATALOGUE_PATTERN.match(message.strip()):
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                report = self.librarian.catalogue_editions()
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            return DelegationResult(True, self.librarian.edition_catalogue_response(report))
         if self.LIBRARIAN_INVENTORY_PATTERN.match(message.strip()):
             team_status.set_member_state("librarian", "working")
             try:

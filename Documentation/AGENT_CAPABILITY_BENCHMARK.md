@@ -47,7 +47,7 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Demonstrated:** Level 2 — on 2026-08-18 Modesty invoked the Librarian's bounded Intake catalogue and then completed one reversible source-identified text repair through both local Keep and Toss decisions without changing either original.
 
-**Implemented beyond the demonstrated level:** None. Build 0.23 is accepted within Level 2.
+**Implemented beyond the demonstrated level:** None. Build 0.24 is accepted within Level 2.
 
 **Build 0.20 increment achieved:** bridged Level 0 to Level 1 by proving that Modesty can invoke the Librarian, catalogue copied samples, report supported and unsupported formats, obvious container damage, exact duplicates, and stale records, and leave every source byte untouched.
 
@@ -57,7 +57,9 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Build 0.23 increment achieved:** closed the immediate continuity gap by recognizing source-supplied chapter headings, displaying bounded passages, advancing only within a temporary reading session, and persisting the next unread position only after explicit confirmation for the exact source hash. Axeman's Chapter 12 open, continue, mark, restart, and resume sequence passed live with 120 automated tests.
 
-**Not yet present:** rich bookmarks and annotations, edition relationships, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, duplicate consolidation, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
+**Build 0.24 increment achieved:** distinguished exact duplicate bytes, shared publication identifiers, and weaker title/author relationships before scaling shelving or consolidation. The real catalogue completed 75 files across three bounded refreshes, then reused all 75 unchanged entries. It found 27 authors, 10 series, three exact duplicate groups, two strong-identifier groups, and six possible same-work groups without altering source files.
+
+**Not yet present:** preferred-edition review, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, approved duplicate consolidation, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
 
 Capable contemporary local library systems such as Calibre already provide mature metadata editing, conversion, device support, and large-catalogue management. Document-management and ebook-repair toolchains can add OCR and validation. Modesty's Librarian is therefore far behind established library software in breadth. Her intended advantage is not replacing those tools prematurely: it is a governable assistant layer that preserves originals, joins provenance and reading continuity across formats, and presents uncertain changes for approval.
 
@@ -82,6 +84,6 @@ Update the entry when a build begins, after live acceptance, and during every re
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
 | Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
-| Librarian | Level 2 | Build 0.23 chapter-aware exact-edition progress and restart-safe resume are accepted. |
+| Librarian | Level 2 | Build 0.24 work and edition identity is accepted; preferred-edition review and bulk shelving remain later governed increments. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

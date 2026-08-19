@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import re
+import shutil
 import sqlite3
 from tempfile import TemporaryDirectory
 import unittest
@@ -376,6 +377,65 @@ class LibrarianTest(unittest.TestCase):
             self.assertIn("confirmed place", marked.response)
             resumed = delegator.handle("Ask the Librarian to resume: Intake/story.txt")
             self.assertIn("resumed", resumed.response)
+
+    def test_incremental_edition_catalogue_uses_source_metadata_without_merging(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            first = paths.intake / "first.epub"
+            self._write_identity_epub(first, "Tangled Threads", "Jennifer Estep", "9781439192634", "Elemental Assassin", "4")
+            exact = paths.intake / "exact-copy.epub"
+            shutil.copyfile(first, exact)
+            alternate = paths.intake / "alternate.epub"
+            self._write_identity_epub(alternate, "Tangled Threads", "Jennifer Estep", "9781439192634", "Elemental Assassin", "4", extra="alternate")
+            librarian = Librarian(paths, root / "catalogue.db")
+
+            report = librarian.catalogue_editions()
+
+            self.assertEqual(report.files_seen, 3)
+            self.assertEqual(report.identified_authors, 1)
+            self.assertEqual(report.identified_series, 1)
+            self.assertEqual(report.exact_duplicate_groups, 1)
+            self.assertEqual(report.shared_identifier_groups, 1)
+            self.assertEqual(report.possible_same_work_groups, 1)
+            self.assertEqual((report.metadata_read, report.reused), (3, 0))
+            second = librarian.catalogue_editions()
+            self.assertEqual((second.metadata_read, second.reused), (0, 3))
+            self.assertTrue(first.exists() and exact.exists() and alternate.exists())
+
+    def test_edition_catalogue_command_is_truthful_and_non_mutating(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            self._write_identity_epub(paths.intake / "book.epub", "Book", "Writer", "123456789X", "Series", "1")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+
+            result = delegator.handle("Ask the Librarian to identify works and editions")
+
+            self.assertTrue(result.handled)
+            self.assertIn("Readable files seen: 1", result.response)
+            self.assertIn("No file was renamed", result.response)
+            self.assertEqual(team_status.member_state("librarian"), "ready")
+
+    @staticmethod
+    def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
+        with zipfile.ZipFile(path, "w") as archive:
+            archive.writestr("META-INF/container.xml", '<container><rootfiles><rootfile full-path="OPS/package.opf"/></rootfiles></container>')
+            archive.writestr(
+                "OPS/package.opf",
+                f'<package xmlns:dc="urn:dc"><metadata><dc:title>{title}</dc:title><dc:creator>{author}</dc:creator>'
+                f'<dc:identifier scheme="ISBN">{isbn}</dc:identifier><meta name="calibre:series" content="{series}"/>'
+                f'<meta name="calibre:series_index" content="{index}"/></metadata><manifest><item id="c" href="c.xhtml"/>'
+                f'</manifest><spine><itemref idref="c"/></spine></package>{extra}',
+            )
+            archive.writestr("OPS/c.xhtml", f"<html><body><p>{title} text {extra}</p></body></html>")
 
     @staticmethod
     def _write_config(project: Path, stacks: Path) -> Path:

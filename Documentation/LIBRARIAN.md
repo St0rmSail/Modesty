@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.23 reading continuity complete; demonstrated Level 2 strengthened
+**Status:** Build 0.24 work and edition identity complete; demonstrated Level 2 strengthened
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -88,6 +88,14 @@ The EPUB reader now recognizes conservative standalone headings such as `Chapter
 Progress is keyed to the source SHA-256, not merely a title or filename. A changed edition cannot inherit an old position silently, and an ambiguous title requires an exact Stacks path. This build does not infer that visible text was read, synchronize devices, track unapproved online copies, or create a dedicated visual ebook reader.
 
 Live acceptance passed on 2026-08-19. Axeman opened at the correctly detected `Chapter 12`, continued through a bounded second passage without silently saving, persisted only the explicitly marked endpoint, and resumed at the next unread text after restart. The exact edition's passage index was refreshed with chapter-aware labels. Combined with all 120 live tests, this completes the first truthful reading-continuity loop without advancing the common benchmark beyond Level 2.
+
+## Build 0.24 work and edition identity
+
+`Ask the Librarian to identify works and editions` incrementally catalogues readable files beneath both Intake and Originals. EPUB source metadata may supply title, author, ISBN or other identifiers, series name and number, publisher, language, and publication date. DOCX and PDF contribute only fields their containers actually expose. Unknown values remain unknown; prose and filenames are not mined for invented bibliographic certainty. One invocation refreshes at most 25 changed or new files and reports the remainder, preventing a large first catalogue from monopolizing the Study interface.
+
+The catalogue distinguishes three evidence strengths: identical SHA-256 proves exact duplicate bytes; a shared non-UUID identifier is a strong same-publication lead; normalized title and author is only a possible same-work review group. None authorizes deletion, merging, replacement, or automatic selection of a preferred edition. Size and modification identity allow unchanged records to be reused without repeatedly hashing or parsing the full collection.
+
+Live acceptance passed on 2026-08-19. Three 25-file refreshes catalogued 75 real readable files with zero metadata failures. The final identity set contained 27 named authors, 10 named series, three exact duplicate groups, two shared strong-identifier groups, and six possible title/author same-work groups. The immediate repeat refreshed zero files and reused all 75 records, proving the incremental boundary. No reading file was renamed, moved, merged, deleted, converted, or overwritten; all 122 tests passed.
 
 ## Visual representation
 

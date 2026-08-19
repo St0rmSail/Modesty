@@ -82,6 +82,7 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Mark my place: <RP-ID>", text)
         self.assertIn("Ask the Librarian to resume: <title or Stacks path>", text)
         self.assertIn("Ask the Librarian to identify works and editions", text)
+        self.assertIn("Ask the Librarian to review edition groups", text)
         self.assertIn("Intake", text)
         self.assertIn("does not rename", text)
         self.assertIn("Keep Repair", text)

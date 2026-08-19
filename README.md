@@ -24,7 +24,7 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.24.0 - Work and Edition Identity (complete)**
+**0.25.0 - Edition Review Desk (complete)**
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 
@@ -51,6 +51,8 @@ Build 0.22 turns that manifest into a working private catalogue. The Librarian c
 Build 0.23 recognizes conservative human chapter headings inside EPUB spine documents and adds explicit reading continuity. Drew can open an exact edition at a chapter, continue through bounded passages without silently advancing saved progress, mark the latest displayed endpoint deliberately, and resume after restart. Positions are keyed to source SHA-256; changed or ambiguous editions fail safely. Axeman's Chapter 12 open, continue, mark, restart, and resume sequence passed live alongside all 120 automated tests. A dedicated visual reader, annotations, synchronization, and automatic update tracking remain later work.
 
 Build 0.24 adds an incremental work-and-edition catalogue across Intake and Originals. It retains source-supplied bibliographic fields, proves exact duplicates only by hash, separates shared identifiers from weaker title/author review leads, and reuses unchanged entries. Live acceptance catalogued 75 files with 27 authors, 10 series, three exact duplicate groups, two shared strong-identifier groups, six possible same-work groups, and no metadata failures; the immediate repeat reused all 75 entries. It does not merge, delete, rename, move, or choose a preferred edition.
+
+Build 0.25 exposes the exact files behind those relationship counts. Each bounded group is labelled as an exact hash duplicate, shared strong identifier, or possible title/author match; generic untitled and unknown-author metadata cannot create weak false groups. Live acceptance reported three exact duplicate pairs and one non-identical pair sharing an ISBN, with exact paths, formats, and sizes. No weak match was invented from missing author metadata. This review remains read-only and makes no preferred-edition, consolidation, deletion, or shelving decision.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

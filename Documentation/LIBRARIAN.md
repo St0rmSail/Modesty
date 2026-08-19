@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.24 work and edition identity complete; demonstrated Level 2 strengthened
+**Status:** Build 0.25 Edition Review Desk complete; demonstrated Level 2 strengthened
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -96,6 +96,14 @@ Live acceptance passed on 2026-08-19. Axeman opened at the correctly detected `C
 The catalogue distinguishes three evidence strengths: identical SHA-256 proves exact duplicate bytes; a shared non-UUID identifier is a strong same-publication lead; normalized title and author is only a possible same-work review group. None authorizes deletion, merging, replacement, or automatic selection of a preferred edition. Size and modification identity allow unchanged records to be reused without repeatedly hashing or parsing the full collection.
 
 Live acceptance passed on 2026-08-19. Three 25-file refreshes catalogued 75 real readable files with zero metadata failures. The final identity set contained 27 named authors, 10 named series, three exact duplicate groups, two shared strong-identifier groups, and six possible title/author same-work groups. The immediate repeat refreshed zero files and reused all 75 records, proving the incremental boundary. No reading file was renamed, moved, merged, deleted, converted, or overwritten; all 122 tests passed.
+
+## Build 0.25 Edition Review Desk
+
+`Ask the Librarian to review edition groups` turns aggregate counts into a bounded, readable list of exact file paths, formats, sizes, and relationship evidence. A group is shown once at its strongest useful level: exact hash first, then shared non-UUID identifier, then normalized title and author. A shared identifier may include an exact pair plus a third differing file because that third edition relationship still needs review.
+
+Generic `Untitled` or unknown-author metadata is excluded from weak same-work grouping so unrelated poorly tagged PDFs do not become a fictional relationship. The review remains observation-only: it does not choose a preferred edition, merge files, delete duplicates, or authorize shelving.
+
+Live acceptance passed on 2026-08-19. The Librarian presented three exact duplicate pairs—`Song And Silence`, `Gunmetal Magic`, and `Stronghold Builder's Guide`—and one non-identical `Magic in the Blood` pair sharing ISBN 9780451462671. No title/author-only group qualified under the conservative rule because apparent remaining matches lacked a trustworthy author. Generic untitled records did not leak into the report. The four groups included exact paths, formats, and sizes; no preferred edition was selected and no file changed. All 122 tests passed.
 
 ## Visual representation
 

@@ -90,6 +90,13 @@ class EditionCatalogueReport:
     remaining_to_refresh: int
 
 
+@dataclass(frozen=True)
+class EditionReviewGroup:
+    evidence: str
+    identity: str
+    files: tuple[tuple[str, str, int], ...]
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -371,6 +378,87 @@ class Librarian:
             len({self._identity_key(row[4]) for row in rows if row[4]}),
             exact, shared_ids, self._group_count(works),
             remaining,
+        )
+
+    def edition_review_groups(self, limit: int = 20) -> tuple[EditionReviewGroup, ...]:
+        """Return bounded relationship groups once, at their strongest evidence level."""
+
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            rows = connection.execute(
+                """SELECT source_relative_path,sha256,title,author,identifiers_json,
+                          extension,size_bytes FROM edition_items ORDER BY source_relative_path COLLATE NOCASE"""
+            ).fetchall()
+        finally:
+            connection.close()
+        if not rows:
+            raise LibrarianError("The edition catalogue is empty. Ask the Librarian to identify works and editions first.")
+        groups: list[EditionReviewGroup] = []
+        claimed: set[str] = set()
+
+        exact = {}
+        for row in rows:
+            if row[1]:
+                exact.setdefault(row[1], []).append(row)
+        for digest, members in exact.items():
+            if len(members) > 1:
+                groups.append(self._review_group("Exact SHA-256 duplicate", digest[:16], members))
+                claimed.update(row[0] for row in members)
+
+        identifiers = {}
+        for row in rows:
+            for scheme, value in json.loads(row[4] or "[]"):
+                if scheme.casefold() in {"uuid", "identifier"}:
+                    continue
+                key = (scheme.upper(), self._identity_key(value))
+                if key[1]:
+                    identifiers.setdefault(key, []).append(row)
+        for (scheme, value), members in identifiers.items():
+            unique = {row[0]: row for row in members}
+            members = list(unique.values())
+            if len(members) > 1 and not all(row[0] in claimed for row in members):
+                groups.append(self._review_group("Shared strong identifier", f"{scheme} {value}", members))
+                claimed.update(row[0] for row in members)
+
+        works = {}
+        for row in rows:
+            title_key = self._identity_key(row[2])
+            author_key = self._identity_key(row[3])
+            if title_key in {"", "untitled", "unknown"} or author_key in {"", "unknownauthor"}:
+                continue
+            works.setdefault((author_key, title_key), []).append(row)
+        for _, members in works.items():
+            if len(members) > 1 and not all(row[0] in claimed for row in members):
+                identity = f"{members[0][2]} — {members[0][3]}"
+                groups.append(self._review_group("Possible same work", identity, members))
+                claimed.update(row[0] for row in members)
+        return tuple(groups[: max(1, min(limit, 50))])
+
+    @staticmethod
+    def edition_review_response(groups: tuple[EditionReviewGroup, ...]) -> str:
+        if not groups:
+            return "The Librarian found no reviewable edition relationship groups. No file was changed."
+        rendered = []
+        for index, group in enumerate(groups, 1):
+            files = "\n".join(
+                f"- The Stacks/{path} [{extension or 'file'}, {size:,} bytes]"
+                for path, extension, size in group.files
+            )
+            rendered.append(f"{index}. {group.evidence}: {group.identity}\n{files}")
+        return (
+            f"The Librarian found {len(groups)} bounded edition relationship group(s):\n\n"
+            + "\n\n".join(rendered)
+            + "\n\nNo preferred edition was selected and no file was renamed, moved, merged, deleted, or overwritten. "
+              "Generic unknown-author or untitled metadata was excluded from possible-work matching."
+        )
+
+    @staticmethod
+    def _review_group(evidence: str, identity: str, members) -> EditionReviewGroup:
+        return EditionReviewGroup(
+            evidence,
+            identity,
+            tuple((row[0], row[5], int(row[6])) for row in members),
         )
 
     @staticmethod

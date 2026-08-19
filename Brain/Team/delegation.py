@@ -111,6 +111,11 @@ class TeamDelegator:
         r"(?:identify|catalogue|catalog)\s+(?:the\s+)?(?:works\s+and\s+editions|editions)\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_EDITION_REVIEW_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
+        r"review\s+(?:the\s+)?edition\s+groups\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_REPAIR_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
@@ -248,6 +253,17 @@ class TeamDelegator:
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "ready")
             return DelegationResult(True, self.librarian.edition_catalogue_response(report))
+        if self.LIBRARIAN_EDITION_REVIEW_PATTERN.match(message.strip()):
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                groups = self.librarian.edition_review_groups()
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            return DelegationResult(True, self.librarian.edition_review_response(groups))
         if self.LIBRARIAN_INVENTORY_PATTERN.match(message.strip()):
             team_status.set_member_state("librarian", "working")
             try:

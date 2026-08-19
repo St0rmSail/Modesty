@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.24.0 - Work and Edition Identity (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.25.0 - Edition Review Desk (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-19
 
 ## Completed build line
@@ -46,6 +46,21 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.25.0 - Edition Review Desk - Complete
+
+Expose the real files behind edition relationship counts before asking Drew to choose anything.
+
+Definition of done:
+
+- List exact paths, formats, and sizes for bounded relationship groups.
+- Present exact hashes, shared strong identifiers, and possible title/author matches as distinct evidence classes.
+- Show a relationship once at its strongest useful evidence level, except when an additional non-identical file expands a shared-identifier group.
+- Exclude generic untitled and unknown-author records from weak same-work grouping.
+- Keep preferred-edition selection, consolidation, deletion, and shelving out of this read-only review.
+- Update deterministic help and pass the complete live suite.
+
+Acceptance passed on 2026-08-19. The real review returned four bounded groups: exact duplicate pairs for `Song And Silence`, `Gunmetal Magic`, and `Stronghold Builder's Guide`, plus one non-identical `Magic in the Blood` pair sharing ISBN 9780451462671. No weak title/author group qualified because the remaining apparent filename matches lacked trustworthy author metadata; generic unknown-author and untitled records were correctly suppressed. Every exact path, format, and byte size was shown, and no file changed. All 122 tests passed.
 
 ### 0.24.0 - Work and Edition Identity - Complete
 

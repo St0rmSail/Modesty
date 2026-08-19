@@ -403,6 +403,9 @@ class LibrarianTest(unittest.TestCase):
             self.assertEqual((report.metadata_read, report.reused), (3, 0))
             second = librarian.catalogue_editions()
             self.assertEqual((second.metadata_read, second.reused), (0, 3))
+            groups = librarian.edition_review_groups()
+            self.assertEqual([group.evidence for group in groups], ["Exact SHA-256 duplicate", "Shared strong identifier"])
+            self.assertEqual(len(groups[1].files), 3)
             self.assertTrue(first.exists() and exact.exists() and alternate.exists())
 
     def test_edition_catalogue_command_is_truthful_and_non_mutating(self):
@@ -424,6 +427,10 @@ class LibrarianTest(unittest.TestCase):
             self.assertIn("No file was renamed", result.response)
             self.assertEqual(team_status.member_state("librarian"), "ready")
 
+            reviewed = delegator.handle("Ask the Librarian to review edition groups")
+            self.assertTrue(reviewed.handled)
+            self.assertIn("no reviewable edition relationship", reviewed.response.casefold())
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:
@@ -433,7 +440,7 @@ class LibrarianTest(unittest.TestCase):
                 f'<package xmlns:dc="urn:dc"><metadata><dc:title>{title}</dc:title><dc:creator>{author}</dc:creator>'
                 f'<dc:identifier scheme="ISBN">{isbn}</dc:identifier><meta name="calibre:series" content="{series}"/>'
                 f'<meta name="calibre:series_index" content="{index}"/></metadata><manifest><item id="c" href="c.xhtml"/>'
-                f'</manifest><spine><itemref idref="c"/></spine></package>{extra}',
+                f'</manifest><spine><itemref idref="c"/></spine></package>',
             )
             archive.writestr("OPS/c.xhtml", f"<html><body><p>{title} text {extra}</p></body></html>")
 

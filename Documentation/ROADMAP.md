@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.22.0 - The Librarian Reads the Stacks (accepted); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.23.0 - Reading Continuity (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-19
 
 ## Completed build line
@@ -46,6 +46,26 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.23.0 - Reading Continuity - Complete
+
+Make the Librarian's extracted text resumable without guessing what Drew has read.
+
+Definition of done:
+
+- Recognize conservative human chapter headings within EPUB spine documents.
+- Open a named exact edition at a requested chapter and return a bounded passage.
+- Continue through bounded passages without silently changing permanent progress.
+- Save progress only after an explicit `Mark my place: RP-ID` command.
+- Resume after restart at the next unread character of the exact SHA-256 edition.
+- Refuse missing positions, changed editions, ambiguous titles, unsafe paths, and stale sessions.
+- Preserve page or section labels when no reliable chapter heading exists.
+- Keep progress local, private, and separate from Filing Cabinet and Bookshelf knowledge.
+- Update deterministic help and pass the complete live suite before acceptance.
+
+The dedicated reading display, bookmarks, annotations, device synchronization, and automatic update tracking remain later work.
+
+Accepted on 2026-08-19: Axeman opened directly at human `Chapter 12`, continued under one temporary `RP-ID`, saved progress only after Drew explicitly marked the displayed endpoint, and resumed from the next unread text after restart. Opening the exact edition also refreshed old generic EPUB section labels in its local passage index. All 120 live automated tests passed.
 
 ### 0.22.0 - The Librarian Reads the Stacks - Complete
 

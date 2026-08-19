@@ -37,12 +37,18 @@ If Scribble Hub shows a Cloudflare 522 error, stop refreshing and postpone the d
 - `Ask the Librarian to examine: <relative Intake path>`
 - `Ask the Librarian to find: <words or phrase>`
 - `Approve Librarian shelving: <LS-ID>`
+- `Ask the Librarian to open: <title or Stacks path> at Chapter <number>`
+- `Continue reading: <RP-ID>`
+- `Mark my place: <RP-ID>`
+- `Ask the Librarian to resume: <title or Stacks path>`
 
 This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
 
 The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly inside `The Stacks/Intake`, up to 2 MiB. It creates a provisional derivative in `The Stacks/Workbench`, records source and derivative hashes plus every mechanical change, and opens a local Briefing. **Keep Repair** retains the derivative in Workbench; **Toss Repair** deletes only that derivative. The original is never renamed, moved, overwritten, or deleted. Hyphenation and uncertain paragraph joining remain unchanged for review.
 
 **Examine** reads one explicitly named TXT, Markdown, HTML, DOCX, EPUB, or text-layer PDF beneath Intake. It reports embedded title and author where available, a bounded opening passage, readable extent, and a proposed `Originals/Author/Title/original-file` destination. It also creates a private local passage index so **find** can return source-linked passages from works actually examined. Nothing moves until the exact `LS-ID` approval. Approval rechecks the source hash, refuses collisions, and shelves the unchanged original. Scanned PDFs require later OCR; DRM and access-control bypass are never attempted.
+
+**Open** returns a bounded passage from the named exact edition. EPUB chapter headings such as `Chapter 12`, `Prologue`, and `Epilogue` are recognized when they appear as standalone headings. **Continue reading** displays the next passage but does not silently alter saved progress. **Mark my place** explicitly confirms the end of the latest displayed passage as the next unread position. **Resume** uses only that confirmed position and only for the same SHA-256 edition; changed or ambiguous editions fail safely. Reading positions remain private local generated data.
 
 ## Briefings
 

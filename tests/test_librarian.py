@@ -296,6 +296,87 @@ class LibrarianTest(unittest.TestCase):
             approved = delegator.handle(f"Approve Librarian shelving: {shelving_id}")
             self.assertIn("unchanged original", approved.response)
 
+    def test_chapter_aware_reading_position_continues_and_resumes_after_restart(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "continuity.epub"
+            chapter_twelve = " ".join(f"twelve-word-{index}" for index in range(350))
+            with zipfile.ZipFile(source, "w") as archive:
+                archive.writestr("META-INF/container.xml", '<container><rootfiles><rootfile full-path="OPS/package.opf"/></rootfiles></container>')
+                archive.writestr(
+                    "OPS/package.opf",
+                    '<package xmlns:dc="urn:dc"><metadata><dc:title>Continuity</dc:title><dc:creator>Alex</dc:creator></metadata>'
+                    '<manifest><item id="c1" href="chapters.xhtml"/></manifest><spine><itemref idref="c1"/></spine></package>',
+                )
+                archive.writestr(
+                    "OPS/chapters.xhtml",
+                    f"<html><body><h1>Chapter 11</h1><p>Earlier material.</p><h1>Chapter 12</h1><p>{chapter_twelve}</p>"
+                    "<h1>Chapter 13</h1><p>Later material.</p></body></html>",
+                )
+            catalogue = root / "catalogue.db"
+            librarian = Librarian(paths, catalogue)
+
+            opened = librarian.open_reading("Intake/continuity.epub", chapter="12")
+            self.assertEqual(opened.section, "Chapter 12")
+            self.assertIn("twelve-word-0", opened.text)
+            indexed = librarian.search_reading("twelve-word-0")
+            self.assertEqual(indexed[0].section, "Chapter 12")
+            continued = librarian.continue_reading(opened.session_id)
+            self.assertIn("twelve-word", continued.text)
+            title, section = librarian.mark_reading_position(opened.session_id)
+            self.assertEqual((title, section), ("Continuity", "Chapter 12"))
+
+            restarted = Librarian(paths, catalogue)
+            resumed = restarted.open_reading("Intake/continuity.epub", resume=True)
+            self.assertTrue(resumed.resumed)
+            self.assertEqual(resumed.section, "Chapter 12")
+            self.assertNotEqual(resumed.text, opened.text)
+            self.assertNotEqual(resumed.text, continued.text)
+
+    def test_progress_is_edition_specific_and_never_advances_without_marking(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "story.txt"
+            source.write_text("First paragraph. " * 300, encoding="utf-8")
+            librarian = Librarian(paths, root / "catalogue.db")
+
+            opened = librarian.open_reading("Intake/story.txt")
+            librarian.continue_reading(opened.session_id)
+            with self.assertRaisesRegex(LibrarianError, "No confirmed"):
+                librarian.open_reading("Intake/story.txt", resume=True)
+            librarian.mark_reading_position(opened.session_id)
+            source.write_text("A changed edition.", encoding="utf-8")
+            with self.assertRaisesRegex(LibrarianError, "No confirmed"):
+                librarian.open_reading("Intake/story.txt", resume=True)
+
+    def test_reading_commands_are_deterministic(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            (paths.intake / "story.txt").write_text("A long reading line. " * 300, encoding="utf-8")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+
+            opened = delegator.handle("Ask the Librarian to open: Intake/story.txt")
+            self.assertIn("Mark my place: RP-", opened.response)
+            session_id = re.search(r"RP-[A-F0-9]{8}", opened.response).group(0)
+            continued = delegator.handle(f"Continue reading: {session_id}")
+            self.assertIn(session_id, continued.response)
+            marked = delegator.handle(f"Mark my place: {session_id}")
+            self.assertIn("confirmed place", marked.response)
+            resumed = delegator.handle("Ask the Librarian to resume: Intake/story.txt")
+            self.assertIn("resumed", resumed.response)
+
     @staticmethod
     def _write_config(project: Path, stacks: Path) -> Path:
         config = project / "reading_collection.json"

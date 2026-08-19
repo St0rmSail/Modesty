@@ -112,7 +112,7 @@ def _read_epub(path: Path, limit: int) -> BookText:
                 parser.feed(_decode_text(archive.read(member)))
                 text = parser.text()
                 if text:
-                    sections.append((f"Section {index}", text))
+                    sections.extend(_chapter_sections(text, f"Section {index}"))
     except (OSError, KeyError, StopIteration, zipfile.BadZipFile, ET.ParseError) as error:
         raise BookReadError("The EPUB container could not be read safely.") from error
     if not sections:
@@ -186,6 +186,30 @@ def _clean_text(text: str) -> str:
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r" *\n *", "\n", text)
     return re.sub(r"\n{3,}", "\n\n", text).strip()
+
+
+CHAPTER_HEADING = re.compile(
+    r"(?im)^(?P<label>(?:chapter\s+(?:\d+|[ivxlcdm]+|[a-z]+)|prologue|epilogue)"
+    r"(?:\s*[:\-\u2013\u2014]\s*[^\n]{1,80})?)\s*$"
+)
+
+
+def _chapter_sections(text: str, fallback: str) -> list[tuple[str, str]]:
+    """Split a spine document on conservative standalone chapter headings."""
+
+    matches = list(CHAPTER_HEADING.finditer(text))
+    if not matches:
+        return [(fallback, text)]
+    sections: list[tuple[str, str]] = []
+    preamble = text[: matches[0].start()].strip()
+    if len(preamble.split()) >= 20:
+        sections.append((f"{fallback} front matter", preamble))
+    for index, match in enumerate(matches):
+        end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        body = text[match.end():end].strip()
+        if body:
+            sections.append((match.group("label").strip(), body))
+    return sections or [(fallback, text)]
 
 
 def _local(tag: str) -> str:

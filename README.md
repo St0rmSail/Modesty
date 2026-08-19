@@ -24,7 +24,7 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.22.0 - The Librarian Reads the Stacks (complete)**
+**0.23.0 - Reading Continuity (complete)**
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 
@@ -47,6 +47,8 @@ Drew accepted the live duty on 2026-08-18: the Librarian catalogued six supporte
 Build 0.21 adds one deliberately bounded repair path for a named UTF-8 Markdown or plain-text Intake file. The original remains byte-for-byte untouched; a mechanically repaired derivative, source/output hashes, action log, cautions, and resolution state remain local to The Stacks. The existing Briefing Hologram presents Keep Repair or Toss Repair rather than filing copyrighted reading material through the Archivist. Drew accepted both live dispositions: Keep retained only the repaired Workbench derivative, Toss removed only its provisional derivative, and both originals retained their pre-test hashes. The Librarian therefore advances to demonstrated Level 2.
 
 Build 0.22 turns that manifest into a working private catalogue. The Librarian can examine a named nested TXT, Markdown, HTML, DOCX, EPUB, or text-layer PDF; report its source metadata and readable opening; index bounded source-linked passages; search works she has actually examined; and propose a coherent Author/Title home. Nothing moves until an exact shelving approval rechecks the original hash and destination. Live acceptance read 167,521 words from the real `Axeman` EPUB and retrieved five passages for distinctive Chapter 12 wording. Current EPUB labels identify spine documents rather than human chapters; chapter-heading recognition is deferred to reading continuity. OCR, protected formats, batch sorting, duplicate merging, and reading position remain later work. The Librarian remains at Level 2 because this is bounded retrieval rather than evidence-led investigation.
+
+Build 0.23 recognizes conservative human chapter headings inside EPUB spine documents and adds explicit reading continuity. Drew can open an exact edition at a chapter, continue through bounded passages without silently advancing saved progress, mark the latest displayed endpoint deliberately, and resume after restart. Positions are keyed to source SHA-256; changed or ambiguous editions fail safely. Axeman's Chapter 12 open, continue, mark, restart, and resume sequence passed live alongside all 120 automated tests. A dedicated visual reader, annotations, synchronization, and automatic update tracking remain later work.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

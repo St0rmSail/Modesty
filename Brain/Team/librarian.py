@@ -64,12 +64,25 @@ class ReadingHit:
     passage: str
 
 
+@dataclass(frozen=True)
+class ReadingExcerpt:
+    session_id: str
+    title: str
+    author: str
+    source_relative_path: str
+    section: str
+    text: str
+    at_section_end: bool
+    resumed: bool
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
     MAX_FILES = 5_000
     MAX_REPAIR_BYTES = 2 * 1024 * 1024
     MAX_INDEX_PASSAGES = 10_000
+    READING_CHUNK = 1_800
     REPAIRABLE = {".md", ".txt"}
     SUPPORTED = {
         ".epub": "EPUB",
@@ -193,21 +206,7 @@ class Librarian:
             connection = sqlite3.connect(self.catalogue_path)
             with connection:
                 self._initialize_reading_schema(connection)
-                connection.execute("DELETE FROM reading_passages WHERE source_sha256 = ?", (digest,))
-                passages = self._passages(book)
-                if len(passages) > self.MAX_INDEX_PASSAGES:
-                    passages = passages[: self.MAX_INDEX_PASSAGES]
-                connection.executemany(
-                    """
-                    INSERT INTO reading_passages
-                        (source_sha256, source_relative_path, title, author, section, passage)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """,
-                    [
-                        (digest, f"Intake/{relative_path}", book.title, book.author, section, passage)
-                        for section, passage in passages
-                    ],
-                )
+                self._replace_reading_index(connection, digest, f"Intake/{relative_path}", book)
                 connection.execute(
                     """
                     INSERT INTO shelving_jobs
@@ -309,6 +308,157 @@ class Librarian:
         finally:
             if connection is not None:
                 connection.close()
+
+    def open_reading(self, reference: str, chapter: str = "", resume: bool = False) -> ReadingExcerpt:
+        """Open a bounded excerpt and create a pending, explicitly confirmable position."""
+
+        source, source_relative = self._resolve_reading_source(reference)
+        try:
+            digest = self._sha256(source)
+            book = read_book(source)
+        except (OSError, BookReadError) as error:
+            raise LibrarianError(str(error)) from error
+        section_index = 0
+        offset = 0
+        resumed = False
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_reading_schema(connection)
+            with connection:
+                self._replace_reading_index(connection, digest, source_relative, book)
+            if chapter:
+                wanted = self._normalize_chapter(chapter)
+                matches = [index for index, (label, _) in enumerate(book.sections) if self._normalize_chapter(label) == wanted]
+                if not matches:
+                    raise LibrarianError(f"The Librarian could not find {chapter.strip()} in {book.title}.")
+                section_index = matches[0]
+            elif resume:
+                row = connection.execute(
+                    "SELECT section_index, character_offset FROM reading_positions WHERE source_sha256 = ?",
+                    (digest,),
+                ).fetchone()
+                if row is None:
+                    raise LibrarianError("No confirmed reading position exists for that exact edition.")
+                section_index, offset = int(row[0]), int(row[1])
+                resumed = True
+            section_index, offset = self._valid_position(book, section_index, offset)
+            if offset >= len(book.sections[section_index][1]) and section_index + 1 < len(book.sections):
+                section_index += 1
+                offset = 0
+            excerpt, displayed_until = self._reading_chunk(book.sections[section_index][1], offset)
+            session_id = f"RP-{secrets.token_hex(4).upper()}"
+            with connection:
+                connection.execute(
+                    """
+                    INSERT INTO reading_sessions
+                        (session_id, source_sha256, source_relative_path, title, section_index,
+                         displayed_from, displayed_until, created_at, status)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+                    """,
+                    (
+                        session_id, digest, source_relative, book.title, section_index,
+                        offset, displayed_until, datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    ),
+                )
+        finally:
+            connection.close()
+        return ReadingExcerpt(
+            session_id, book.title, book.author, source_relative,
+            book.sections[section_index][0], excerpt,
+            displayed_until >= len(book.sections[section_index][1]), resumed,
+        )
+
+    def continue_reading(self, session_id: str) -> ReadingExcerpt:
+        """Display the next excerpt without silently advancing confirmed progress."""
+
+        clean_id = self._clean_position_id(session_id)
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_reading_schema(connection)
+            row = connection.execute(
+                """SELECT source_sha256, source_relative_path, section_index, displayed_until, status
+                   FROM reading_sessions WHERE session_id = ?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[4] != "pending":
+                raise LibrarianError("That reading session is unavailable or already closed.")
+            source = self._path_from_stacks_relative(row[1])
+            if not source.is_file() or self._sha256(source) != row[0]:
+                raise LibrarianError("That exact reading edition changed or moved; open it again.")
+            book = read_book(source)
+            section_index, offset = self._valid_position(book, int(row[2]), int(row[3]))
+            if offset >= len(book.sections[section_index][1]) and section_index + 1 < len(book.sections):
+                section_index += 1
+                offset = 0
+            excerpt, displayed_until = self._reading_chunk(book.sections[section_index][1], offset)
+            with connection:
+                connection.execute(
+                    "UPDATE reading_sessions SET section_index=?, displayed_from=?, displayed_until=? WHERE session_id=?",
+                    (section_index, offset, displayed_until, clean_id),
+                )
+        except (OSError, BookReadError) as error:
+            raise LibrarianError(str(error)) from error
+        finally:
+            connection.close()
+        return ReadingExcerpt(
+            clean_id, book.title, book.author, row[1], book.sections[section_index][0],
+            excerpt, displayed_until >= len(book.sections[section_index][1]), False,
+        )
+
+    def mark_reading_position(self, session_id: str) -> tuple[str, str]:
+        """Confirm that the displayed endpoint is the next unread position."""
+
+        clean_id = self._clean_position_id(session_id)
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_reading_schema(connection)
+            row = connection.execute(
+                """SELECT source_sha256, source_relative_path, title, section_index,
+                          displayed_until, status
+                   FROM reading_sessions WHERE session_id = ?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[5] != "pending":
+                raise LibrarianError("That reading session is unavailable or already closed.")
+            timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            with connection:
+                connection.execute(
+                    """
+                    INSERT INTO reading_positions
+                        (source_sha256, source_relative_path, title, section_index,
+                         character_offset, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(source_sha256) DO UPDATE SET
+                        source_relative_path=excluded.source_relative_path,
+                        title=excluded.title,
+                        section_index=excluded.section_index,
+                        character_offset=excluded.character_offset,
+                        updated_at=excluded.updated_at
+                    """,
+                    (row[0], row[1], row[2], int(row[3]), int(row[4]), timestamp),
+                )
+                connection.execute("UPDATE reading_sessions SET status='marked' WHERE session_id=?", (clean_id,))
+            source = self._path_from_stacks_relative(row[1])
+            book = read_book(source)
+            section_index, _ = self._valid_position(book, int(row[3]), int(row[4]))
+            return row[2], book.sections[section_index][0]
+        except (OSError, BookReadError) as error:
+            raise LibrarianError(str(error)) from error
+        finally:
+            connection.close()
+
+    @staticmethod
+    def reading_response(excerpt: ReadingExcerpt) -> str:
+        introduction = "The Librarian resumed" if excerpt.resumed else "The Librarian opened"
+        ending = "End of this chapter." if excerpt.at_section_end else "More remains in this chapter."
+        return (
+            f"{introduction} {excerpt.title} — {excerpt.author}\n"
+            f"{excerpt.section}\nSource: The Stacks/{excerpt.source_relative_path}\n\n"
+            f"{excerpt.text}\n\n{ending}\n"
+            f"To continue without changing your saved place, say: Continue reading: {excerpt.session_id}\n"
+            f"To confirm the end of this displayed passage as your next unread position, say: "
+            f"Mark my place: {excerpt.session_id}"
+        )
 
     @staticmethod
     def inspection_report(inspection: BookInspection) -> str:
@@ -520,6 +670,88 @@ class Librarian:
         cleaned = re.sub(r"\s+", " ", cleaned).strip(" .")
         return (cleaned or fallback)[:120]
 
+    def _resolve_reading_source(self, reference: str) -> tuple[Path, str]:
+        raw = reference.strip().replace("\\", "/")
+        if not raw:
+            raise LibrarianError("Name one work for the Librarian to open.")
+        for prefix, root in (("Intake/", self.paths.intake), ("Originals/", self.paths.originals)):
+            if raw.casefold().startswith(prefix.casefold()):
+                relative = raw[len(prefix):]
+                path = self._safe_collection_path(root, relative)
+                return path, f"{prefix}{Path(relative).as_posix()}"
+        direct_intake = self.paths.intake / Path(raw)
+        if direct_intake.is_file():
+            path = self._safe_collection_path(self.paths.intake, raw)
+            return path, f"Intake/{Path(raw).as_posix()}"
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_reading_schema(connection)
+            rows = connection.execute(
+                """SELECT title, status, source_relative_path, proposed_relative_path
+                   FROM shelving_jobs
+                   WHERE title = ? COLLATE NOCASE OR source_relative_path = ? COLLATE NOCASE
+                   ORDER BY created_at DESC""",
+                (raw, raw),
+            ).fetchall()
+        finally:
+            connection.close()
+        candidates = []
+        for _, status, intake_relative, proposed in rows:
+            relative = f"Originals/{proposed}" if status == "shelved" else f"Intake/{intake_relative}"
+            try:
+                path = self._path_from_stacks_relative(relative)
+            except LibrarianError:
+                continue
+            if path.is_file() and all(existing[0] != path for existing in candidates):
+                candidates.append((path, relative))
+        if len(candidates) == 1:
+            return candidates[0]
+        if len(candidates) > 1:
+            raise LibrarianError("That title identifies more than one edition; use its exact Stacks path.")
+        raise LibrarianError("The Librarian could not identify that work. Examine it first or use its exact Stacks path.")
+
+    def _path_from_stacks_relative(self, relative: str) -> Path:
+        raw = relative.replace("\\", "/")
+        if raw.casefold().startswith("intake/"):
+            return self._safe_collection_path(self.paths.intake, raw[7:])
+        if raw.casefold().startswith("originals/"):
+            return self._safe_collection_path(self.paths.originals, raw[10:])
+        raise LibrarianError("That saved reading path is unsafe.")
+
+    @staticmethod
+    def _normalize_chapter(label: str) -> str:
+        value = re.sub(r"\s+", " ", label.strip().casefold())
+        if re.fullmatch(r"\d+", value):
+            return f"chapter {int(value)}"
+        if value.startswith("chapter "):
+            number = value[8:].split(" ", 1)[0].rstrip(":-–—")
+            return f"chapter {int(number)}" if number.isdigit() else f"chapter {number}"
+        return value
+
+    @staticmethod
+    def _valid_position(book: BookText, section_index: int, offset: int) -> tuple[int, int]:
+        if not 0 <= section_index < len(book.sections):
+            raise LibrarianError("The saved chapter no longer exists in that edition.")
+        return section_index, max(0, min(offset, len(book.sections[section_index][1])))
+
+    @classmethod
+    def _reading_chunk(cls, text: str, offset: int) -> tuple[str, int]:
+        if offset >= len(text):
+            return "[End of chapter]", len(text)
+        target = min(len(text), offset + cls.READING_CHUNK)
+        if target < len(text):
+            boundary = text.rfind("\n\n", offset + cls.READING_CHUNK // 2, target)
+            if boundary > offset:
+                target = boundary
+        return text[offset:target].strip(), target
+
+    @staticmethod
+    def _clean_position_id(session_id: str) -> str:
+        clean = session_id.strip().upper()
+        if not re.fullmatch(r"RP-[A-F0-9]{8}", clean):
+            raise LibrarianError("That reading-session identifier is invalid.")
+        return clean
+
     @staticmethod
     def _opening_preview(book: BookText, limit: int = 900) -> str:
         text = next((text for _, text in book.sections if text.strip()), "")
@@ -546,6 +778,27 @@ class Librarian:
             if current:
                 passages.append((section, current))
         return passages
+
+    def _replace_reading_index(
+        self,
+        connection: sqlite3.Connection,
+        digest: str,
+        source_relative: str,
+        book: BookText,
+    ):
+        connection.execute("DELETE FROM reading_passages WHERE source_sha256 = ?", (digest,))
+        passages = self._passages(book)[: self.MAX_INDEX_PASSAGES]
+        connection.executemany(
+            """
+            INSERT INTO reading_passages
+                (source_sha256, source_relative_path, title, author, section, passage)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (digest, source_relative, book.title, book.author, section, passage)
+                for section, passage in passages
+            ],
+        )
 
     @staticmethod
     def _clean_repair_id(repair_id: str) -> str:
@@ -645,6 +898,33 @@ class Librarian:
                 created_at TEXT NOT NULL,
                 status TEXT NOT NULL,
                 resolved_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reading_sessions (
+                session_id TEXT PRIMARY KEY,
+                source_sha256 TEXT NOT NULL,
+                source_relative_path TEXT NOT NULL,
+                title TEXT NOT NULL,
+                section_index INTEGER NOT NULL,
+                displayed_from INTEGER NOT NULL,
+                displayed_until INTEGER NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reading_positions (
+                source_sha256 TEXT PRIMARY KEY,
+                source_relative_path TEXT NOT NULL,
+                title TEXT NOT NULL,
+                section_index INTEGER NOT NULL,
+                character_offset INTEGER NOT NULL,
+                updated_at TEXT NOT NULL
             )
             """
         )

@@ -125,6 +125,23 @@ class TeamDelegator:
         r"^approve\s+(?:the\s+)?librarian\s+shelving\s*:\s*(?P<shelving_id>LS-[A-F0-9]{8})\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_OPEN_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+open\s*:\s*"
+        r"(?P<reference>.+?)(?:\s+at\s+(?P<chapter>(?:chapter\s+)?(?:\d+|[a-z]+)|prologue|epilogue))?\s*$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_RESUME_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+resume\s*:\s*(?P<reference>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_CONTINUE_PATTERN = re.compile(
+        r"^(?:please\s+)?continue\s+reading\s*:\s*(?P<session_id>RP-[A-F0-9]{8})\s*$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_MARK_PATTERN = re.compile(
+        r"^(?:please\s+)?mark\s+my\s+place\s*:\s*(?P<session_id>RP-[A-F0-9]{8})\s*$",
+        re.IGNORECASE,
+    )
     HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help|show\s+(?:me\s+)?(?:the\s+)?commands|"
         r"what\s+commands\s+can\s+i\s+use|how\s+do\s+i\s+use\s+modesty)\??\s*$",
@@ -283,6 +300,52 @@ class TeamDelegator:
                 True,
                 f"Approved. The Librarian shelved the unchanged original at The Stacks/{relative}. "
                 "Its recorded SHA-256 identity was preserved.",
+            )
+        open_match = self.LIBRARIAN_OPEN_PATTERN.match(message.strip())
+        resume_match = self.LIBRARIAN_RESUME_PATTERN.match(message.strip())
+        if open_match or resume_match:
+            team_status.set_member_state("librarian", "working")
+            match = open_match or resume_match
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                excerpt = self.librarian.open_reading(
+                    match.group("reference"),
+                    chapter=open_match.group("chapter") if open_match else "",
+                    resume=resume_match is not None,
+                )
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting")
+            return DelegationResult(True, self.librarian.reading_response(excerpt))
+        continue_match = self.LIBRARIAN_CONTINUE_PATTERN.match(message.strip())
+        if continue_match:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                excerpt = self.librarian.continue_reading(continue_match.group("session_id"))
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting")
+            return DelegationResult(True, self.librarian.reading_response(excerpt))
+        mark_match = self.LIBRARIAN_MARK_PATTERN.match(message.strip())
+        if mark_match:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                title, section = self.librarian.mark_reading_position(mark_match.group("session_id"))
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            return DelegationResult(
+                True,
+                f"The Librarian marked your confirmed place in {title}, {section}. "
+                "She will resume at the next unread text for this exact edition.",
             )
         repair_match = self.LIBRARIAN_REPAIR_PATTERN.match(message.strip())
         if repair_match:

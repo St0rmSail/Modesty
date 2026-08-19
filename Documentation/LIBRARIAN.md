@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.22 catalogue and reading complete; demonstrated Level 2 strengthened
+**Status:** Build 0.23 reading continuity complete; demonstrated Level 2 strengthened
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -78,6 +78,16 @@ The Librarian can now interpret one explicitly named work beneath Intake rather 
 Inspection proposes a conservative `Originals/Author/Title/original-file` destination and issues a unique `LS-ID`. Nothing moves during inspection. `Approve Librarian shelving: <LS-ID>` rechecks the source SHA-256, refuses an occupied destination, creates only the needed shelf folders, and moves the byte-identical original from Intake to Originals. Unknown metadata stays visibly labelled rather than guessed from prose. MOBI, AZW3, RTF, legacy DOC, LIT, archive containers, DRM, OCR, batch approval, duplicate merging, and automatic renaming remain outside this bounded build.
 
 Live acceptance passed on 2026-08-19 using the real `Axeman` EPUB. The Librarian extracted 167,521 words across all nine EPUB spine documents and retrieved five passages for distinctive wording known to occur in Chapter 12. EPUB spine documents are currently labelled `Section 1`, `Section 2`, and so forth; a single spine document may contain several human chapters. Human chapter-heading detection and chapter-aware citations belong to the later reading-continuity work and do not invalidate complete text extraction or passage retrieval.
+
+## Build 0.23 reading continuity
+
+The EPUB reader now recognizes conservative standalone headings such as `Chapter 12`, `Prologue`, and `Epilogue`, even when several chapters share one spine document. Passage citations and opening controls can therefore use human chapter labels where the source supplies them; material without reliable headings retains its truthful page, section, or document label.
+
+`Ask the Librarian to open: <title or Stacks path> at Chapter <number>` returns one bounded passage and an `RP-ID`. `Continue reading: <RP-ID>` displays the next passage without changing permanent progress. `Mark my place: <RP-ID>` is the sole confirmation that the end of the latest displayed passage becomes the next unread position. `Ask the Librarian to resume: <title or Stacks path>` restores that confirmed position after restart.
+
+Progress is keyed to the source SHA-256, not merely a title or filename. A changed edition cannot inherit an old position silently, and an ambiguous title requires an exact Stacks path. This build does not infer that visible text was read, synchronize devices, track unapproved online copies, or create a dedicated visual ebook reader.
+
+Live acceptance passed on 2026-08-19. Axeman opened at the correctly detected `Chapter 12`, continued through a bounded second passage without silently saving, persisted only the explicitly marked endpoint, and resumed at the next unread text after restart. The exact edition's passage index was refreshed with chapter-aware labels. Combined with all 120 live tests, this completes the first truthful reading-continuity loop without advancing the common benchmark beyond Level 2.
 
 ## Visual representation
 

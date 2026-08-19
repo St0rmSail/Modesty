@@ -24,7 +24,9 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.26.0 - Reversible Exact-Duplicate Resolution (complete); natural Librarian control next**
+**0.27.0 - Natural Librarian Control Surface (complete)**
+
+Work is paused at a clean restore point before Build 0.28, the **Bounded Intake Shelving Desk**. That next increment will prepare small catalogue-backed shelving batches, separate safe source-metadata proposals from uncertain or conflicting items, and retain natural review plus explicit approval before any move.
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 
@@ -56,7 +58,7 @@ Build 0.25 exposes the exact files behind those relationship counts. Each bounde
 
 Build 0.26 adds the first governed exact-duplicate resolution. Drew names the canonical path from a proven hash group, reviews a persistent `DR-ID` plan, and approves it exactly. The accepted `Song And Silence` resolution retained the Handbooks copy and archived the byte-identical root Intake copy without deletion. Changed sources, occupied destinations, non-identical editions, and unapproved plans fail safely.
 
-Before further Librarian capability is added, Build 0.27 must replace routine command memorization with concise contextual guidance. Exact commands and IDs remain underneath for safety and help, but normal operation must support natural requests such as showing duplicates, choosing a displayed copy, approving the prepared action, and saving or resuming a reading place.
+Build 0.27 replaces routine command memorization with concise contextual guidance. Exact commands and IDs remain underneath for safety, recovery, and audit, while normal operation accepts requests such as showing duplicates, choosing a displayed copy, approving the single prepared action, and opening, continuing, saving, or resuming a reading place. Ambiguous choices stop for clarification and no confirmation gate is removed. The natural duplicate and restart-safe reading flows passed live alongside all 127 automated tests.
 
 Smithsonian setup and validation instructions are in [Documentation/SMITHSONIAN_SETUP.md](Documentation/SMITHSONIAN_SETUP.md).
 The bounded first-expedition sequence is in [Documentation/SMITHSONIAN_EXPEDITION.md](Documentation/SMITHSONIAN_EXPEDITION.md).

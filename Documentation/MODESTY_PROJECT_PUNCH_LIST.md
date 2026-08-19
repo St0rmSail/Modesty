@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.21.0 - The Librarian's First Repair (complete); 0.19 acceptance paused
-**Current focus:** Select the next milestone
+**Current build:** 0.27.0 - Natural Librarian Control Surface (complete); 0.19 acceptance paused
+**Current focus:** Build 0.28.0 - Bounded Intake Shelving Desk, after the overnight pause
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -199,13 +199,23 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Resolve one exact duplicate reversibly through preparation, exact approval, and Archive retention.
 - [x] Preserve the canonical `Song And Silence` Handbooks copy and verify its redundant exact copy in Archive.
 - [x] Pass all 123 automated tests through Build 0.26.
-- [ ] Commit and push Build 0.26.
+- [x] Commit and push Build 0.26.
 
-## Build 0.27.0 - Natural Librarian Control Surface
+## Build 0.27.0 - Natural Librarian Control Surface - Complete
 
-- [ ] Support concise contextual requests and visible choice references for ordinary Librarian work.
-- [ ] Keep deterministic IDs and exact commands available underneath for audit and recovery.
-- [ ] Permit contextual confirmation such as `yes, do that` only for one clearly pending reviewed action.
-- [ ] Refuse ambiguous references rather than guessing.
-- [ ] Update help around goals and examples instead of requiring a memorized command catalogue.
-- [ ] Complete this functional usability gate before more Librarian duties or visual polish.
+- [x] Support concise contextual requests and visible choice references for ordinary Librarian work.
+- [x] Keep deterministic IDs and exact commands available underneath for audit and recovery.
+- [x] Permit contextual confirmation such as `yes, do that` only for one clearly pending reviewed action.
+- [x] Refuse ambiguous references rather than guessing.
+- [x] Update help around goals and examples instead of requiring a memorized command catalogue.
+- [x] Pass the natural duplicate and restart-safe reading flows plus all 127 automated tests.
+
+## Build 0.28.0 - Bounded Intake Shelving Desk - Next
+
+- [ ] Review the current catalogue and define a small per-run proposal limit that keeps the Study responsive.
+- [ ] Separate items ready for a source-backed Author/Title destination from uncertain metadata and edition conflicts.
+- [ ] Present proposed destinations and reasons before any move.
+- [ ] Allow natural selection and approval without requiring job-ID memorization.
+- [ ] Recheck source hashes, refuse occupied destinations, and move no unapproved item.
+- [ ] Preserve unknown metadata visibly rather than guessing from filenames or prose.
+- [ ] Demonstrate one accepted small batch and one held-back ambiguous item in the live Stacks.

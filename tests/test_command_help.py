@@ -72,6 +72,12 @@ class CommandHelpTest(unittest.TestCase):
 
     def test_librarian_help_is_bounded_and_deterministic(self):
         text = command_help("librarian")
+        self.assertIn("show me the duplicates", text)
+        self.assertIn("keep the Handbooks copy of Song and Silence", text)
+        self.assertIn("yes, do that", text)
+        self.assertIn("open Axeman at chapter 12", text)
+        self.assertIn("save my place", text)
+        self.assertIn("exact recovery", text)
         self.assertIn("Ask the Librarian to inventory The Stacks", text)
         self.assertIn("Ask the Librarian to repair: <filename>", text)
         self.assertIn("Ask the Librarian to examine: <relative Intake path>", text)

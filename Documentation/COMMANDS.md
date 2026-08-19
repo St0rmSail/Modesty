@@ -32,6 +32,19 @@ If Scribble Hub shows a Cloudflare 522 error, stop refreshing and postpone the d
 
 ## Librarian
 
+For ordinary work, speak to the visible context rather than memorizing job identifiers:
+
+- `catalogue the books`
+- `show me the duplicates`
+- `keep the Handbooks copy of Song and Silence`
+- `yes, do that` — approves only the single duplicate-resolution preview prepared in this Study session
+- `open Axeman at chapter 12`
+- `keep reading`
+- `save my place`
+- `resume Axeman`
+
+If a description matches more than one displayed file, Modesty asks for the title or folder instead of guessing. `Yes, do that` has no operational meaning unless one exact duplicate action is waiting for approval. The exact recovery forms below remain available for audit and help:
+
 - `Ask the Librarian to inventory The Stacks`
 - `Ask the Librarian to repair: <filename>`
 - `Ask the Librarian to examine: <relative Intake path>`
@@ -128,6 +141,6 @@ The first local schedule commands use explicit local dates and 24-hour times so 
 
 Reminder numbers are stable local identifiers. Completing retains the record; deleting removes it. Calendar accounts, background notifications, and natural-language dates such as `next Friday` are not implemented yet.
 
-Use deterministic help whenever you need exact operational wording. Examples include `What commands can I use?`, `Help with the Grand Library`, `remind me how to open the Grand Library`, or a topic-only follow-up after the help index.
+Use deterministic help whenever you need supported natural examples or exact recovery wording. Examples include `What commands can I use?`, `Help with the Grand Library`, `Help with the Librarian`, `remind me how to open the Grand Library`, or a topic-only follow-up after the help index.
 
 This document records implemented deterministic commands. Ordinary conversation does not require command phrasing.

@@ -191,6 +191,39 @@ class TeamDelegator:
         r"^(?:bye|goodbye)(?:,?\s+modesty)?[.!]?\s*$",
         re.IGNORECASE,
     )
+    NATURAL_DUPLICATE_REVIEW_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:show|list|let\s+me\s+see)\s+(?:me\s+)?(?:the\s+)?(?:book\s+)?duplicates[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_CATALOGUE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:catalogue|catalog|identify)\s+(?:the\s+)?(?:books|stacks|collection)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_KEEP_COPY_PATTERN = re.compile(
+        r"^(?:please\s+)?keep\s+(?P<choice>.+?\bcopy(?:\s+of\s+.+)?)?[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_APPROVE_PATTERN = re.compile(
+        r"^(?:yes|yes,?\s+(?:please|do\s+that)|do\s+that|go\s+ahead)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_OPEN_CHAPTER_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:open|read)\s+(?P<reference>.+?)\s+at\s+(?:chapter\s+)?"
+        r"(?P<chapter>\d+|[a-z]+)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_RESUME_PATTERN = re.compile(
+        r"^(?:please\s+)?resume\s+(?P<reference>.+?)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_CONTINUE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:continue|keep\s+reading|read\s+on)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_MARK_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:save|mark)\s+my\s+place[.!]?\s*$",
+        re.IGNORECASE,
+    )
 
     def __init__(
         self,
@@ -212,6 +245,78 @@ class TeamDelegator:
         self.pending_reports = pending_reports or PendingReportStore()
         self.reminders = ReminderStore()
         self._help_active = False
+        self._last_edition_groups = ()
+        self._pending_duplicate_resolution_id = None
+        self._last_reading_session_id = None
+
+    def _natural_librarian_command(self, message: str) -> str | DelegationResult | None:
+        """Translate a small contextual vocabulary into existing audited operations."""
+
+        text = message.strip()
+        if self.NATURAL_DUPLICATE_REVIEW_PATTERN.match(text):
+            return "Ask the Librarian to review edition groups"
+        if self.NATURAL_CATALOGUE_PATTERN.match(text):
+            return "Ask the Librarian to identify works and editions"
+        approval = self.NATURAL_APPROVE_PATTERN.match(text)
+        if approval and getattr(self, "_pending_duplicate_resolution_id", None):
+            return f"Approve Librarian duplicate resolution: {self._pending_duplicate_resolution_id}"
+        mark = self.NATURAL_MARK_PATTERN.match(text)
+        if mark:
+            session_id = getattr(self, "_last_reading_session_id", None)
+            if not session_id:
+                return DelegationResult(True, "There is no active Librarian reading passage to mark.")
+            return f"Mark my place: {session_id}"
+        continuation = self.NATURAL_CONTINUE_PATTERN.match(text)
+        if continuation:
+            session_id = getattr(self, "_last_reading_session_id", None)
+            if not session_id:
+                return None
+            return f"Continue reading: {session_id}"
+        opened = self.NATURAL_OPEN_CHAPTER_PATTERN.match(text)
+        if opened:
+            return (
+                f"Ask the Librarian to open: {opened.group('reference').strip()} "
+                f"at Chapter {opened.group('chapter').strip()}"
+            )
+        resumed = self.NATURAL_RESUME_PATTERN.match(text)
+        if resumed:
+            return f"Ask the Librarian to resume: {resumed.group('reference').strip()}"
+        keep = self.NATURAL_KEEP_COPY_PATTERN.match(text)
+        if not keep:
+            return None
+        groups = tuple(getattr(self, "_last_edition_groups", ()) or ())
+        if not groups:
+            return DelegationResult(True, "Show me the duplicates first, so the Librarian has a visible reviewed set to choose from.")
+        choice = keep.group("choice") or ""
+        tokens = self._choice_tokens(choice)
+        if not tokens:
+            return DelegationResult(True, "Name enough of the displayed copy's folder or title to identify one exact path.")
+        candidates = []
+        for group in groups:
+            for path, _, _ in group.files:
+                path_tokens = self._choice_tokens(path)
+                if tokens.issubset(path_tokens):
+                    candidates.append((group, path))
+        if len(candidates) != 1:
+            if not candidates:
+                return DelegationResult(True, "That description does not identify a displayed duplicate copy. Name its folder and title.")
+            paths = "\n".join(f"- The Stacks/{path}" for _, path in candidates[:6])
+            return DelegationResult(
+                True,
+                "That description matches more than one displayed copy. Please distinguish the title or folder:\n" + paths,
+            )
+        group, path = candidates[0]
+        if group.evidence != "Exact SHA-256 duplicate":
+            return DelegationResult(
+                True,
+                "Those copies are not byte-identical. The Librarian will not treat a shared identifier as permission to consolidate them.",
+            )
+        return f"Ask the Librarian to prepare exact duplicate resolution: {group.identity} keep: {path}"
+
+    @staticmethod
+    def _choice_tokens(value: str) -> set[str]:
+        stop = {"the", "a", "an", "copy", "file", "of", "in", "from", "keep", "and", "please", "stacks", "intake"}
+        return {token for token in re.findall(r"[a-z0-9]+", value.casefold()) if token not in stop}
 
     def handle(self, message: str) -> DelegationResult:
         natural_help = self.NATURAL_HELP_PATTERN.match(message.strip())
@@ -228,6 +333,12 @@ class TeamDelegator:
         help_followup = self.HELP_FOLLOWUP_PATTERN.match(message.strip())
         if getattr(self, "_help_active", False) and help_followup:
             return DelegationResult(True, command_help(help_followup.group("topic")))
+
+        natural = self._natural_librarian_command(message)
+        if isinstance(natural, DelegationResult):
+            return natural
+        if natural:
+            message = natural
 
         if self.GRACEFUL_EXIT_PATTERN.match(message.strip()):
             return DelegationResult(True, "Goodbye, Drew.", "close_study")
@@ -274,6 +385,7 @@ class TeamDelegator:
                 team_status.set_member_state("librarian", "attention")
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "ready")
+            self._last_edition_groups = groups
             return DelegationResult(True, self.librarian.edition_review_response(groups))
         duplicate_prepare = self.LIBRARIAN_DUPLICATE_PREPARE_PATTERN.match(message.strip())
         if duplicate_prepare:
@@ -288,6 +400,7 @@ class TeamDelegator:
                 team_status.set_member_state("librarian", "attention")
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "waiting")
+            self._pending_duplicate_resolution_id = proposal.resolution_id
             return DelegationResult(True, self.librarian.duplicate_resolution_response(proposal))
         duplicate_approval = self.LIBRARIAN_DUPLICATE_APPROVAL_PATTERN.match(message.strip())
         if duplicate_approval:
@@ -302,6 +415,7 @@ class TeamDelegator:
                 team_status.set_member_state("librarian", "attention")
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "ready")
+            self._pending_duplicate_resolution_id = None
             archived_text = "\n".join(f"- The Stacks/{path}" for path in archived)
             return DelegationResult(
                 True,
@@ -395,6 +509,7 @@ class TeamDelegator:
                 team_status.set_member_state("librarian", "attention")
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "waiting")
+            self._last_reading_session_id = excerpt.session_id
             return DelegationResult(True, self.librarian.reading_response(excerpt))
         continue_match = self.LIBRARIAN_CONTINUE_PATTERN.match(message.strip())
         if continue_match:
@@ -407,6 +522,7 @@ class TeamDelegator:
                 team_status.set_member_state("librarian", "attention")
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "waiting")
+            self._last_reading_session_id = excerpt.session_id
             return DelegationResult(True, self.librarian.reading_response(excerpt))
         mark_match = self.LIBRARIAN_MARK_PATTERN.match(message.strip())
         if mark_match:
@@ -419,6 +535,7 @@ class TeamDelegator:
                 team_status.set_member_state("librarian", "attention")
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "ready")
+            self._last_reading_session_id = None
             return DelegationResult(
                 True,
                 f"The Librarian marked your confirmed place in {title}, {section}. "

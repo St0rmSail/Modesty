@@ -1,7 +1,7 @@
 # System Architecture
 
 **Status:** Current implementation plus approved boundaries
-**Reviewed:** 2026-08-16
+**Reviewed:** 2026-08-19
 
 ## Runtime path
 
@@ -39,7 +39,7 @@ main.py
 | Time and presence | `Runtime/Time/presence.py`, local `Data/presence.json` | Local time, session heartbeat, clean/interrupted shutdown, greeting, and presence-state foundation implemented |
 | Personal Chronicle | `chronicle_episodes` in `Data/modesty.db`, `Runtime/Conversation/chronicle_dialog.py` | Explicitly narrative structured storage, visible lifecycle controls, and bounded active-only recall demonstrated |
 | Local schedule | `Runtime/Time/schedule.py`, `reminders` in `Data/modesty.db`, `Runtime/Conversation/schedule_dialog.py` | Persistent explicit reminders, due greeting context, commands, and visible lifecycle demonstrated |
-| Librarian and private reading collection | `Brain/Team/librarian.py`, `Runtime/Reading/`, `Config/reading_collection.json` | **The Stacks** canonical; read-only Intake catalogue demonstrated at Level 1 |
+| Librarian and private reading collection | `Brain/Team/librarian.py`, `Runtime/Reading/`, `Config/reading_collection.json` | **The Stacks** canonical; Level 2 reading, search, exact-edition continuity, relationship review, reversible exact-duplicate resolution, and natural contextual control demonstrated |
 | Perception, voice, tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
@@ -51,7 +51,7 @@ main.py
 - The repository stores Modesty's design, contracts, schemas, and implementation record.
 - The Filing Cabinet stores private personal and working knowledge.
 - The Bookshelf stores curated shared knowledge used by Modesty and the authorized Team.
-- The Stacks stores books, stories, source editions, repaired derivatives, and reading continuity under the Librarian. It is not the Bookshelf or Filing Cabinet. Build 0.20 creates only its folder foundation and a local generated Intake catalogue.
+- The Stacks stores books, stories, source editions, repaired derivatives, and reading continuity under the Librarian. It is not the Bookshelf or Filing Cabinet. Its local catalogue now records source identity, extracted bibliographic metadata, indexed passages, reading positions, edition relationships, repair state, and duplicate-resolution plans without placing copyrighted text in repository data.
 
 ## Knowledge boundary
 

@@ -47,7 +47,7 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Demonstrated:** Level 2 — on 2026-08-18 Modesty invoked the Librarian's bounded Intake catalogue and then completed one reversible source-identified text repair through both local Keep and Toss decisions without changing either original.
 
-**Implemented beyond the demonstrated level:** None. Build 0.26 is accepted within Level 2.
+**Implemented beyond the demonstrated level:** None. Build 0.27 is accepted within Level 2.
 
 **Build 0.20 increment achieved:** bridged Level 0 to Level 1 by proving that Modesty can invoke the Librarian, catalogue copied samples, report supported and unsupported formats, obvious container damage, exact duplicates, and stale records, and leave every source byte untouched.
 
@@ -63,7 +63,9 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Build 0.26 increment achieved:** Drew selected the canonical Handbooks member of a proven exact-hash group and approved `DR-44C88BB7`; the redundant `Song And Silence` copy was retained reversibly in Archive, nothing was deleted, and authority did not extend to non-identical editions.
 
-**Next increment:** Build 0.27 replaces mandatory command memorization with a bounded contextual Librarian dialogue while retaining deterministic IDs and exact operations underneath. Usability is now a capability gate.
+**Build 0.27 increment achieved:** replaced mandatory command memorization with a bounded contextual Librarian dialogue while retaining deterministic IDs and exact operations underneath. Ambiguous copy descriptions stop for clarification, contextual approval is limited to one prepared duplicate action in the current Study session, and natural reading phrases preserve explicit progress confirmation. The live duplicate and reading-continuity flows passed with all 127 tests; this strengthens Level 2 governability without claiming a higher maturity level.
+
+**Next increment:** Build 0.28 scales coherent storage from one explicitly named item to a small catalogue-backed Intake batch. It must separate safe source-metadata proposals from uncertain or conflicting items, retain preview and approval, and preserve natural control. This remains Level 2 collection management rather than evidence-led investigation.
 
 **Not yet present:** preferred decisions between non-identical editions, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
 
@@ -90,6 +92,6 @@ Update the entry when a build begins, after live acceptance, and during every re
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
 | Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
-| Librarian | Level 2 | Build 0.26 reversible exact-duplicate resolution is accepted; Build 0.27 must make the control surface natural before capability expands. |
+| Librarian | Level 2 | Build 0.27 natural control is accepted; Build 0.28 will add a bounded, reviewable Intake shelving desk without reintroducing command memorization. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

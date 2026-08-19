@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.26.0 - Reversible Exact-Duplicate Resolution (complete); Build 0.27.0 natural Librarian control surface next; Build 0.19 acceptance paused externally
+**Current marker:** Build 0.27.0 complete; work paused overnight before Build 0.28.0 - Bounded Intake Shelving Desk; Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-19
 
 ## Completed build line
@@ -67,9 +67,31 @@ Acceptance should resolve one expendable or approved real exact pair, verify the
 
 Accepted on 2026-08-19: Drew chose the Handbooks copy of `D&D 3.5E - Song And Silence.pdf` as canonical. Resolution `DR-44C88BB7` rechecked SHA-256 `e5b44f628756494cb01e44ef2d919c4e7395de52339000ad6a824cde560d3602`, retained the canonical file in place, and moved the redundant root Intake copy into its hash-labelled Archive path. Both retained files remained 22,666,472 bytes and nothing was deleted. All 123 tests passed.
 
-### 0.27.0 - Natural Librarian Control Surface - Next
+### 0.27.0 - Natural Librarian Control Surface - Complete
 
 The expanding deterministic command vocabulary has become a functional usability defect. Normal guided work must accept concise contextual language such as `show me the duplicates`, `keep the Handbooks copy`, `yes, do that`, `open Axeman at chapter 12`, and `save my place`. Stable IDs and exact commands remain internal safety and audit mechanisms, not mandatory syntax Drew must memorize. This must be solved before additional Librarian duties or visual polish.
+
+Definition of done:
+
+- Translate a small natural vocabulary into the existing audited Librarian operations.
+- Retain the reviewed edition groups, one prepared duplicate action, and one active reading passage only within the current Study session.
+- Resolve a natural copy description only against the displayed group paths and ask for distinction when zero or several match.
+- Permit contextual approval only for the single duplicate-resolution preview prepared in that session.
+- Preserve explicit confirmation before any file move and retain exact commands for recovery and audit.
+- Support natural chapter opening, continuation, place saving, and restart-safe resume without silently advancing progress.
+- Update deterministic help and pass the complete live suite.
+
+Acceptance should naturally review the remaining real duplicate groups, prepare one approved exact pair without moving it, confirm with `yes, do that`, and verify both canonical and Archive results. It should also open Axeman at Chapter 12, continue, save, restart, and resume using natural wording. An intentionally vague copy choice must stop for clarification without preparing or moving anything.
+
+Accepted on 2026-08-19: the natural duplicate dialogue clarified an ambiguous choice, prepared and approved only the selected exact-hash action, and retained the underlying confirmation boundary without requiring Drew to type a hash or job identifier. The natural chapter-open, continue, save, restart, and resume sequence also passed without requiring an `RP-ID`. All 127 automated tests passed.
+
+### 0.28.0 - Bounded Intake Shelving Desk - Next
+
+Turn the existing single-book shelving proof into a useful but controlled Intake workflow. The Librarian should prepare a small catalogue-backed batch, distinguish items with sufficient source metadata from uncertain or conflicting editions, and present coherent proposed homes before any move. Drew should be able to select and approve naturally; exact IDs remain underneath for audit.
+
+The build must not become a blind bulk organizer. It may not guess authors or titles from prose, overwrite a destination, merge non-identical editions, approve its own proposal, or move an uncertain item merely to empty Intake. Source hashes and destination availability are rechecked at approval. Live acceptance requires one small approved batch and one deliberately held-back ambiguous item.
+
+**Overnight pause, 2026-08-19:** Build 0.27 is accepted, all 127 tests pass, and its restore-point paperwork is reconciled. Resume by reviewing the existing single-item shelving and edition-catalogue APIs, then specify the bounded proposal object and natural review dialogue before writing move logic.
 
 ### 0.25.0 - Edition Review Desk - Complete
 

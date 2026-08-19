@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.26 reversible exact-duplicate resolution complete; Build 0.27 natural control surface next
+**Status:** Build 0.27 natural control surface complete
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -113,9 +113,15 @@ Approval rechecks the canonical file, every redundant source, and every empty de
 
 Live acceptance passed on 2026-08-19. Drew selected the Handbooks `Song And Silence` copy; `DR-44C88BB7` retained it at 22,666,472 bytes and archived the byte-identical root Intake copy under hash `e5b44f628756494c`. The former root path is clear, the Archive copy is present, and nothing was deleted. All 123 tests passed.
 
-## Natural control requirement
+## Build 0.27 natural control surface
 
-The growing exact-command vocabulary is no longer acceptable as the ordinary Librarian interface. Deterministic commands, hashes, and job IDs remain necessary underneath for safe replay and audit, but Drew should normally guide a visible context using concise language: show the duplicates, choose a displayed copy, approve the prepared action, open a chapter, continue, and save or resume a place. Build 0.27 must provide this contextual control before more Librarian capabilities are added. This is functional accessibility and cognitive-load work, not visual polish.
+The growing exact-command vocabulary is no longer acceptable as the ordinary Librarian interface. Deterministic commands, hashes, and job IDs remain necessary underneath for safe replay and audit, but Drew can now guide visible work using concise language: `show me the duplicates`, `keep the Handbooks copy of Song and Silence`, `yes, do that`, `open Axeman at chapter 12`, `keep reading`, `save my place`, and `resume Axeman`.
+
+Natural wording translates into the existing deterministic operation rather than creating a second authority path. A copy can be chosen only from the edition groups displayed during the current Study session. An ambiguous folder or title produces a short distinction request. Contextual approval works only when exactly one duplicate-resolution preview has been prepared in that session; it cannot approve shelving, research, or an unrelated action. Reading continuation and place-saving similarly use only the current passage session, while resume relies on the already persisted exact-edition position.
+
+This is functional accessibility and cognitive-load work, not visual polish. Live acceptance must prove one natural duplicate preview and approval, one ambiguity refusal, and the natural open/continue/save/restart/resume sequence before the build is complete.
+
+Live acceptance passed on 2026-08-19. Drew used the concise contextual vocabulary to review duplicates, received a safe clarification instead of a guessed choice, prepared and approved an exact-duplicate action without typing its hash or `DR-ID`, and completed the natural open, continue, save, restart, and resume reading sequence without typing an `RP-ID`. Exact confirmation gates remained intact and all 127 automated tests passed.
 
 ## Visual representation
 

@@ -462,6 +462,111 @@ class LibrarianTest(unittest.TestCase):
                 librarian.approve_exact_duplicate_resolution(proposal.resolution_id)
             self.assertTrue(first.exists() and second.exists())
 
+    def test_natural_duplicate_review_choice_and_contextual_approval(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            handbooks = paths.intake / "Handbooks"
+            handbooks.mkdir()
+            canonical = handbooks / "Song and Silence.txt"
+            redundant = paths.intake / "Song and Silence.txt"
+            canonical.write_bytes(b"the same book")
+            redundant.write_bytes(b"the same book")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            reviewed = delegator.handle("show me the duplicates")
+            self.assertIn("Exact SHA-256 duplicate", reviewed.response)
+            proposed = delegator.handle("keep the Handbooks copy of Song and Silence")
+            self.assertIn("Nothing has moved", proposed.response)
+            self.assertTrue(canonical.exists() and redundant.exists())
+            approved = delegator.handle("yes, do that")
+
+            self.assertIn("Nothing was deleted", approved.response)
+            self.assertTrue(canonical.exists())
+            self.assertFalse(redundant.exists())
+            archived = list((paths.archive / "Exact Duplicates").rglob("Song and Silence.txt"))
+            self.assertEqual(len(archived), 1)
+            self.assertEqual(archived[0].read_bytes(), canonical.read_bytes())
+
+    def test_natural_duplicate_choice_requires_unambiguous_displayed_path(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            handbooks = paths.intake / "Handbooks"
+            handbooks.mkdir()
+            for title, content in (("First", b"first"), ("Second", b"second")):
+                (handbooks / f"{title}.txt").write_bytes(content)
+                (paths.intake / f"{title}.txt").write_bytes(content)
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            delegator.handle("show me the duplicates")
+            ambiguous = delegator.handle("keep the Handbooks copy")
+
+            self.assertIn("matches more than one", ambiguous.response)
+            self.assertTrue((handbooks / "First.txt").exists())
+            self.assertTrue((paths.intake / "First.txt").exists())
+            self.assertTrue((handbooks / "Second.txt").exists())
+            self.assertTrue((paths.intake / "Second.txt").exists())
+
+    def test_natural_reading_flow_uses_current_session_and_persisted_place(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "continuity.epub"
+            chapter_twelve = " ".join(f"twelve-word-{index}" for index in range(350))
+            with zipfile.ZipFile(source, "w") as archive:
+                archive.writestr("META-INF/container.xml", '<container><rootfiles><rootfile full-path="OPS/package.opf"/></rootfiles></container>')
+                archive.writestr(
+                    "OPS/package.opf",
+                    '<package xmlns:dc="urn:dc"><metadata><dc:title>Continuity</dc:title><dc:creator>Alex</dc:creator></metadata>'
+                    '<manifest><item id="c1" href="chapters.xhtml"/></manifest><spine><itemref idref="c1"/></spine></package>',
+                )
+                archive.writestr(
+                    "OPS/chapters.xhtml",
+                    f"<html><body><h1>Chapter 12</h1><p>{chapter_twelve}</p></body></html>",
+                )
+            catalogue = root / "catalogue.db"
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, catalogue)
+            delegator._help_active = False
+            team_status.reset()
+
+            opened = delegator.handle("open Intake/continuity.epub at chapter 12")
+            self.assertIn("Chapter 12", opened.response)
+            continued = delegator.handle("keep reading")
+            self.assertIn("RP-", continued.response)
+            marked = delegator.handle("save my place")
+            self.assertIn("confirmed place", marked.response)
+
+            restarted = TeamDelegator.__new__(TeamDelegator)
+            restarted.librarian = Librarian(paths, catalogue)
+            restarted._help_active = False
+            resumed = restarted.handle("resume Intake/continuity.epub")
+            self.assertIn("resumed", resumed.response)
+
+    def test_natural_context_commands_fail_closed_without_context(self):
+        delegator = TeamDelegator.__new__(TeamDelegator)
+        delegator._help_active = False
+        marked = delegator.handle("save my place")
+        self.assertTrue(marked.handled)
+        self.assertIn("no active", marked.response.casefold())
+        self.assertIsNone(delegator._natural_librarian_command("yes, do that"))
+        self.assertIsNone(delegator._natural_librarian_command("keep reading"))
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:

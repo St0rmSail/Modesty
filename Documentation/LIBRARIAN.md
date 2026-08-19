@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.25 Edition Review Desk complete; demonstrated Level 2 strengthened
+**Status:** Build 0.26 reversible exact-duplicate resolution complete; Build 0.27 natural control surface next
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -104,6 +104,18 @@ Live acceptance passed on 2026-08-19. Three 25-file refreshes catalogued 75 real
 Generic `Untitled` or unknown-author metadata is excluded from weak same-work grouping so unrelated poorly tagged PDFs do not become a fictional relationship. The review remains observation-only: it does not choose a preferred edition, merge files, delete duplicates, or authorize shelving.
 
 Live acceptance passed on 2026-08-19. The Librarian presented three exact duplicate pairs—`Song And Silence`, `Gunmetal Magic`, and `Stronghold Builder's Guide`—and one non-identical `Magic in the Blood` pair sharing ISBN 9780451462671. No title/author-only group qualified under the conservative rule because apparent remaining matches lacked a trustworthy author. Generic untitled records did not leak into the report. The four groups included exact paths, formats, and sizes; no preferred edition was selected and no file changed. All 122 tests passed.
+
+## Build 0.26 reversible exact-duplicate resolution
+
+The first governed consolidation duty applies only to files whose complete SHA-256 values match. Drew must supply the reviewed hash and choose the exact Stacks path that remains canonical. Preparation creates a persistent `DR-ID` and an explicit source-to-Archive plan without moving anything.
+
+Approval rechecks the canonical file, every redundant source, and every empty destination. Redundant byte-identical copies move into `Archive/Exact Duplicates/<hash>/` with their former Intake or Originals path retained beneath that record. A failed multi-file move rolls completed moves back where possible. Nothing is deleted, and non-identical shared-identifier or possible-work groups cannot enter this workflow. Reading positions for the same exact hash are redirected to the chosen canonical path.
+
+Live acceptance passed on 2026-08-19. Drew selected the Handbooks `Song And Silence` copy; `DR-44C88BB7` retained it at 22,666,472 bytes and archived the byte-identical root Intake copy under hash `e5b44f628756494c`. The former root path is clear, the Archive copy is present, and nothing was deleted. All 123 tests passed.
+
+## Natural control requirement
+
+The growing exact-command vocabulary is no longer acceptable as the ordinary Librarian interface. Deterministic commands, hashes, and job IDs remain necessary underneath for safe replay and audit, but Drew should normally guide a visible context using concise language: show the duplicates, choose a displayed copy, approve the prepared action, open a chapter, continue, and save or resume a place. Build 0.27 must provide this contextual control before more Librarian capabilities are added. This is functional accessibility and cognitive-load work, not visual polish.
 
 ## Visual representation
 

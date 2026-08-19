@@ -188,4 +188,24 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Demonstrate Keep Repair and verify the original and derivative physically.
 - [x] Demonstrate Toss Repair and verify that only the provisional derivative is deleted.
 - [x] Complete the restore-point paperwork audit and milestone commit after acceptance.
-- [ ] Push the milestone commit to `origin/main`.
+- [x] Push the milestone commit to `origin/main`.
+
+## Builds 0.22.0 through 0.26.0 - Complete
+
+- [x] Read and search supported private works with source-linked passages.
+- [x] Recognize EPUB chapter headings and persist explicitly confirmed exact-edition reading positions.
+- [x] Build an incremental source-supplied work and edition catalogue.
+- [x] Present evidence-ranked file-level edition relationship groups without false generic-metadata matches.
+- [x] Resolve one exact duplicate reversibly through preparation, exact approval, and Archive retention.
+- [x] Preserve the canonical `Song And Silence` Handbooks copy and verify its redundant exact copy in Archive.
+- [x] Pass all 123 automated tests through Build 0.26.
+- [ ] Commit and push Build 0.26.
+
+## Build 0.27.0 - Natural Librarian Control Surface
+
+- [ ] Support concise contextual requests and visible choice references for ordinary Librarian work.
+- [ ] Keep deterministic IDs and exact commands available underneath for audit and recovery.
+- [ ] Permit contextual confirmation such as `yes, do that` only for one clearly pending reviewed action.
+- [ ] Refuse ambiguous references rather than guessing.
+- [ ] Update help around goals and examples instead of requiring a memorized command catalogue.
+- [ ] Complete this functional usability gate before more Librarian duties or visual polish.

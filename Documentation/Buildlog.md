@@ -239,3 +239,9 @@ The Librarian now incrementally catalogues source-supplied title, author, identi
 Build 0.25.0 - Edition Review Desk (complete)
 
 The aggregate edition counts now resolve into bounded file-level review groups containing exact Stacks paths, formats, sizes, and evidence class. Exact hashes take precedence; a shared identifier remains visible when it relates non-identical files; title/author grouping is used only when both fields are trustworthy. The real review returned exact pairs for `Song And Silence`, `Gunmetal Magic`, and `Stronghold Builder's Guide`, plus two differently sized `Magic in the Blood` EPUBs sharing ISBN 9780451462671. Apparent matches with unknown authors and generic untitled metadata were suppressed rather than promoted into false relationships. Drew accepted the four-group report on 2026-08-19. No file changed and all 122 tests passed.
+
+Build 0.26.0 - Reversible Exact-Duplicate Resolution (complete)
+
+The first consolidation path is restricted to one current exact SHA-256 group. Drew chooses the canonical member, reviews a persistent `DR-ID` source-to-Archive plan, and approves that exact plan. Approval rechecks every source and destination; redundant copies move under a hash-labelled Archive path preserving former location context, and nothing is deleted. Drew chose `Intake/Handbooks/D&D 3.5E - Song And Silence.pdf`; resolution `DR-44C88BB7` retained that 22,666,472-byte canonical file and archived the byte-identical root Intake copy under `Archive/Exact Duplicates/e5b44f628756494c/Intake/`. Physical verification passed and all 123 tests passed.
+
+The acceptance also exposed a functional interaction problem: the exact command vocabulary is becoming too numerous and clumsy. Build 0.27 is therefore a mandatory natural-control gate. Stable commands and IDs stay underneath, but ordinary Librarian work must use concise contextual language and unambiguous visible choices before any further portfolio expansion or visual polish.

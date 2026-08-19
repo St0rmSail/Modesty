@@ -47,7 +47,7 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Demonstrated:** Level 2 — on 2026-08-18 Modesty invoked the Librarian's bounded Intake catalogue and then completed one reversible source-identified text repair through both local Keep and Toss decisions without changing either original.
 
-**Implemented beyond the demonstrated level:** None. Build 0.25 is accepted within Level 2.
+**Implemented beyond the demonstrated level:** None. Build 0.26 is accepted within Level 2.
 
 **Build 0.20 increment achieved:** bridged Level 0 to Level 1 by proving that Modesty can invoke the Librarian, catalogue copied samples, report supported and unsupported formats, obvious container damage, exact duplicates, and stale records, and leave every source byte untouched.
 
@@ -61,7 +61,11 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Build 0.25 increment achieved:** turned aggregate relationship counts into four reviewable file-level groups while suppressing generic-metadata false matches and retaining a strict no-mutation boundary. Live evidence showed three exact duplicate pairs and one differing pair sharing an ISBN; no weak group was manufactured where author metadata was unknown.
 
-**Not yet present:** preferred-edition decisions, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, approved duplicate consolidation, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
+**Build 0.26 increment achieved:** Drew selected the canonical Handbooks member of a proven exact-hash group and approved `DR-44C88BB7`; the redundant `Song And Silence` copy was retained reversibly in Archive, nothing was deleted, and authority did not extend to non-identical editions.
+
+**Next increment:** Build 0.27 replaces mandatory command memorization with a bounded contextual Librarian dialogue while retaining deterministic IDs and exact operations underneath. Usability is now a capability gate.
+
+**Not yet present:** preferred decisions between non-identical editions, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
 
 Capable contemporary local library systems such as Calibre already provide mature metadata editing, conversion, device support, and large-catalogue management. Document-management and ebook-repair toolchains can add OCR and validation. Modesty's Librarian is therefore far behind established library software in breadth. Her intended advantage is not replacing those tools prematurely: it is a governable assistant layer that preserves originals, joins provenance and reading continuity across formats, and presents uncertain changes for approval.
 
@@ -86,6 +90,6 @@ Update the entry when a build begins, after live acceptance, and during every re
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
 | Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
-| Librarian | Level 2 | Build 0.25 file-level edition relationship review is accepted; preferred-edition decisions remain deliberately unimplemented. |
+| Librarian | Level 2 | Build 0.26 reversible exact-duplicate resolution is accepted; Build 0.27 must make the control surface natural before capability expands. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

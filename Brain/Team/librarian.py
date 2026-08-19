@@ -97,6 +97,14 @@ class EditionReviewGroup:
     files: tuple[tuple[str, str, int], ...]
 
 
+@dataclass(frozen=True)
+class DuplicateResolutionProposal:
+    resolution_id: str
+    sha256: str
+    keep_relative_path: str
+    archive_moves: tuple[tuple[str, str], ...]
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -434,6 +442,147 @@ class Librarian:
                 groups.append(self._review_group("Possible same work", identity, members))
                 claimed.update(row[0] for row in members)
         return tuple(groups[: max(1, min(limit, 50))])
+
+    def prepare_exact_duplicate_resolution(
+        self,
+        hash_prefix: str,
+        keep_relative_path: str,
+    ) -> DuplicateResolutionProposal:
+        """Prepare one reversible archive plan for a proven exact duplicate group."""
+
+        prefix = hash_prefix.strip().casefold()
+        if not re.fullmatch(r"[a-f0-9]{12,64}", prefix):
+            raise LibrarianError("Give the Librarian at least 12 hexadecimal characters from the exact group hash.")
+        keep = keep_relative_path.strip().replace("\\", "/")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_reading_schema(connection)
+            self._initialize_duplicate_resolution_schema(connection)
+            rows = connection.execute(
+                "SELECT source_relative_path,sha256 FROM edition_items WHERE sha256 LIKE ? ORDER BY source_relative_path COLLATE NOCASE",
+                (f"{prefix}%",),
+            ).fetchall()
+            hashes = {row[1] for row in rows}
+            if len(hashes) != 1 or len(rows) < 2:
+                raise LibrarianError("That hash prefix does not identify one current exact-duplicate group.")
+            members = [row[0] for row in rows]
+            if keep not in members:
+                raise LibrarianError("The chosen keep path is not a member of that exact-duplicate group.")
+            digest = rows[0][1]
+            moves = []
+            for source_relative in members:
+                source = self._path_from_stacks_relative(source_relative)
+                if not source.is_file() or self._sha256(source) != digest:
+                    raise LibrarianError("An exact-duplicate source changed after cataloguing; refresh the edition catalogue.")
+                if source_relative == keep:
+                    continue
+                archive_relative = (Path("Exact Duplicates") / digest[:16] / Path(source_relative)).as_posix()
+                destination = self._safe_collection_path(self.paths.archive, archive_relative, require_exists=False)
+                if destination.exists():
+                    raise LibrarianError("A proposed duplicate archive destination already exists; nothing was prepared.")
+                moves.append((source_relative, archive_relative))
+            resolution_id = f"DR-{secrets.token_hex(4).upper()}"
+            with connection:
+                connection.execute(
+                    """
+                    INSERT INTO duplicate_resolution_jobs
+                        (resolution_id,sha256,keep_relative_path,archive_moves_json,
+                         created_at,status,resolved_at)
+                    VALUES (?, ?, ?, ?, ?, 'pending', '')
+                    """,
+                    (
+                        resolution_id, digest, keep, json.dumps(moves),
+                        datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    ),
+                )
+        finally:
+            connection.close()
+        return DuplicateResolutionProposal(resolution_id, digest, keep, tuple(moves))
+
+    def approve_exact_duplicate_resolution(self, resolution_id: str) -> tuple[str, tuple[str, ...]]:
+        """Archive redundant exact copies after complete preflight, with rollback on failure."""
+
+        clean_id = resolution_id.strip().upper()
+        if not re.fullmatch(r"DR-[A-F0-9]{8}", clean_id):
+            raise LibrarianError("That duplicate-resolution identifier is invalid.")
+        connection = sqlite3.connect(self.catalogue_path)
+        moved: list[tuple[Path, Path, str]] = []
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_reading_schema(connection)
+            self._initialize_duplicate_resolution_schema(connection)
+            row = connection.execute(
+                """SELECT sha256,keep_relative_path,archive_moves_json,status
+                   FROM duplicate_resolution_jobs WHERE resolution_id=?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[3] != "pending":
+                raise LibrarianError("That duplicate-resolution proposal is unavailable or already resolved.")
+            digest, keep, moves_json, _ = row
+            keep_path = self._path_from_stacks_relative(keep)
+            if not keep_path.is_file() or self._sha256(keep_path) != digest:
+                raise LibrarianError("The selected canonical copy changed after review; prepare a new resolution.")
+            prepared = []
+            for source_relative, archive_relative in json.loads(moves_json):
+                source = self._path_from_stacks_relative(source_relative)
+                destination = self._safe_collection_path(self.paths.archive, archive_relative, require_exists=False)
+                if not source.is_file() or self._sha256(source) != digest:
+                    raise LibrarianError("A redundant copy changed after review; prepare a new resolution.")
+                if destination.exists():
+                    raise LibrarianError("An archive destination now exists; nothing was moved.")
+                prepared.append((source, destination, source_relative))
+            try:
+                for source, destination, source_relative in prepared:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    source.replace(destination)
+                    moved.append((source, destination, source_relative))
+            except OSError:
+                for source, destination, _ in reversed(moved):
+                    if destination.exists() and not source.exists():
+                        source.parent.mkdir(parents=True, exist_ok=True)
+                        destination.replace(source)
+                raise
+            with connection:
+                connection.executemany(
+                    "DELETE FROM edition_items WHERE source_relative_path=?",
+                    [(source_relative,) for _, _, source_relative in moved],
+                )
+                connection.execute(
+                    "UPDATE reading_positions SET source_relative_path=? WHERE source_sha256=?",
+                    (keep, digest),
+                )
+                connection.execute(
+                    "UPDATE reading_sessions SET source_relative_path=? WHERE source_sha256=?",
+                    (keep, digest),
+                )
+                connection.execute(
+                    "UPDATE duplicate_resolution_jobs SET status='archived',resolved_at=? WHERE resolution_id=?",
+                    (datetime.now(timezone.utc).isoformat(timespec="seconds"), clean_id),
+                )
+            return keep, tuple(destination.relative_to(self.paths.root).as_posix() for _, destination, _ in moved)
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not complete that duplicate resolution safely.") from error
+        finally:
+            connection.close()
+
+    @staticmethod
+    def duplicate_resolution_response(proposal: DuplicateResolutionProposal) -> str:
+        moves = "\n".join(
+            f"- The Stacks/{source} -> The Stacks/Archive/{destination}"
+            for source, destination in proposal.archive_moves
+        )
+        return (
+            "The Librarian prepared one reversible exact-duplicate resolution.\n\n"
+            f"Resolution: {proposal.resolution_id}\n"
+            f"Proven SHA-256: {proposal.sha256}\n"
+            f"Canonical copy staying in place: The Stacks/{proposal.keep_relative_path}\n"
+            f"Redundant copies proposed for Archive:\n{moves}\n\n"
+            "Nothing has moved and nothing will be deleted. To approve this exact plan, say: "
+            f"Approve Librarian duplicate resolution: {proposal.resolution_id}"
+        )
 
     @staticmethod
     def edition_review_response(groups: tuple[EditionReviewGroup, ...]) -> str:
@@ -1207,6 +1356,22 @@ class Librarian:
                 published TEXT NOT NULL,
                 warning TEXT NOT NULL,
                 updated_at TEXT NOT NULL
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_duplicate_resolution_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS duplicate_resolution_jobs (
+                resolution_id TEXT PRIMARY KEY,
+                sha256 TEXT NOT NULL,
+                keep_relative_path TEXT NOT NULL,
+                archive_moves_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
             )
             """
         )

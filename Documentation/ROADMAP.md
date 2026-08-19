@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.25.0 - Edition Review Desk (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.26.0 - Reversible Exact-Duplicate Resolution (complete); Build 0.27.0 natural Librarian control surface next; Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-19
 
 ## Completed build line
@@ -46,6 +46,30 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.26.0 - Reversible Exact-Duplicate Resolution - Complete
+
+Resolve proven byte-identical clutter without deleting a reading source or guessing which path Drew values.
+
+Definition of done:
+
+- Accept only one current exact SHA-256 duplicate group.
+- Require Drew to name the exact member that remains canonical.
+- Prepare a persistent `DR-ID` and show every proposed Archive move before action.
+- Recheck all source hashes and refuse occupied destinations at approval time.
+- Retain redundant copies under a hash-labelled Archive path preserving former location context.
+- Delete nothing and exclude shared-identifier or possible-work groups.
+- Roll back completed moves when a later filesystem move fails where practical.
+- Redirect exact-edition reading continuity to the chosen canonical path.
+- Update deterministic help and pass the complete live suite.
+
+Acceptance should resolve one expendable or approved real exact pair, verify the chosen copy remains byte-identical, verify the redundant copy exists in Archive, and confirm the review no longer reports that group.
+
+Accepted on 2026-08-19: Drew chose the Handbooks copy of `D&D 3.5E - Song And Silence.pdf` as canonical. Resolution `DR-44C88BB7` rechecked SHA-256 `e5b44f628756494cb01e44ef2d919c4e7395de52339000ad6a824cde560d3602`, retained the canonical file in place, and moved the redundant root Intake copy into its hash-labelled Archive path. Both retained files remained 22,666,472 bytes and nothing was deleted. All 123 tests passed.
+
+### 0.27.0 - Natural Librarian Control Surface - Next
+
+The expanding deterministic command vocabulary has become a functional usability defect. Normal guided work must accept concise contextual language such as `show me the duplicates`, `keep the Handbooks copy`, `yes, do that`, `open Axeman at chapter 12`, and `save my place`. Stable IDs and exact commands remain internal safety and audit mechanisms, not mandatory syntax Drew must memorize. This must be solved before additional Librarian duties or visual polish.
 
 ### 0.25.0 - Edition Review Desk - Complete
 

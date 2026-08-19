@@ -83,6 +83,8 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Ask the Librarian to resume: <title or Stacks path>", text)
         self.assertIn("Ask the Librarian to identify works and editions", text)
         self.assertIn("Ask the Librarian to review edition groups", text)
+        self.assertIn("Ask the Librarian to prepare exact duplicate resolution: <hash> keep: <Stacks relative path>", text)
+        self.assertIn("Approve Librarian duplicate resolution: <DR-ID>", text)
         self.assertIn("Intake", text)
         self.assertIn("does not rename", text)
         self.assertIn("Keep Repair", text)

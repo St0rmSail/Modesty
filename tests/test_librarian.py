@@ -406,7 +406,17 @@ class LibrarianTest(unittest.TestCase):
             groups = librarian.edition_review_groups()
             self.assertEqual([group.evidence for group in groups], ["Exact SHA-256 duplicate", "Shared strong identifier"])
             self.assertEqual(len(groups[1].files), 3)
-            self.assertTrue(first.exists() and exact.exists() and alternate.exists())
+            proposal = librarian.prepare_exact_duplicate_resolution(groups[0].identity, "Intake/first.epub")
+            self.assertTrue(exact.exists())
+            self.assertIn("Nothing has moved", librarian.duplicate_resolution_response(proposal))
+            kept, archived = librarian.approve_exact_duplicate_resolution(proposal.resolution_id)
+            self.assertEqual(kept, "Intake/first.epub")
+            self.assertFalse(exact.exists())
+            self.assertEqual(len(archived), 1)
+            archived_path = paths.root / archived[0]
+            self.assertEqual(archived_path.read_bytes(), first.read_bytes())
+            self.assertTrue(first.exists() and alternate.exists())
+            self.assertFalse(exact.exists())
 
     def test_edition_catalogue_command_is_truthful_and_non_mutating(self):
         with TemporaryDirectory() as folder:
@@ -430,6 +440,27 @@ class LibrarianTest(unittest.TestCase):
             reviewed = delegator.handle("Ask the Librarian to review edition groups")
             self.assertTrue(reviewed.handled)
             self.assertIn("no reviewable edition relationship", reviewed.response.casefold())
+
+    def test_duplicate_resolution_refuses_changed_source_and_wrong_keep_member(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            first = paths.intake / "one.txt"
+            second = paths.intake / "two.txt"
+            first.write_bytes(b"identical")
+            second.write_bytes(b"identical")
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+            group = librarian.edition_review_groups()[0]
+            with self.assertRaisesRegex(LibrarianError, "not a member"):
+                librarian.prepare_exact_duplicate_resolution(group.identity, "Intake/other.txt")
+            proposal = librarian.prepare_exact_duplicate_resolution(group.identity, "Intake/one.txt")
+            second.write_bytes(b"changed")
+            with self.assertRaisesRegex(LibrarianError, "changed after review"):
+                librarian.approve_exact_duplicate_resolution(proposal.resolution_id)
+            self.assertTrue(first.exists() and second.exists())
 
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):

@@ -43,6 +43,8 @@ If Scribble Hub shows a Cloudflare 522 error, stop refreshing and postpone the d
 - `Ask the Librarian to resume: <title or Stacks path>`
 - `Ask the Librarian to identify works and editions`
 - `Ask the Librarian to review edition groups`
+- `Ask the Librarian to prepare exact duplicate resolution: <hash> keep: <Stacks relative path>`
+- `Approve Librarian duplicate resolution: <DR-ID>`
 
 This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
 
@@ -55,6 +57,8 @@ The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly insi
 **Identify works and editions** incrementally reads source-supplied title, author, strong identifiers, series, series number, publisher, language, and publication date from supported files in Intake and Originals. Each invocation refreshes at most 25 changed or new files so the Study remains responsive; repeat until the reported remaining count is zero. It reports exact byte duplicates separately from shared identifiers and normalized title/author review leads. It reuses unchanged catalogue entries and never merges, renames, moves, deletes, or overwrites a file.
 
 **Review edition groups** lists each bounded relationship once at its strongest available evidence level: exact SHA-256 duplicate, shared strong identifier, or possible same work by title and author. Generic unknown-author and untitled metadata is excluded from weak grouping. Review does not choose a preferred edition or change a file.
+
+**Prepare exact duplicate resolution** accepts only a currently catalogued SHA-256 duplicate group and requires Drew to name the exact member that stays canonical. Preparation changes nothing and reports every proposed Archive destination. Exact `DR-ID` approval rechecks every hash and destination, leaves the chosen copy in place, and moves redundant byte-identical copies into `The Stacks/Archive/Exact Duplicates/<hash>/...`. Nothing is deleted. Shared identifiers and possible same-work groups are ineligible.
 
 ## Briefings
 

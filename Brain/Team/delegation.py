@@ -116,6 +116,17 @@ class TeamDelegator:
         r"review\s+(?:the\s+)?edition\s+groups\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_DUPLICATE_PREPARE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+prepare\s+"
+        r"exact\s+duplicate\s+resolution\s*:\s*(?P<hash>[A-F0-9]{12,64})\s+"
+        r"keep\s*:\s*(?P<path>[^\r\n]+)$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_DUPLICATE_APPROVAL_PATTERN = re.compile(
+        r"^approve\s+(?:the\s+)?librarian\s+duplicate\s+resolution\s*:\s*"
+        r"(?P<resolution_id>DR-[A-F0-9]{8})\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_REPAIR_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
@@ -264,6 +275,40 @@ class TeamDelegator:
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "ready")
             return DelegationResult(True, self.librarian.edition_review_response(groups))
+        duplicate_prepare = self.LIBRARIAN_DUPLICATE_PREPARE_PATTERN.match(message.strip())
+        if duplicate_prepare:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                proposal = self.librarian.prepare_exact_duplicate_resolution(
+                    duplicate_prepare.group("hash"), duplicate_prepare.group("path")
+                )
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting")
+            return DelegationResult(True, self.librarian.duplicate_resolution_response(proposal))
+        duplicate_approval = self.LIBRARIAN_DUPLICATE_APPROVAL_PATTERN.match(message.strip())
+        if duplicate_approval:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                keep, archived = self.librarian.approve_exact_duplicate_resolution(
+                    duplicate_approval.group("resolution_id")
+                )
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            archived_text = "\n".join(f"- The Stacks/{path}" for path in archived)
+            return DelegationResult(
+                True,
+                f"Approved. The canonical copy remains at The Stacks/{keep}.\n"
+                f"The redundant exact copy or copies were retained in Archive:\n{archived_text}\n\n"
+                "Nothing was deleted.",
+            )
         if self.LIBRARIAN_INVENTORY_PATTERN.match(message.strip()):
             team_status.set_member_state("librarian", "working")
             try:

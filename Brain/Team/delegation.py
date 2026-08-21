@@ -137,6 +137,10 @@ class TeamDelegator:
         r"(?P<batch_id>LB-[A-F0-9]{8})\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_METADATA_LIST_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+review\s+incomplete\s+metadata\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_REPAIR_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
@@ -222,6 +226,20 @@ class TeamDelegator:
         r"prepare\s+(?:the\s+)?next\s+shelf\s+batch|what\s+can\s+(?:the\s+)?librarian\s+shelve)[.!?]?\s*$",
         re.IGNORECASE,
     )
+    NATURAL_METADATA_LIST_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:show|list)\s+(?:me\s+)?(?:the\s+)?books?\s+(?:that\s+)?(?:need|needing)\s+metadata[.!?]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_METADATA_REVIEW_PATTERN = re.compile(
+        r"^(?:please\s+)?review(?:\s+metadata\s+for)?\s+(?P<choice>.+?)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_METADATA_FIELD_PATTERN = re.compile(
+        r"^(?:the\s+)?(?P<field>title|author)\s+is\s+(?P<value>.+?)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_METADATA_SAVE_PATTERN = re.compile(r"^(?:please\s+)?save\s+that[.!]?\s*$", re.IGNORECASE)
+    NATURAL_METADATA_LEAVE_PATTERN = re.compile(r"^(?:please\s+)?leave\s+it[.!]?\s*$", re.IGNORECASE)
     NATURAL_SHELVE_THOSE_PATTERN = re.compile(
         r"^(?:please\s+)?(?:shelve\s+those|put\s+those\s+away)[.!]?\s*$",
         re.IGNORECASE,
@@ -271,6 +289,8 @@ class TeamDelegator:
         self._last_edition_groups = ()
         self._pending_duplicate_resolution_id = None
         self._pending_shelving_batch_id = None
+        self._last_metadata_review_items = ()
+        self._pending_metadata_review_id = None
         self._last_reading_session_id = None
 
     def _natural_librarian_command(self, message: str) -> str | DelegationResult | None:
@@ -283,6 +303,66 @@ class TeamDelegator:
             return "Ask the Librarian to identify works and editions"
         if self.NATURAL_SHELVING_BATCH_PATTERN.match(text):
             return "Ask the Librarian to prepare a bounded Intake shelving batch"
+        if self.NATURAL_METADATA_LIST_PATTERN.match(text):
+            return "Ask the Librarian to review incomplete metadata"
+        metadata_review = self.NATURAL_METADATA_REVIEW_PATTERN.match(text)
+        if metadata_review and tuple(getattr(self, "_last_metadata_review_items", ()) or ()):
+            choice = metadata_review.group("choice")
+            tokens = self._choice_tokens(choice)
+            items = tuple(getattr(self, "_last_metadata_review_items", ()) or ())
+            matches = [
+                item for item in items
+                if tokens and tokens.issubset(self._choice_tokens(
+                    f"{item.source_relative_path} {item.catalogued_title} {item.filename_title_suggestion}"
+                ))
+            ]
+            if len(matches) != 1:
+                if not matches:
+                    return DelegationResult(True, "That description does not identify one of the displayed metadata items.")
+                choices = "\n".join(f"- The Stacks/{item.source_relative_path}" for item in matches)
+                return DelegationResult(True, "That description matches more than one displayed item:\n" + choices)
+            try:
+                draft = self.librarian.begin_metadata_review(matches[0].source_relative_path)
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            self._pending_metadata_review_id = draft.review_id
+            return DelegationResult(True, self.librarian.metadata_review_draft_response(draft))
+        metadata_field = self.NATURAL_METADATA_FIELD_PATTERN.match(text)
+        if metadata_field:
+            review_id = getattr(self, "_pending_metadata_review_id", None)
+            if not review_id:
+                return DelegationResult(True, "There is no active metadata review. Show me books needing metadata first.")
+            try:
+                draft = self.librarian.update_metadata_review(
+                    review_id, metadata_field.group("field"), metadata_field.group("value")
+                )
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            return DelegationResult(True, self.librarian.metadata_review_draft_response(draft))
+        if self.NATURAL_METADATA_SAVE_PATTERN.match(text):
+            review_id = getattr(self, "_pending_metadata_review_id", None)
+            if not review_id:
+                return DelegationResult(True, "There is no active metadata review to save.")
+            try:
+                draft = self.librarian.confirm_metadata_review(review_id)
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            self._pending_metadata_review_id = None
+            return DelegationResult(
+                True,
+                f"Saved. Drew confirmed {draft.draft_title} — {draft.draft_author} for the unchanged exact source. "
+                "The catalogue was updated; the book itself was not rewritten. It may now appear in an ordinary shelving preview.",
+            )
+        if self.NATURAL_METADATA_LEAVE_PATTERN.match(text):
+            review_id = getattr(self, "_pending_metadata_review_id", None)
+            if not review_id:
+                return DelegationResult(True, "There is no active metadata review to leave.")
+            try:
+                draft = self.librarian.cancel_metadata_review(review_id)
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            self._pending_metadata_review_id = None
+            return DelegationResult(True, f"The Librarian left The Stacks/{draft.source_relative_path} unchanged in Intake.")
         leave_item = self.NATURAL_LEAVE_SHELF_ITEM_PATTERN.match(text)
         if leave_item:
             batch_id = getattr(self, "_pending_shelving_batch_id", None)
@@ -451,6 +531,19 @@ class TeamDelegator:
             team_status.set_member_state("librarian", "ready")
             self._last_edition_groups = groups
             return DelegationResult(True, self.librarian.edition_review_response(groups))
+        if self.LIBRARIAN_METADATA_LIST_PATTERN.match(message.strip()):
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                items = self.librarian.metadata_review_items()
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting" if items else "ready")
+            self._last_metadata_review_items = items
+            self._pending_metadata_review_id = None
+            return DelegationResult(True, self.librarian.metadata_review_list_response(items))
         duplicate_prepare = self.LIBRARIAN_DUPLICATE_PREPARE_PATTERN.match(message.strip())
         if duplicate_prepare:
             team_status.set_member_state("librarian", "working")

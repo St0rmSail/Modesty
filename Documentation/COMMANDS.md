@@ -45,6 +45,11 @@ For ordinary work, speak to the visible context rather than memorizing job ident
 - `show me what can be shelved`
 - `leave <displayed title or folder> out` — removes one unambiguous Ready item from the current preview
 - `shelve those` — approves only the Ready list in the shelving preview currently displayed
+- `show me books needing metadata`
+- `review <displayed title or filename>`
+- `title is <confirmed title>` / `author is <confirmed author>`
+- `save that` — confirms both staged fields for the unchanged exact source
+- `leave it` — closes the current metadata review without changing the catalogue
 
 If a description matches more than one displayed file, Modesty asks for the title or folder instead of guessing. `Yes, do that` has no operational meaning unless one exact duplicate action is waiting for approval. The exact recovery forms below remain available for audit and help:
 
@@ -63,6 +68,7 @@ If a description matches more than one displayed file, Modesty asks for the titl
 - `Approve Librarian duplicate resolution: <DR-ID>`
 - `Ask the Librarian to prepare a bounded Intake shelving batch`
 - `Approve Librarian shelving batch: <LB-ID>`
+- `Ask the Librarian to review incomplete metadata`
 
 This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
 
@@ -79,6 +85,8 @@ The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly insi
 **Prepare exact duplicate resolution** accepts only a currently catalogued SHA-256 duplicate group and requires Drew to name the exact member that stays canonical. Preparation changes nothing and reports every proposed Archive destination. Exact `DR-ID` approval rechecks every hash and destination, leaves the chosen copy in place, and moves redundant byte-identical copies into `The Stacks/Archive/Exact Duplicates/<hash>/...`. Nothing is deleted. Shared identifiers and possible same-work groups are ineligible.
 
 **Show me what can be shelved** prepares one bounded Intake preview containing at most five Ready items. Destinations use only source-supplied author and title metadata already in the edition catalogue. Unknown metadata, warnings, exact or possible edition relationships, changed sources, pending single-item proposals, and occupied or competing destinations are held back with reasons. Nothing moves during preview. **Leave ... out** can remove one unambiguously described Ready item; it cannot add or redirect a file. **Shelve those** approves only the resulting Ready list; approval rechecks every hash and destination before moving any item and rolls back completed moves if a later move fails. Held and removed items stay in Intake.
+
+**Show me books needing metadata** presents at most five incomplete Intake records that are not damaged and are not part of an edition conflict. Embedded fields, unknown fields, and a filename-derived title suggestion are labelled separately. **Review ...** can select only one item from that visible set. A filename suggestion is never staged automatically: Drew supplies a specific title and author, then **save that** records the confirmed catalogue identity against the unchanged SHA-256 source. **Leave it** records no correction. Saving never rewrites the reading file, and a changed source fails closed. The corrected item still moves only through the ordinary shelving preview and approval.
 
 ## Briefings
 

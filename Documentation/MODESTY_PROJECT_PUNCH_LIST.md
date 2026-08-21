@@ -222,11 +222,14 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Physically verify four Originals, absent former Intake paths, retained CRUMPETS, resolved ledger state, and updated catalogue hashes.
 - [x] Pass all 132 automated tests.
 
-## Build 0.29.0 - Metadata Review Desk - Next
+## Build 0.29.0 - Metadata Review Desk - Complete
 
-- [ ] Present a bounded set of held items with incomplete source metadata.
-- [ ] Keep embedded metadata, filename-derived suggestions, and confirmed corrections visibly distinct.
-- [ ] Let Drew edit or reject title and author suggestions naturally.
-- [ ] Record source hash, original fields, confirmed fields, provenance, and resolution state.
-- [ ] Do not rewrite the source file or conflate metadata correction with edition-conflict resolution.
-- [ ] Feed only explicitly confirmed identity into a normal shelving preview.
+- [x] Present a bounded set of held items with incomplete source metadata.
+- [x] Keep embedded metadata, filename-derived suggestions, and confirmed corrections visibly distinct.
+- [x] Let Drew edit or reject title and author suggestions naturally.
+- [x] Record source hash, original fields, confirmed fields, provenance, and resolution state.
+- [x] Do not rewrite the source file or conflate metadata correction with edition-conflict resolution.
+- [x] Feed only explicitly confirmed identity into a normal shelving preview.
+- [x] Live-test one `leave it`, one completed correction, and the corrected item in the ordinary shelving preview.
+- [x] Verify Sandstorm retained SHA-256 `cb39abef3d51387be1274ee69372893cfce667616aaab46391ed41639f276680` and was not shelved during acceptance.
+- [x] Reconcile acceptance evidence, 135-test count, roadmap, benchmark, and milestone paperwork.

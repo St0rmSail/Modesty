@@ -133,7 +133,17 @@ An item is held when metadata is unknown, the catalogue reports a warning, the s
 
 Live acceptance passed on 2026-08-21. Batch `LB-2A8EAE65` presented five Ready items, 28 held items with reasons, and 39 additional eligible items deferred to later batches. Drew naturally removed `CRUMPETS` and approved the remaining four. Physical verification found all four unchanged originals at their proposed destinations, all four former Intake paths absent, CRUMPETS retained in Intake, the batch ledger marked `shelved`, and all four edition-catalogue paths updated with their hashes. All 132 automated tests passed.
 
-The run also exposed the next honest bottleneck: many held items lack trustworthy embedded author or title metadata. Build 0.29 should provide a bounded Metadata Review Desk where existing metadata, filename-derived suggestions, and Drew's corrections remain visibly distinct. Nothing inferred from a filename becomes canonical or authorizes shelving without explicit confirmation.
+The run also exposed the next honest bottleneck: many held items lack trustworthy embedded author or title metadata.
+
+## Build 0.29 bounded Metadata Review Desk
+
+`Show me books needing metadata` presents no more than five incomplete Intake records that are safe to review. Items with catalogue warnings or unresolved edition relationships remain outside this desk. Each entry distinguishes catalogued source fields from a filename-derived title suggestion; the suggestion is never silently promoted.
+
+`Review <displayed title or filename>` opens exactly one item from the visible set. `Title is ...` and `Author is ...` stage Drew-supplied facts, while `leave it` closes the review without changing catalogue identity. `Save that` requires both specific fields, rechecks the source SHA-256, records original and confirmed values plus review disposition locally, and marks the confirmed values as Drew-confirmed. The book itself is never rewritten. Confirmed identity is keyed to the exact source hash, so changed replacement bytes cannot inherit it, and the item must still pass the ordinary bounded shelving preview and approval before it moves.
+
+Live acceptance must demonstrate one deliberately left suggestion, one completed correction, source-byte preservation, and the corrected item appearing in the ordinary shelving preview.
+
+Live acceptance passed on 2026-08-21. Drew first reviewed `[D&D 3.5E ENG] Sandstorm.pdf` and chose `leave it`; review `MR-67345FED` retained empty staged fields with disposition `left`. Drew then explicitly confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell in review `MR-976B4B72`. The override ledger retained the original catalogue fields, confirmed fields, exact source hash, provenance, and resolution. The physical Intake PDF still matched SHA-256 `cb39abef3d51387be1274ee69372893cfce667616aaab46391ed41639f276680`, and ordinary shelving batch `LB-3D28F4A5` placed that corrected exact source first in its Ready list. Nothing was shelved during this acceptance. All 135 automated tests passed.
 
 ## Visual representation
 

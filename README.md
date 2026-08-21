@@ -24,9 +24,9 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.28.0 - Bounded Intake Shelving Desk (complete)**
+**0.29.0 - Metadata Review Desk (complete)**
 
-Build 0.28, the **Bounded Intake Shelving Desk**, prepares at most five catalogue-backed Ready items, separates uncertain metadata and edition conflicts with reasons, and retains natural exclusion plus explicit approval before any move. The accepted real batch presented five Ready items, held 28, let Drew leave CRUMPETS in Intake, and shelved four unchanged originals after complete preflight. All four destinations, source removals, catalogue hashes, and the resolved batch ledger were physically verified; all 132 tests passed. Build 0.29 will address incomplete metadata through explicit review rather than silent inference.
+Build 0.29 adds a bounded **Metadata Review Desk** for incomplete Intake records. It visibly separates embedded catalogue fields, filename suggestions, and Drew-confirmed corrections; requires both title and author plus explicit `save that`; binds corrections to the unchanged SHA-256 source; never rewrites a book; and sends corrected items back through the ordinary shelving preview. Live acceptance left the Sandstorm suggestion unchanged once, then confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell and placed that exact unchanged source first in the ordinary shelving preview. All 135 tests passed.
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 

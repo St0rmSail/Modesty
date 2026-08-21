@@ -1,7 +1,7 @@
 # Roadmap
 
-**Current marker:** Build 0.28.0 - Bounded Intake Shelving Desk (complete); Build 0.29.0 Metadata Review Desk next; Build 0.19 acceptance paused externally
-**Reviewed:** 2026-08-19
+**Current marker:** Build 0.29.0 - Metadata Review Desk (complete); Build 0.19 acceptance paused externally
+**Reviewed:** 2026-08-21
 
 ## Completed build line
 
@@ -97,11 +97,15 @@ Implementation candidate, 2026-08-21: the Desk prepares at most five Ready items
 
 Accepted on 2026-08-21: the real preview showed five Ready, 28 held, and 39 later-eligible items. Drew removed CRUMPETS naturally and approved four destinations. Physical verification confirmed the four Originals, absent former Intake paths, retained CRUMPETS, resolved batch ledger, and updated edition paths/hashes. All 132 tests passed.
 
-### 0.29.0 - Metadata Review Desk - Next
+### 0.29.0 - Metadata Review Desk - Complete
 
 Turn unknown or incomplete source identity into a reviewable correction problem without pretending a filename is authoritative metadata. Present a small held-item set with existing embedded fields, clearly labelled filename-derived suggestions where useful, and editable title/author values. Drew's explicit confirmation may update local catalogue metadata and prepare a shelving destination; inference alone may not.
 
 The build must retain source hashes, record original metadata and every confirmed correction, refuse ambiguous bulk approval, avoid rewriting the source file, and keep edition-conflict review separate. Live acceptance should correct one genuinely incomplete item, reject or leave one uncertain suggestion, and then show the corrected item entering an ordinary bounded shelving preview.
+
+Implementation candidate, 2026-08-21: the Desk lists at most five safe incomplete Intake records, labels filename title fallbacks as suggestions, stages no suggestion automatically, and accepts contextual `title is`, `author is`, `save that`, and `leave it` guidance. Confirmed values are recorded separately against the exact SHA-256 source and fed into the existing shelving gate. Changed sources fail closed, conflicted or damaged items remain outside the Desk, and source bytes are never rewritten.
+
+Accepted on 2026-08-21: Drew left the Sandstorm suggestion unchanged once, then explicitly confirmed its full title and Bruce R. Cordell authorship. The review and override ledgers retained both dispositions and provenance; the source hash remained unchanged; and the corrected exact source appeared first in the next ordinary shelving preview. Nothing was shelved. All 135 tests passed.
 
 ### 0.25.0 - Edition Review Desk - Complete
 

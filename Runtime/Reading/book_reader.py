@@ -34,6 +34,8 @@ class BookMetadata:
     publisher: str = ""
     language: str = ""
     published: str = ""
+    title_provenance: str = "embedded"
+    author_provenance: str = "embedded"
 
 
 class _TextHTMLParser(HTMLParser):
@@ -115,6 +117,8 @@ def read_book_metadata(path: Path) -> BookMetadata:
             publisher=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "publisher"), ""),
             language=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "language"), ""),
             published=next(((node.text or "").strip() for node in package.iter() if _local(node.tag) == "date"), ""),
+            title_provenance="embedded" if any((node.text or "").strip() for node in package.iter() if _local(node.tag) == "title") else "filename",
+            author_provenance="embedded" if any((node.text or "").strip() for node in package.iter() if _local(node.tag) == "creator") else "unknown",
         )
     if extension == ".docx":
         try:
@@ -122,12 +126,16 @@ def read_book_metadata(path: Path) -> BookMetadata:
                 core = _optional_xml(archive, "docProps/core.xml")
         except (OSError, zipfile.BadZipFile) as error:
             raise BookReadError("The Word metadata could not be read safely.") from error
+        embedded_title = _xml_value(core, "title")
+        embedded_author = _xml_value(core, "creator")
         return BookMetadata(
-            _xml_value(core, "title") or path.stem,
-            _xml_value(core, "creator") or "Unknown Author",
+            embedded_title or path.stem,
+            embedded_author or "Unknown Author",
             publisher=_xml_value(core, "lastModifiedBy"),
             language=_xml_value(core, "language"),
             published=_xml_value(core, "created"),
+            title_provenance="embedded" if embedded_title else "filename",
+            author_provenance="embedded" if embedded_author else "unknown",
         )
     if extension == ".pdf":
         try:
@@ -141,15 +149,19 @@ def read_book_metadata(path: Path) -> BookMetadata:
             normalized = re.sub(r"[^0-9X]", "", match.upper())
             if len(normalized) in {10, 13}:
                 identifiers.append(("ISBN", normalized))
+        embedded_title = str(values.get("/Title") or "").strip()
+        embedded_author = str(values.get("/Author") or "").strip()
         return BookMetadata(
-            str(values.get("/Title") or path.stem).strip(),
-            str(values.get("/Author") or "Unknown Author").strip(),
+            embedded_title or path.stem,
+            embedded_author or "Unknown Author",
             tuple(identifiers),
             publisher=str(values.get("/Producer") or "").strip(),
             published=str(values.get("/CreationDate") or "").strip(),
+            title_provenance="embedded" if embedded_title else "filename",
+            author_provenance="embedded" if embedded_author else "unknown",
         )
     if extension in {".txt", ".md", ".html", ".htm"}:
-        return BookMetadata(path.stem, "Unknown Author")
+        return BookMetadata(path.stem, "Unknown Author", title_provenance="filename", author_provenance="unknown")
     raise BookReadError(f"Bibliographic reading for {extension or 'that format'} is not implemented yet.")
 
 

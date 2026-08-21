@@ -124,6 +124,30 @@ class ShelvingBatchProposal:
     eligible_remaining: int
 
 
+@dataclass(frozen=True)
+class MetadataReviewItem:
+    source_relative_path: str
+    source_sha256: str
+    catalogued_title: str
+    catalogued_author: str
+    title_provenance: str
+    author_provenance: str
+    filename_title_suggestion: str
+
+
+@dataclass(frozen=True)
+class MetadataReviewDraft:
+    review_id: str
+    source_relative_path: str
+    source_sha256: str
+    original_title: str
+    original_author: str
+    suggested_title: str
+    draft_title: str
+    draft_author: str
+    status: str
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -135,6 +159,7 @@ class Librarian:
     EDITION_REFRESH_BATCH = 25
     SHELVING_BATCH_SIZE = 5
     SHELVING_HELD_DISPLAY = 10
+    METADATA_REVIEW_SIZE = 5
     REPAIRABLE = {".md", ".txt"}
     SUPPORTED = {
         ".epub": "EPUB",
@@ -335,6 +360,7 @@ class Librarian:
         try:
             self._initialize_schema(connection)
             self._initialize_edition_schema(connection)
+            self._initialize_metadata_review_schema(connection)
             for label, root, path in files:
                 relative = f"{label}/{path.relative_to(root).as_posix()}"
                 seen.add(relative)
@@ -358,6 +384,17 @@ class Librarian:
                     warning = str(error)
                     metadata = None
                     digest = ""
+                title = metadata.title if metadata else ""
+                author = metadata.author if metadata else ""
+                title_provenance = metadata.title_provenance if metadata else "unknown"
+                author_provenance = metadata.author_provenance if metadata else "unknown"
+                override = connection.execute(
+                    "SELECT title,author FROM metadata_overrides WHERE source_sha256=?",
+                    (digest,),
+                ).fetchone() if digest else None
+                if override:
+                    title, author = override
+                    title_provenance = author_provenance = "drew-confirmed"
                 read_count += 1
                 with connection:
                     connection.execute(
@@ -365,8 +402,9 @@ class Librarian:
                         INSERT INTO edition_items
                             (source_relative_path, filename, extension, size_bytes, modified_ns,
                              sha256, title, author, identifiers_json, series, series_index,
-                             publisher, language, published, warning, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             publisher, language, published, warning, updated_at,
+                             title_provenance, author_provenance)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ON CONFLICT(source_relative_path) DO UPDATE SET
                             filename=excluded.filename, extension=excluded.extension,
                             size_bytes=excluded.size_bytes, modified_ns=excluded.modified_ns,
@@ -374,15 +412,18 @@ class Librarian:
                             identifiers_json=excluded.identifiers_json, series=excluded.series,
                             series_index=excluded.series_index, publisher=excluded.publisher,
                             language=excluded.language, published=excluded.published,
-                            warning=excluded.warning, updated_at=excluded.updated_at
+                            warning=excluded.warning, updated_at=excluded.updated_at,
+                            title_provenance=excluded.title_provenance,
+                            author_provenance=excluded.author_provenance
                         """,
                         (
                             relative, path.name, path.suffix.casefold(), stat.st_size, stat.st_mtime_ns,
-                            digest, metadata.title if metadata else "", metadata.author if metadata else "",
+                            digest, title, author,
                             json.dumps(metadata.identifiers if metadata else ()), metadata.series if metadata else "",
                             metadata.series_index if metadata else "", metadata.publisher if metadata else "",
                             metadata.language if metadata else "", metadata.published if metadata else "", warning,
                             datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                            title_provenance, author_provenance,
                         ),
                     )
             stale = [row[0] for row in connection.execute("SELECT source_relative_path FROM edition_items") if row[0] not in seen]
@@ -464,6 +505,219 @@ class Librarian:
                 claimed.update(row[0] for row in members)
         return tuple(groups[: max(1, min(limit, 50))])
 
+    def metadata_review_items(self, limit: int = METADATA_REVIEW_SIZE) -> tuple[MetadataReviewItem, ...]:
+        """List a bounded set of safe, incomplete Intake catalogue records."""
+
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_metadata_review_schema(connection)
+            rows = connection.execute(
+                """SELECT source_relative_path,filename,size_bytes,modified_ns,sha256,
+                          title,author,identifiers_json,warning,title_provenance,author_provenance
+                   FROM edition_items ORDER BY source_relative_path COLLATE NOCASE"""
+            ).fetchall()
+            if not rows:
+                raise LibrarianError("The edition catalogue is empty. Catalogue the books first.")
+            conflicts = self._edition_conflict_paths(rows)
+            items = []
+            for row in rows:
+                relative, filename, _, _, digest, title, author, _, warning, title_source, author_source = row
+                if not relative.casefold().startswith("intake/") or warning or relative in conflicts:
+                    continue
+                title_source = title_source or ("filename" if title == Path(filename).stem else "embedded")
+                author_source = author_source or (
+                    "unknown" if self._identity_key(author) in {"", "unknownauthor"} else "embedded"
+                )
+                title_missing = self._identity_key(title) in {"", "untitled", "unknown"} or title_source == "filename"
+                author_missing = self._identity_key(author) in {"", "unknownauthor"} or author_source == "unknown"
+                if not (title_missing or author_missing):
+                    continue
+                items.append(MetadataReviewItem(
+                    relative, digest, title, author, title_source, author_source,
+                    Path(filename).stem,
+                ))
+            return tuple(items[: max(1, min(limit, self.METADATA_REVIEW_SIZE))])
+        except LibrarianError:
+            raise
+        except sqlite3.DatabaseError as error:
+            raise LibrarianError("The Librarian could not open the Metadata Review Desk safely.") from error
+        finally:
+            connection.close()
+
+    def begin_metadata_review(self, source_relative_path: str) -> MetadataReviewDraft:
+        """Open one exact incomplete record without promoting any suggestion."""
+
+        clean = source_relative_path.removeprefix("The Stacks/").strip().replace("\\", "/")
+        candidates = self.metadata_review_items(self.MAX_FILES)
+        matches = [item for item in candidates if item.source_relative_path.casefold() == clean.casefold()]
+        if len(matches) != 1:
+            raise LibrarianError("That item is not an available incomplete-metadata record.")
+        item = matches[0]
+        source = self._path_from_stacks_relative(item.source_relative_path)
+        if not source.is_file() or self._sha256(source) != item.source_sha256:
+            raise LibrarianError("That source changed after cataloguing. Catalogue the books again before review.")
+        title = item.catalogued_title if item.title_provenance in {"embedded", "drew-confirmed"} else ""
+        author = item.catalogued_author if item.author_provenance in {"embedded", "drew-confirmed"} else ""
+        review_id = f"MR-{secrets.token_hex(4).upper()}"
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_metadata_review_schema(connection)
+            with connection:
+                connection.execute(
+                    "UPDATE metadata_review_jobs SET status='superseded',resolved_at=? WHERE status='pending'",
+                    (now,),
+                )
+                connection.execute(
+                    """INSERT INTO metadata_review_jobs
+                           (review_id,source_relative_path,source_sha256,original_title,original_author,
+                            suggested_title,draft_title,draft_author,created_at,status,resolved_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', '')""",
+                    (review_id, item.source_relative_path, item.source_sha256, item.catalogued_title,
+                     item.catalogued_author, item.filename_title_suggestion, title, author, now),
+                )
+            return MetadataReviewDraft(review_id, item.source_relative_path, item.source_sha256,
+                                       item.catalogued_title, item.catalogued_author,
+                                       item.filename_title_suggestion, title, author, "pending")
+        except sqlite3.DatabaseError as error:
+            raise LibrarianError("The Librarian could not begin that metadata review safely.") from error
+        finally:
+            connection.close()
+
+    def update_metadata_review(self, review_id: str, field: str, value: str) -> MetadataReviewDraft:
+        """Stage one Drew-supplied title or author for explicit later confirmation."""
+
+        clean_id = review_id.strip().upper()
+        clean_field = field.strip().casefold()
+        clean_value = " ".join(value.split()).strip()
+        if not re.fullmatch(r"MR-[A-F0-9]{8}", clean_id) or clean_field not in {"title", "author"}:
+            raise LibrarianError("That metadata-review instruction is invalid.")
+        if not clean_value or len(clean_value) > 240 or self._identity_key(clean_value) in {"unknown", "unknownauthor", "untitled"}:
+            raise LibrarianError("Give the Librarian a specific title or author, not an unknown placeholder.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_metadata_review_schema(connection)
+            column = "draft_title" if clean_field == "title" else "draft_author"
+            with connection:
+                changed = connection.execute(
+                    f"UPDATE metadata_review_jobs SET {column}=? WHERE review_id=? AND status='pending'",
+                    (clean_value, clean_id),
+                ).rowcount
+            if not changed:
+                raise LibrarianError("That metadata review is unavailable or already resolved.")
+            return self._metadata_review_draft(connection, clean_id)
+        finally:
+            connection.close()
+
+    def confirm_metadata_review(self, review_id: str) -> MetadataReviewDraft:
+        """Confirm staged facts for one unchanged SHA-256 source without rewriting it."""
+
+        clean_id = review_id.strip().upper()
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_metadata_review_schema(connection)
+            draft = self._metadata_review_draft(connection, clean_id)
+            if draft.status != "pending":
+                raise LibrarianError("That metadata review is unavailable or already resolved.")
+            if not draft.draft_title or not draft.draft_author:
+                raise LibrarianError("Both a specific title and author must be supplied before this review can be saved.")
+            source = self._path_from_stacks_relative(draft.source_relative_path)
+            if not source.is_file() or self._sha256(source) != draft.source_sha256:
+                raise LibrarianError("That source changed during review. Nothing was saved.")
+            now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            with connection:
+                connection.execute(
+                    """INSERT INTO metadata_overrides
+                           (source_sha256,source_relative_path,title,author,review_id,confirmed_at)
+                       VALUES (?, ?, ?, ?, ?, ?)
+                       ON CONFLICT(source_sha256) DO UPDATE SET source_relative_path=excluded.source_relative_path,
+                           title=excluded.title,author=excluded.author,review_id=excluded.review_id,
+                           confirmed_at=excluded.confirmed_at""",
+                    (draft.source_sha256, draft.source_relative_path, draft.draft_title,
+                     draft.draft_author, clean_id, now),
+                )
+                connection.execute(
+                    """UPDATE edition_items SET title=?,author=?,title_provenance='drew-confirmed',
+                           author_provenance='drew-confirmed',updated_at=?
+                       WHERE source_relative_path=? AND sha256=?""",
+                    (draft.draft_title, draft.draft_author, now, draft.source_relative_path, draft.source_sha256),
+                )
+                connection.execute(
+                    "UPDATE metadata_review_jobs SET status='confirmed',resolved_at=? WHERE review_id=?",
+                    (now, clean_id),
+                )
+            return MetadataReviewDraft(**{**draft.__dict__, "status": "confirmed"})
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not save that metadata review safely.") from error
+        finally:
+            connection.close()
+
+    def cancel_metadata_review(self, review_id: str) -> MetadataReviewDraft:
+        clean_id = review_id.strip().upper()
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_metadata_review_schema(connection)
+            draft = self._metadata_review_draft(connection, clean_id)
+            if draft.status != "pending":
+                raise LibrarianError("That metadata review is unavailable or already resolved.")
+            with connection:
+                connection.execute(
+                    "UPDATE metadata_review_jobs SET status='left',resolved_at=? WHERE review_id=?",
+                    (datetime.now(timezone.utc).isoformat(timespec="seconds"), clean_id),
+                )
+            return MetadataReviewDraft(**{**draft.__dict__, "status": "left"})
+        finally:
+            connection.close()
+
+    @staticmethod
+    def _metadata_review_draft(connection: sqlite3.Connection, review_id: str) -> MetadataReviewDraft:
+        row = connection.execute(
+            """SELECT review_id,source_relative_path,source_sha256,original_title,original_author,
+                      suggested_title,draft_title,draft_author,status
+               FROM metadata_review_jobs WHERE review_id=?""",
+            (review_id,),
+        ).fetchone()
+        if row is None:
+            raise LibrarianError("That metadata review does not exist.")
+        return MetadataReviewDraft(*row)
+
+    @staticmethod
+    def metadata_review_list_response(items: tuple[MetadataReviewItem, ...]) -> str:
+        if not items:
+            return "The Librarian found no safe incomplete-metadata items awaiting review."
+        lines = []
+        for item in items:
+            title = item.catalogued_title if item.title_provenance != "filename" else "Not confirmed"
+            author = item.catalogued_author if item.author_provenance != "unknown" else "Unknown"
+            lines.append(
+                f"- The Stacks/{item.source_relative_path}\n"
+                f"  Catalogued title: {title}\n  Catalogued author: {author}\n"
+                f"  Filename suggestion only: {item.filename_title_suggestion}"
+            )
+        return (
+            f"The Librarian found {len(items)} incomplete item(s) safe to review (maximum {Librarian.METADATA_REVIEW_SIZE}):\n\n"
+            + "\n".join(lines)
+            + "\n\nNothing has changed. Say `review <displayed title or filename>` to open one item."
+        )
+
+    @staticmethod
+    def metadata_review_draft_response(draft: MetadataReviewDraft) -> str:
+        return (
+            f"Metadata review: {draft.review_id}\n"
+            f"File: The Stacks/{draft.source_relative_path}\n"
+            f"Catalogued title: {draft.original_title or 'Unknown'}\n"
+            f"Catalogued author: {draft.original_author or 'Unknown'}\n"
+            f"Filename suggestion only: {draft.suggested_title}\n\n"
+            f"Staged title: {draft.draft_title or 'Not supplied'}\n"
+            f"Staged author: {draft.draft_author or 'Not supplied'}\n\n"
+            "Say `title is ...` or `author is ...`. Nothing becomes canonical until you say `save that`; "
+            "say `leave it` to retain the item unchanged."
+        )
+
     def prepare_shelving_batch(self) -> ShelvingBatchProposal:
         """Prepare a small source-backed Intake shelving batch without moving files."""
 
@@ -472,11 +726,14 @@ class Librarian:
             self._initialize_reading_schema(connection)
             self._initialize_edition_schema(connection)
             self._initialize_shelving_batch_schema(connection)
+            self._initialize_metadata_review_schema(connection)
             rows = connection.execute(
                 """SELECT source_relative_path,filename,size_bytes,modified_ns,sha256,
                           title,author,identifiers_json,warning
                    FROM edition_items
-                   ORDER BY source_relative_path COLLATE NOCASE"""
+                   ORDER BY CASE WHEN title_provenance='drew-confirmed'
+                                      OR author_provenance='drew-confirmed' THEN 0 ELSE 1 END,
+                            source_relative_path COLLATE NOCASE"""
             ).fetchall()
             intake_rows = [row for row in rows if row[0].casefold().startswith("intake/")]
             if not intake_rows:
@@ -637,6 +894,10 @@ class Librarian:
                     )
                     connection.execute(
                         "UPDATE reading_sessions SET source_relative_path=? WHERE source_sha256=?",
+                        (new_relative, item.source_sha256),
+                    )
+                    connection.execute(
+                        "UPDATE metadata_overrides SET source_relative_path=? WHERE source_sha256=?",
                         (new_relative, item.source_sha256),
                     )
                 connection.execute(
@@ -1680,7 +1941,46 @@ class Librarian:
                 language TEXT NOT NULL,
                 published TEXT NOT NULL,
                 warning TEXT NOT NULL,
-                updated_at TEXT NOT NULL
+                updated_at TEXT NOT NULL,
+                title_provenance TEXT NOT NULL DEFAULT '',
+                author_provenance TEXT NOT NULL DEFAULT ''
+            )
+            """
+        )
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(edition_items)")}
+        if "title_provenance" not in columns:
+            connection.execute("ALTER TABLE edition_items ADD COLUMN title_provenance TEXT NOT NULL DEFAULT ''")
+        if "author_provenance" not in columns:
+            connection.execute("ALTER TABLE edition_items ADD COLUMN author_provenance TEXT NOT NULL DEFAULT ''")
+
+    @staticmethod
+    def _initialize_metadata_review_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS metadata_review_jobs (
+                review_id TEXT PRIMARY KEY,
+                source_relative_path TEXT NOT NULL,
+                source_sha256 TEXT NOT NULL,
+                original_title TEXT NOT NULL,
+                original_author TEXT NOT NULL,
+                suggested_title TEXT NOT NULL,
+                draft_title TEXT NOT NULL,
+                draft_author TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS metadata_overrides (
+                source_sha256 TEXT PRIMARY KEY,
+                source_relative_path TEXT NOT NULL,
+                title TEXT NOT NULL,
+                author TEXT NOT NULL,
+                review_id TEXT NOT NULL,
+                confirmed_at TEXT NOT NULL
             )
             """
         )

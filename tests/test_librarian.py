@@ -706,6 +706,103 @@ class LibrarianTest(unittest.TestCase):
             self.assertTrue((paths.intake / "lamp.epub").is_file())
             self.assertTrue((paths.originals / "Alex Example" / "The Scroll" / "scroll.epub").is_file())
 
+    def test_metadata_review_keeps_filename_suggestion_separate_and_unlocks_shelving(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "The Brass Lamp.txt"
+            source.write_text("An unchanged private book.", encoding="utf-8")
+            original = source.read_bytes()
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+
+            items = librarian.metadata_review_items()
+            self.assertEqual(len(items), 1)
+            self.assertEqual(items[0].filename_title_suggestion, "The Brass Lamp")
+            self.assertEqual(items[0].title_provenance, "filename")
+            draft = librarian.begin_metadata_review(items[0].source_relative_path)
+            self.assertEqual(draft.draft_title, "")
+            librarian.update_metadata_review(draft.review_id, "title", "The Brass Lamp")
+            librarian.update_metadata_review(draft.review_id, "author", "Alex Example")
+            saved = librarian.confirm_metadata_review(draft.review_id)
+
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual(saved.status, "confirmed")
+            proposal = librarian.prepare_shelving_batch()
+            self.assertEqual(len(proposal.ready), 1)
+            self.assertEqual(proposal.ready[0].title, "The Brass Lamp")
+            self.assertEqual(proposal.ready[0].author, "Alex Example")
+
+            librarian.catalogue_editions()
+            connection = sqlite3.connect(root / "catalogue.db")
+            try:
+                row = connection.execute(
+                    "SELECT title,author,title_provenance,author_provenance FROM edition_items"
+                ).fetchone()
+            finally:
+                connection.close()
+            self.assertEqual(row, ("The Brass Lamp", "Alex Example", "drew-confirmed", "drew-confirmed"))
+
+    def test_metadata_review_refuses_changed_source_and_leave_preserves_catalogue(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "Uncertain.txt"
+            source.write_text("first", encoding="utf-8")
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+            first = librarian.begin_metadata_review("Intake/Uncertain.txt")
+            librarian.update_metadata_review(first.review_id, "title", "Certain")
+            librarian.update_metadata_review(first.review_id, "author", "Writer")
+            source.write_text("changed", encoding="utf-8")
+            with self.assertRaisesRegex(LibrarianError, "changed during review"):
+                librarian.confirm_metadata_review(first.review_id)
+
+            librarian.catalogue_editions()
+            second = librarian.begin_metadata_review("Intake/Uncertain.txt")
+            librarian.cancel_metadata_review(second.review_id)
+            connection = sqlite3.connect(root / "catalogue.db")
+            try:
+                author = connection.execute("SELECT author FROM edition_items").fetchone()[0]
+                overrides = connection.execute("SELECT COUNT(*) FROM metadata_overrides").fetchone()[0]
+            finally:
+                connection.close()
+            self.assertEqual(author, "Unknown Author")
+            self.assertEqual(overrides, 0)
+
+    def test_natural_metadata_review_requires_displayed_context_and_explicit_save(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "Nightmare Keep.txt"
+            source.write_text("kept unchanged", encoding="utf-8")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            absent = delegator.handle("review Nightmare Keep")
+            self.assertFalse(absent.handled)
+            listed = delegator.handle("show me books needing metadata")
+            self.assertIn("Filename suggestion only: Nightmare Keep", listed.response)
+            opened = delegator.handle("review Nightmare Keep")
+            self.assertIn("Nothing becomes canonical", opened.response)
+            delegator.handle("title is Nightmare Keep")
+            delegator.handle("author is Drew Example")
+            saved = delegator.handle("save that")
+
+            self.assertIn("book itself was not rewritten", saved.response)
+            self.assertEqual(source.read_text(encoding="utf-8"), "kept unchanged")
+            shelving = delegator.handle("show me what can be shelved")
+            self.assertIn("Ready (1", shelving.response)
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:

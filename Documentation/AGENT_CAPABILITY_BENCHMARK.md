@@ -67,7 +67,7 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Build 0.28 increment achieved:** scaled coherent storage from one explicitly named item to a maximum five-item catalogue-backed Intake batch. It separated safe source-metadata proposals from 28 uncertain or conflicting items, retained natural exclusion and approval, performed complete preflight, and moved four verified originals while preserving hashes and catalogue paths. This remains Level 2 collection management rather than evidence-led investigation.
 
-**Next increment:** Build 0.29 creates a bounded Metadata Review Desk for incomplete held items. Embedded metadata, filename-derived suggestions, and Drew-confirmed corrections must remain distinct; only explicit confirmation may alter local catalogue identity or enable a shelving proposal.
+**Build 0.29 increment achieved:** added a bounded Metadata Review Desk for incomplete held items. Embedded metadata, filename-derived suggestions, and Drew-confirmed corrections remain distinct; only explicit confirmation against an unchanged exact-source hash may alter local catalogue identity or enable an ordinary shelving proposal. Sandstorm passed both leave and confirm paths and entered the ordinary shelving preview without source-byte changes. This strengthens governable Level 2 collection management but does not yet add autonomous metadata research or preferred-edition judgment.
 
 **Not yet present:** preferred decisions between non-identical editions, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
 
@@ -94,6 +94,6 @@ Update the entry when a build begins, after live acceptance, and during every re
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
 | Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
-| Librarian | Level 2 | Build 0.28 bounded Intake shelving is accepted; Build 0.29 will address incomplete metadata without silent inference. |
+| Librarian | Level 2 | Build 0.29 bounded metadata review is accepted; autonomous metadata research and non-identical preferred-edition judgment remain absent. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

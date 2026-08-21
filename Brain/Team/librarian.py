@@ -148,6 +148,16 @@ class MetadataReviewDraft:
     status: str
 
 
+@dataclass(frozen=True)
+class PreferredEditionProposal:
+    preference_id: str
+    evidence: str
+    identity: str
+    chosen_relative_path: str
+    chosen_sha256: str
+    members: tuple[tuple[str, str, int], ...]
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -545,6 +555,132 @@ class Librarian:
         finally:
             connection.close()
 
+    def prepare_preferred_edition(
+        self,
+        evidence: str,
+        identity: str,
+        member_paths: tuple[str, ...],
+        chosen_relative_path: str,
+    ) -> PreferredEditionProposal:
+        """Prepare a non-mutating preference between displayed non-identical editions."""
+
+        if evidence == "Exact SHA-256 duplicate":
+            raise LibrarianError("Exact byte duplicates use the existing duplicate-resolution desk, not edition preference.")
+        clean_members = tuple(dict.fromkeys(path.removeprefix("The Stacks/").strip().replace("\\", "/") for path in member_paths))
+        chosen = chosen_relative_path.removeprefix("The Stacks/").strip().replace("\\", "/")
+        if len(clean_members) < 2 or chosen.casefold() not in {path.casefold() for path in clean_members}:
+            raise LibrarianError("The preferred edition must be one exact member of the displayed relationship group.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_preferred_edition_schema(connection)
+            placeholders = ",".join("?" for _ in clean_members)
+            rows = connection.execute(
+                f"SELECT source_relative_path,sha256,size_bytes FROM edition_items WHERE source_relative_path IN ({placeholders})",
+                clean_members,
+            ).fetchall()
+            if len(rows) != len(clean_members):
+                raise LibrarianError("One of those displayed editions is no longer in the catalogue.")
+            by_path = {row[0].casefold(): row for row in rows}
+            ordered = tuple(by_path[path.casefold()] for path in clean_members)
+            if len({row[1] for row in ordered}) < 2:
+                raise LibrarianError("Those files are byte-identical and cannot be resolved as preferred non-identical editions.")
+            for path, digest, _ in ordered:
+                source = self._path_from_stacks_relative(path)
+                if not source.is_file() or self._sha256(source) != digest:
+                    raise LibrarianError("A displayed edition changed after cataloguing. Catalogue the books again first.")
+            chosen_row = by_path[chosen.casefold()]
+            preference_id = f"PE-{secrets.token_hex(4).upper()}"
+            now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            members_json = json.dumps([
+                {"source_relative_path": path, "sha256": digest, "size_bytes": size}
+                for path, digest, size in ordered
+            ])
+            with connection:
+                connection.execute(
+                    "UPDATE preferred_edition_jobs SET status='superseded',resolved_at=? WHERE status='pending'",
+                    (now,),
+                )
+                connection.execute(
+                    """INSERT INTO preferred_edition_jobs
+                           (preference_id,evidence,identity,chosen_relative_path,chosen_sha256,
+                            members_json,created_at,status,resolved_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', '')""",
+                    (preference_id, evidence, identity, chosen_row[0], chosen_row[1], members_json, now),
+                )
+            return PreferredEditionProposal(
+                preference_id, evidence, identity, chosen_row[0], chosen_row[1],
+                tuple((path, digest, size) for path, digest, size in ordered),
+            )
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not prepare that edition preference safely.") from error
+        finally:
+            connection.close()
+
+    def approve_preferred_edition(self, preference_id: str) -> PreferredEditionProposal:
+        """Record Drew's chosen reading edition without moving or deleting any file."""
+
+        clean_id = preference_id.strip().upper()
+        if not re.fullmatch(r"PE-[A-F0-9]{8}", clean_id):
+            raise LibrarianError("That preferred-edition identifier is invalid.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_preferred_edition_schema(connection)
+            row = connection.execute(
+                """SELECT evidence,identity,chosen_relative_path,chosen_sha256,members_json,status
+                   FROM preferred_edition_jobs WHERE preference_id=?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[5] != "pending":
+                raise LibrarianError("That edition preference is unavailable or already resolved.")
+            evidence, identity, chosen_path, chosen_hash, members_json, _ = row
+            members_data = json.loads(members_json)
+            members = tuple((item["source_relative_path"], item["sha256"], item["size_bytes"]) for item in members_data)
+            for path, digest, _ in members:
+                source = self._path_from_stacks_relative(path)
+                if not source.is_file() or self._sha256(source) != digest:
+                    raise LibrarianError("An edition changed after review. Nothing was preferred.")
+            fingerprint = self._preference_fingerprint(digest for _, digest, _ in members)
+            now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            with connection:
+                connection.execute(
+                    """INSERT INTO preferred_editions
+                           (group_fingerprint,evidence,identity,chosen_sha256,members_json,
+                            preference_id,confirmed_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)
+                       ON CONFLICT(group_fingerprint) DO UPDATE SET evidence=excluded.evidence,
+                           identity=excluded.identity,chosen_sha256=excluded.chosen_sha256,
+                           members_json=excluded.members_json,preference_id=excluded.preference_id,
+                           confirmed_at=excluded.confirmed_at""",
+                    (fingerprint, evidence, identity, chosen_hash, members_json, clean_id, now),
+                )
+                connection.execute(
+                    "UPDATE preferred_edition_jobs SET status='preferred',resolved_at=? WHERE preference_id=?",
+                    (now, clean_id),
+                )
+            return PreferredEditionProposal(clean_id, evidence, identity, chosen_path, chosen_hash, members)
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError, KeyError, TypeError, json.JSONDecodeError) as error:
+            raise LibrarianError("The Librarian could not record that edition preference safely.") from error
+        finally:
+            connection.close()
+
+    @staticmethod
+    def preferred_edition_response(proposal: PreferredEditionProposal) -> str:
+        members = "\n".join(
+            f"- The Stacks/{path} ({size:,} bytes){' — preferred' if path == proposal.chosen_relative_path else ' — retained alternative'}"
+            for path, _, size in proposal.members
+        )
+        return (
+            "The Librarian prepared a preferred-edition decision.\n\n"
+            f"Preference: {proposal.preference_id}\nEvidence: {proposal.evidence}\n"
+            f"Relationship: {proposal.identity}\n{members}\n\n"
+            "Nothing has moved or been deleted. To record this reading preference, say `yes, do that`."
+        )
+
     def begin_metadata_review(self, source_relative_path: str) -> MetadataReviewDraft:
         """Open one exact incomplete record without promoting any suggestion."""
 
@@ -726,6 +862,7 @@ class Librarian:
             self._initialize_reading_schema(connection)
             self._initialize_edition_schema(connection)
             self._initialize_shelving_batch_schema(connection)
+            self._initialize_preferred_edition_schema(connection)
             self._initialize_metadata_review_schema(connection)
             rows = connection.execute(
                 """SELECT source_relative_path,filename,size_bytes,modified_ns,sha256,
@@ -740,7 +877,9 @@ class Librarian:
                 raise LibrarianError(
                     "The edition catalogue has no Intake items. Catalogue the books first, or Intake is already clear."
                 )
-            conflicts = self._edition_conflict_paths(rows)
+            conflict_groups = self._edition_conflict_groups(rows)
+            conflicts = {path for group in conflict_groups for path in group}
+            preferences = self._preferred_edition_dispositions(connection, rows, conflict_groups)
             pending_single = {
                 f"Intake/{row[0]}" for row in connection.execute(
                     "SELECT source_relative_path FROM shelving_jobs WHERE status='pending'"
@@ -765,7 +904,9 @@ class Librarian:
                     reason = "author metadata is unknown"
                 elif self._identity_key(title) in {"", "untitled", "unknown"}:
                     reason = "title metadata is unknown"
-                elif relative in conflicts:
+                elif preferences.get(relative) == "alternate":
+                    reason = "another exact edition was explicitly preferred; this alternative remains retained"
+                elif relative in conflicts and preferences.get(relative) != "preferred":
                     reason = "edition relationship requires separate review"
                 elif relative in pending_single:
                     reason = "an earlier single-item shelving proposal is still pending"
@@ -786,6 +927,14 @@ class Librarian:
                     proposed_seen.add(proposed.casefold())
                     candidates.append(item)
 
+            candidates.sort(key=lambda item: (
+                0 if preferences.get(item.source_relative_path) == "preferred" else 1,
+                item.source_relative_path.casefold(),
+            ))
+            held.sort(key=lambda item: (
+                0 if preferences.get(item.source_relative_path) == "alternate" else 1,
+                item.source_relative_path.casefold(),
+            ))
             ready = []
             considered = 0
             for item in candidates:
@@ -1008,16 +1157,17 @@ class Librarian:
 
     @classmethod
     def _edition_conflict_paths(cls, rows) -> set[str]:
-        conflicts: set[str] = set()
-        for index in (4,):
-            grouped = {}
-            for row in rows:
-                if row[index]:
-                    grouped.setdefault(row[index], []).append(row[0])
-            conflicts.update(path for members in grouped.values() if len(members) > 1 for path in members)
+        return {path for group in cls._edition_conflict_groups(rows) for path in group}
+
+    @classmethod
+    def _edition_conflict_groups(cls, rows) -> set[frozenset[str]]:
+        groups: set[frozenset[str]] = set()
+        hashes = {}
         identifiers = {}
         works = {}
         for row in rows:
+            if row[4]:
+                hashes.setdefault(row[4], []).append(row[0])
             for scheme, value in json.loads(row[7] or "[]"):
                 if scheme.casefold() not in {"uuid", "identifier"} and cls._identity_key(value):
                     identifiers.setdefault((scheme.casefold(), cls._identity_key(value)), []).append(row[0])
@@ -1025,9 +1175,42 @@ class Librarian:
             author_key = cls._identity_key(row[6])
             if title_key not in {"", "untitled", "unknown"} and author_key not in {"", "unknownauthor"}:
                 works.setdefault((author_key, title_key), []).append(row[0])
-        conflicts.update(path for members in identifiers.values() if len(set(members)) > 1 for path in members)
-        conflicts.update(path for members in works.values() if len(set(members)) > 1 for path in members)
-        return conflicts
+        for grouped in (hashes, identifiers, works):
+            groups.update(frozenset(members) for members in grouped.values() if len(set(members)) > 1)
+        return groups
+
+    @classmethod
+    def _preferred_edition_dispositions(cls, connection, rows, conflict_groups) -> dict[str, str]:
+        cls._initialize_preferred_edition_schema(connection)
+        path_hash = {row[0]: row[4] for row in rows}
+        preferences = {}
+        for chosen_hash, members_json in connection.execute(
+            "SELECT chosen_sha256,members_json FROM preferred_editions"
+        ):
+            try:
+                member_hashes = frozenset(item["sha256"] for item in json.loads(members_json))
+            except (KeyError, TypeError, json.JSONDecodeError):
+                continue
+            preferences[member_hashes] = chosen_hash
+        dispositions = {}
+        for path in path_hash:
+            related = [group for group in conflict_groups if path in group]
+            if not related:
+                continue
+            decisions = []
+            for group in related:
+                hashes = frozenset(path_hash[member] for member in group)
+                chosen_hash = preferences.get(hashes)
+                decisions.append(None if chosen_hash is None else chosen_hash == path_hash[path])
+            if all(decision is True for decision in decisions):
+                dispositions[path] = "preferred"
+            elif all(decision is not None for decision in decisions) and any(decision is False for decision in decisions):
+                dispositions[path] = "alternate"
+        return dispositions
+
+    @staticmethod
+    def _preference_fingerprint(hashes) -> str:
+        return hashlib.sha256("\n".join(sorted(set(hashes))).encode("ascii")).hexdigest()
 
     def prepare_exact_duplicate_resolution(
         self,
@@ -1980,6 +2163,37 @@ class Librarian:
                 title TEXT NOT NULL,
                 author TEXT NOT NULL,
                 review_id TEXT NOT NULL,
+                confirmed_at TEXT NOT NULL
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_preferred_edition_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS preferred_edition_jobs (
+                preference_id TEXT PRIMARY KEY,
+                evidence TEXT NOT NULL,
+                identity TEXT NOT NULL,
+                chosen_relative_path TEXT NOT NULL,
+                chosen_sha256 TEXT NOT NULL,
+                members_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS preferred_editions (
+                group_fingerprint TEXT PRIMARY KEY,
+                evidence TEXT NOT NULL,
+                identity TEXT NOT NULL,
+                chosen_sha256 TEXT NOT NULL,
+                members_json TEXT NOT NULL,
+                preference_id TEXT NOT NULL,
                 confirmed_at TEXT NOT NULL
             )
             """

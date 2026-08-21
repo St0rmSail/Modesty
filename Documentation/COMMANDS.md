@@ -36,7 +36,9 @@ For ordinary work, speak to the visible context rather than memorizing job ident
 
 - `catalogue the books`
 - `show me the duplicates`
+- `show me the edition choices`
 - `keep the Handbooks copy of Song and Silence`
+- `prefer <displayed folder or filename>` — prepares a preference only for one displayed non-identical edition
 - `yes, do that` — approves only the single duplicate-resolution preview prepared in this Study session
 - `open Axeman at chapter 12`
 - `keep reading`
@@ -66,6 +68,7 @@ If a description matches more than one displayed file, Modesty asks for the titl
 - `Ask the Librarian to review edition groups`
 - `Ask the Librarian to prepare exact duplicate resolution: <hash> keep: <Stacks relative path>`
 - `Approve Librarian duplicate resolution: <DR-ID>`
+- `Approve Librarian preferred edition: <PE-ID>`
 - `Ask the Librarian to prepare a bounded Intake shelving batch`
 - `Approve Librarian shelving batch: <LB-ID>`
 - `Ask the Librarian to review incomplete metadata`
@@ -81,6 +84,8 @@ The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly insi
 **Identify works and editions** incrementally reads source-supplied title, author, strong identifiers, series, series number, publisher, language, and publication date from supported files in Intake and Originals. Each invocation refreshes at most 25 changed or new files so the Study remains responsive; repeat until the reported remaining count is zero. It reports exact byte duplicates separately from shared identifiers and normalized title/author review leads. It reuses unchanged catalogue entries and never merges, renames, moves, deletes, or overwrites a file.
 
 **Review edition groups** lists each bounded relationship once at its strongest available evidence level: exact SHA-256 duplicate, shared strong identifier, or possible same work by title and author. Generic unknown-author and untitled metadata is excluded from weak grouping. Review does not choose a preferred edition or change a file.
+
+**Show me the edition choices** uses that same visible relationship review. **Prefer ...** may select one unambiguous member only from a displayed non-identical group; exact byte duplicates continue to use duplicate resolution. The preference preview shows the chosen reading edition and every retained alternative. Contextual **yes, do that** rechecks every member hash and records the preferred exact edition locally. No file moves or is deleted. The chosen edition may then enter the ordinary shelving preview, while alternatives remain held and retained.
 
 **Prepare exact duplicate resolution** accepts only a currently catalogued SHA-256 duplicate group and requires Drew to name the exact member that stays canonical. Preparation changes nothing and reports every proposed Archive destination. Exact `DR-ID` approval rechecks every hash and destination, leaves the chosen copy in place, and moves redundant byte-identical copies into `The Stacks/Archive/Exact Duplicates/<hash>/...`. Nothing is deleted. Shared identifiers and possible same-work groups are ineligible.
 

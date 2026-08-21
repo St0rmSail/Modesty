@@ -803,6 +803,92 @@ class LibrarianTest(unittest.TestCase):
             shelving = delegator.handle("show me what can be shelved")
             self.assertIn("Ready (1", shelving.response)
 
+    def test_preferred_nonidentical_edition_unlocks_only_chosen_copy(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            first = paths.intake / "First" / "story.epub"
+            second = paths.intake / "Second" / "story.epub"
+            first.parent.mkdir()
+            second.parent.mkdir()
+            self._write_identity_epub(first, "Shared Story", "Alex Author", "9785555555555", "", "", "first")
+            self._write_identity_epub(second, "Shared Story", "Alex Author", "9785555555555", "", "", "second")
+            original_hashes = {first: Librarian._sha256(first), second: Librarian._sha256(second)}
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+            groups = librarian.edition_review_groups()
+            group = next(group for group in groups if group.evidence == "Shared strong identifier")
+
+            proposal = librarian.prepare_preferred_edition(
+                group.evidence, group.identity, tuple(item[0] for item in group.files), "Intake/Second/story.epub"
+            )
+            self.assertIn("Nothing has moved or been deleted", librarian.preferred_edition_response(proposal))
+            librarian.approve_preferred_edition(proposal.preference_id)
+            batch = librarian.prepare_shelving_batch()
+
+            self.assertEqual([item.source_relative_path for item in batch.ready], ["Intake/Second/story.epub"])
+            self.assertTrue(any(
+                item.source_relative_path == "Intake/First/story.epub" and "preferred" in item.reason
+                for item in batch.held
+            ))
+            self.assertEqual(original_hashes, {first: Librarian._sha256(first), second: Librarian._sha256(second)})
+
+    def test_natural_preferred_edition_uses_displayed_group_and_contextual_approval(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            first = paths.intake / "Early" / "story.epub"
+            second = paths.intake / "Later" / "story.epub"
+            first.parent.mkdir()
+            second.parent.mkdir()
+            self._write_identity_epub(first, "Story", "Writer", "9786666666666", "", "", "early")
+            self._write_identity_epub(second, "Story", "Writer", "9786666666666", "", "", "later")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            missing = delegator.handle("prefer the Later copy")
+            self.assertIn("Show me the edition choices", missing.response)
+            shown = delegator.handle("show me the edition choices")
+            self.assertIn("Shared strong identifier", shown.response)
+            prepared = delegator.handle("prefer the Later copy")
+            self.assertIn("preferred-edition decision", prepared.response)
+            approved = delegator.handle("yes, do that")
+
+            self.assertIn("preferred reading edition", approved.response)
+            self.assertTrue(first.is_file())
+            self.assertTrue(second.is_file())
+            preview = delegator.handle("show me what can be shelved")
+            self.assertIn("Intake/Later/story.epub", preview.response)
+            self.assertIn("alternative remains retained", preview.response)
+
+    def test_preferred_edition_approval_refuses_changed_member(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            first = paths.intake / "first.epub"
+            second = paths.intake / "second.epub"
+            self._write_identity_epub(first, "Story", "Writer", "9787777777777", "", "", "first")
+            self._write_identity_epub(second, "Story", "Writer", "9787777777777", "", "", "second")
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+            group = next(group for group in librarian.edition_review_groups() if group.evidence == "Shared strong identifier")
+            proposal = librarian.prepare_preferred_edition(
+                group.evidence, group.identity, tuple(item[0] for item in group.files), "Intake/first.epub"
+            )
+            second.write_bytes(b"changed")
+
+            with self.assertRaisesRegex(LibrarianError, "changed after review"):
+                librarian.approve_preferred_edition(proposal.preference_id)
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:

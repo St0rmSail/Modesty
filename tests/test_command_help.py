@@ -73,7 +73,9 @@ class CommandHelpTest(unittest.TestCase):
     def test_librarian_help_is_bounded_and_deterministic(self):
         text = command_help("librarian")
         self.assertIn("show me the duplicates", text)
+        self.assertIn("show me the edition choices", text)
         self.assertIn("keep the Handbooks copy of Song and Silence", text)
+        self.assertIn("prefer <displayed folder or filename>", text)
         self.assertIn("yes, do that", text)
         self.assertIn("open Axeman at chapter 12", text)
         self.assertIn("save my place", text)
@@ -101,6 +103,7 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Ask the Librarian to review edition groups", text)
         self.assertIn("Ask the Librarian to prepare exact duplicate resolution: <hash> keep: <Stacks relative path>", text)
         self.assertIn("Approve Librarian duplicate resolution: <DR-ID>", text)
+        self.assertIn("Approve Librarian preferred edition: <PE-ID>", text)
         self.assertIn("Ask the Librarian to review incomplete metadata", text)
         self.assertIn("Intake", text)
         self.assertIn("does not rename", text)

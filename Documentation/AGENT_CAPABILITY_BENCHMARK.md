@@ -69,6 +69,8 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Build 0.29 increment achieved:** added a bounded Metadata Review Desk for incomplete held items. Embedded metadata, filename-derived suggestions, and Drew-confirmed corrections remain distinct; only explicit confirmation against an unchanged exact-source hash may alter local catalogue identity or enable an ordinary shelving proposal. Sandstorm passed both leave and confirm paths and entered the ordinary shelving preview without source-byte changes. This strengthens governable Level 2 collection management but does not yet add autonomous metadata research or preferred-edition judgment.
 
+**Build 0.30 increment achieved:** explicit preference between displayed non-identical editions now records the chosen exact hash only after all group members are rechecked, retains every alternative, and feeds only the preferred edition into ordinary shelving. The real `Magic in the Blood` pair passed with `(266)` preferred and `(251)` retained. This remains Level 2 because the Librarian does not investigate completeness or rank quality autonomously.
+
 **Not yet present:** preferred decisions between non-identical editions, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
 
 Capable contemporary local library systems such as Calibre already provide mature metadata editing, conversion, device support, and large-catalogue management. Document-management and ebook-repair toolchains can add OCR and validation. Modesty's Librarian is therefore far behind established library software in breadth. Her intended advantage is not replacing those tools prematurely: it is a governable assistant layer that preserves originals, joins provenance and reading continuity across formats, and presents uncertain changes for approval.
@@ -94,6 +96,6 @@ Update the entry when a build begins, after live acceptance, and during every re
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
 | Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
-| Librarian | Level 2 | Build 0.29 bounded metadata review is accepted; autonomous metadata research and non-identical preferred-edition judgment remain absent. |
+| Librarian | Level 2 | Build 0.30 explicit preferred-edition choice is accepted; autonomous completeness investigation and quality ranking remain absent. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

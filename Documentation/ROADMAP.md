@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.29.0 - Metadata Review Desk (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.30.0 - Preferred Edition Desk (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-21
 
 ## Completed build line
@@ -106,6 +106,14 @@ The build must retain source hashes, record original metadata and every confirme
 Implementation candidate, 2026-08-21: the Desk lists at most five safe incomplete Intake records, labels filename title fallbacks as suggestions, stages no suggestion automatically, and accepts contextual `title is`, `author is`, `save that`, and `leave it` guidance. Confirmed values are recorded separately against the exact SHA-256 source and fed into the existing shelving gate. Changed sources fail closed, conflicted or damaged items remain outside the Desk, and source bytes are never rewritten.
 
 Accepted on 2026-08-21: Drew left the Sandstorm suggestion unchanged once, then explicitly confirmed its full title and Bruce R. Cordell authorship. The review and override ledgers retained both dispositions and provenance; the source hash remained unchanged; and the corrected exact source appeared first in the next ordinary shelving preview. Nothing was shelved. All 135 tests passed.
+
+### 0.30.0 - Preferred Edition Desk - Complete
+
+Turn a proven non-identical edition relationship into a bounded user decision without deleting or automatically ranking either source. Drew reviews the existing evidence group, names one exact displayed path as the preferred reading edition, and approves a preview only after every member hash is rechecked.
+
+The preference is keyed to the complete member-hash set. It permits only the chosen exact edition to enter ordinary shelving; alternatives remain retained and visibly held. Exact duplicates keep their separate reversible Archive workflow. Textual completeness analysis, automatic quality ranking, alternate deletion, conversion, and repair remain out of scope. Live acceptance uses the two real `Magic in the Blood` EPUBs and must confirm both remain present while only the chosen copy becomes Ready.
+
+Accepted on 2026-08-21: Drew chose the `(266)` `Magic in the Blood` EPUB from the displayed ISBN-linked pair and approved `PE-ED180937`. Both non-identical source files remained in Intake and matched their recorded hashes. The next ordinary shelving preview put `(266)` first in Ready and held `(251)` as the retained alternative. Nothing moved or was deleted, and all 138 tests passed.
 
 ### 0.25.0 - Edition Review Desk - Complete
 

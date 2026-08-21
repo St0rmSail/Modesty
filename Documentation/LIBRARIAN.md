@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.28 bounded Intake shelving complete; Build 0.29 Metadata Review Desk next
+**Status:** Build 0.30 Preferred Edition Desk complete
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -144,6 +144,16 @@ The run also exposed the next honest bottleneck: many held items lack trustworth
 Live acceptance must demonstrate one deliberately left suggestion, one completed correction, source-byte preservation, and the corrected item appearing in the ordinary shelving preview.
 
 Live acceptance passed on 2026-08-21. Drew first reviewed `[D&D 3.5E ENG] Sandstorm.pdf` and chose `leave it`; review `MR-67345FED` retained empty staged fields with disposition `left`. Drew then explicitly confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell in review `MR-976B4B72`. The override ledger retained the original catalogue fields, confirmed fields, exact source hash, provenance, and resolution. The physical Intake PDF still matched SHA-256 `cb39abef3d51387be1274ee69372893cfce667616aaab46391ed41639f276680`, and ordinary shelving batch `LB-3D28F4A5` placed that corrected exact source first in its Ready list. Nothing was shelved during this acceptance. All 135 automated tests passed.
+
+## Build 0.30 bounded Preferred Edition Desk
+
+`Show me the edition choices` presents the existing evidence-ranked relationship groups. After that visible review, `prefer <displayed folder or filename>` can select exactly one member of a non-identical shared-identifier or title/author group. An ambiguous description stops for clarification, and exact byte duplicates remain under the separate exact-duplicate desk.
+
+The resulting `PE-ID` preview lists the chosen reading edition and every retained alternative. Contextual `yes, do that` is valid only when it is the sole pending Librarian action. Approval rechecks every member's SHA-256 and records the preference by the complete set of exact member hashes; it moves, deletes, rewrites, or archives nothing. The chosen exact edition may then pass the existing shelving gate, while every non-preferred alternative remains held with an explicit retention reason. A later changed edition invalidates stale approval rather than inheriting preference.
+
+Live acceptance should use the two real non-identical `Magic in the Blood` EPUBs: display the relationship, choose one exact path, approve the preference, confirm both sources remain physically present, and verify only the chosen edition enters an ordinary shelving preview. Do not shelve it during this acceptance.
+
+Live acceptance passed on 2026-08-21. Drew preferred `Intake/eBooks/Devon Monk/Magic in the Blood (266)/Magic in the Blood - Devon Monk.epub` through `PE-ED180937`, based on the displayed shared ISBN 9780451462671 relationship. The `(266)` source retained SHA-256 `7e08f29050d19f771aa29b191a9862fb9a914dafdeb899855fd9f919396e296a`; the retained `(251)` alternative retained SHA-256 `a25bb586f7f473b45811eced5b4c7e501948d347d929f2ed1c2ee047778a56d3`. Both files remained physically present in Intake. Ordinary batch `LB-0F661048` placed `(266)` first in Ready while the visible preview held `(251)` as the retained alternative. Nothing was shelved. All 138 automated tests passed.
 
 ## Visual representation
 

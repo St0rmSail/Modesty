@@ -24,9 +24,11 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.29.0 - Metadata Review Desk (complete)**
+**0.30.0 - Preferred Edition Desk (complete)**
 
 Build 0.29 adds a bounded **Metadata Review Desk** for incomplete Intake records. It visibly separates embedded catalogue fields, filename suggestions, and Drew-confirmed corrections; requires both title and author plus explicit `save that`; binds corrections to the unchanged SHA-256 source; never rewrites a book; and sends corrected items back through the ordinary shelving preview. Live acceptance left the Sandstorm suggestion unchanged once, then confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell and placed that exact unchanged source first in the ordinary shelving preview. All 135 tests passed.
+
+Build 0.30 adds a bounded **Preferred Edition Desk** for non-identical files that share relationship evidence. Drew selects one exact displayed edition; approval rechecks every member hash and records only a reading preference. No copy moves or is deleted. Live acceptance preferred the `(266)` `Magic in the Blood` EPUB, retained both exact source files with verified hashes, placed `(266)` first in Ready, and held `(251)` as the retained alternative. All 138 tests passed.
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 

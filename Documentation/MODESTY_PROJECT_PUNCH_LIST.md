@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
 **Current build:** 0.28.0 - Bounded Intake Shelving Desk (complete); 0.19 acceptance paused
-**Current focus:** Build 0.29.0 - Metadata Review Desk
+**Current focus:** Build 0.30.0 - Preferred Edition Desk
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -233,3 +233,17 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Live-test one `leave it`, one completed correction, and the corrected item in the ordinary shelving preview.
 - [x] Verify Sandstorm retained SHA-256 `cb39abef3d51387be1274ee69372893cfce667616aaab46391ed41639f276680` and was not shelved during acceptance.
 - [x] Reconcile acceptance evidence, 135-test count, roadmap, benchmark, and milestone paperwork.
+
+## Build 0.30.0 - Preferred Edition Desk - Complete
+
+- [x] Reuse displayed edition relationships rather than introduce another discovery command family.
+- [x] Allow one unambiguous preferred choice only from a displayed non-identical group.
+- [x] Keep exact duplicates on their separate reversible resolution path.
+- [x] Preview the chosen edition and every retained alternative before confirmation.
+- [x] Recheck every member SHA-256 before recording preference.
+- [x] Move, rewrite, archive, and delete nothing during preference recording.
+- [x] Allow only the chosen exact edition into ordinary shelving while alternatives remain held.
+- [x] Add natural help, deterministic recovery wording, and focused tests.
+- [x] Live-test the real `Magic in the Blood` pair and verify both files remain present with their recorded hashes.
+- [x] Verify `(266)` appears first in Ready while `(251)` remains a visibly held retained alternative.
+- [x] Reconcile the acceptance evidence and 138-test milestone paperwork.

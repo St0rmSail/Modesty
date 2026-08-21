@@ -127,6 +127,11 @@ class TeamDelegator:
         r"(?P<resolution_id>DR-[A-F0-9]{8})\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_PREFERENCE_APPROVAL_PATTERN = re.compile(
+        r"^approve\s+(?:the\s+)?librarian\s+preferred\s+edition\s*:\s*"
+        r"(?P<preference_id>PE-[A-F0-9]{8})\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_SHELVING_BATCH_PREPARE_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+prepare\s+"
         r"(?:a\s+)?bounded\s+intake\s+shelving\s+batch\s*$",
@@ -206,7 +211,12 @@ class TeamDelegator:
         re.IGNORECASE,
     )
     NATURAL_DUPLICATE_REVIEW_PATTERN = re.compile(
-        r"^(?:please\s+)?(?:show|list|let\s+me\s+see)\s+(?:me\s+)?(?:the\s+)?(?:book\s+)?duplicates[.!]?\s*$",
+        r"^(?:please\s+)?(?:show|list|let\s+me\s+see)\s+(?:me\s+)?(?:the\s+)?"
+        r"(?:(?:book\s+)?duplicates|edition\s+choices)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_PREFER_EDITION_PATTERN = re.compile(
+        r"^(?:please\s+)?prefer\s+(?P<choice>.+?)[.!]?\s*$",
         re.IGNORECASE,
     )
     NATURAL_CATALOGUE_PATTERN = re.compile(
@@ -288,6 +298,7 @@ class TeamDelegator:
         self._help_active = False
         self._last_edition_groups = ()
         self._pending_duplicate_resolution_id = None
+        self._pending_preferred_edition_id = None
         self._pending_shelving_batch_id = None
         self._last_metadata_review_items = ()
         self._pending_metadata_review_id = None
@@ -303,6 +314,32 @@ class TeamDelegator:
             return "Ask the Librarian to identify works and editions"
         if self.NATURAL_SHELVING_BATCH_PATTERN.match(text):
             return "Ask the Librarian to prepare a bounded Intake shelving batch"
+        preferred = self.NATURAL_PREFER_EDITION_PATTERN.match(text)
+        if preferred:
+            groups = tuple(getattr(self, "_last_edition_groups", ()) or ())
+            eligible = [group for group in groups if group.evidence != "Exact SHA-256 duplicate"]
+            if not eligible:
+                return DelegationResult(True, "Show me the edition choices first, so the Librarian has a visible reviewed set.")
+            tokens = self._choice_tokens(preferred.group("choice"))
+            matches = []
+            for group in eligible:
+                for path, _, _ in group.files:
+                    if tokens and tokens.issubset(self._choice_tokens(path)):
+                        matches.append((group, path))
+            if len(matches) != 1:
+                if not matches:
+                    return DelegationResult(True, "That description does not identify one displayed non-identical edition.")
+                paths = "\n".join(f"- The Stacks/{path}" for _, path in matches)
+                return DelegationResult(True, "That description matches more than one displayed edition:\n" + paths)
+            group, path = matches[0]
+            try:
+                proposal = self.librarian.prepare_preferred_edition(
+                    group.evidence, group.identity, tuple(item[0] for item in group.files), path
+                )
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            self._pending_preferred_edition_id = proposal.preference_id
+            return DelegationResult(True, self.librarian.preferred_edition_response(proposal))
         if self.NATURAL_METADATA_LIST_PATTERN.match(text):
             return "Ask the Librarian to review incomplete metadata"
         metadata_review = self.NATURAL_METADATA_REVIEW_PATTERN.match(text)
@@ -395,15 +432,19 @@ class TeamDelegator:
         if approval:
             duplicate_id = getattr(self, "_pending_duplicate_resolution_id", None)
             batch_id = getattr(self, "_pending_shelving_batch_id", None)
-            if duplicate_id and batch_id:
+            preference_id = getattr(self, "_pending_preferred_edition_id", None)
+            pending = [value for value in (duplicate_id, batch_id, preference_id) if value]
+            if len(pending) > 1:
                 return DelegationResult(
                     True,
-                    "Two Librarian actions are waiting. Say `shelve those` for the shelving batch, or name the duplicate choice again.",
+                    "Two Librarian actions are waiting, or more. Use the visible action wording instead of a contextual yes.",
                 )
             if duplicate_id:
                 return f"Approve Librarian duplicate resolution: {duplicate_id}"
             if batch_id:
                 return f"Approve Librarian shelving batch: {batch_id}"
+            if preference_id:
+                return f"Approve Librarian preferred edition: {preference_id}"
         mark = self.NATURAL_MARK_PATTERN.match(text)
         if mark:
             session_id = getattr(self, "_last_reading_session_id", None)
@@ -579,6 +620,25 @@ class TeamDelegator:
                 f"Approved. The canonical copy remains at The Stacks/{keep}.\n"
                 f"The redundant exact copy or copies were retained in Archive:\n{archived_text}\n\n"
                 "Nothing was deleted.",
+            )
+        preference_approval = self.LIBRARIAN_PREFERENCE_APPROVAL_PATTERN.match(message.strip())
+        if preference_approval:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                proposal = self.librarian.approve_preferred_edition(
+                    preference_approval.group("preference_id")
+                )
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            self._pending_preferred_edition_id = None
+            return DelegationResult(
+                True,
+                f"Recorded. The Librarian will treat The Stacks/{proposal.chosen_relative_path} as the preferred reading edition. "
+                "Every alternative remains retained and unchanged. The preferred copy may now enter an ordinary shelving preview.",
             )
         if self.LIBRARIAN_SHELVING_BATCH_PREPARE_PATTERN.match(message.strip()):
             team_status.set_member_state("librarian", "working")

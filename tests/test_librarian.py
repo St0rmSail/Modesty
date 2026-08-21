@@ -960,6 +960,92 @@ class LibrarianTest(unittest.TestCase):
             preview = delegator.handle("show me what can be shelved")
             self.assertIn("Allie Beckstrom/05 - Magic at the Gate", preview.response)
 
+    def test_bookmark_is_exact_edition_anchored_and_independent_of_reading_position(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "book.epub"
+            text = " ".join(f"word-{index}" for index in range(700))
+            self._write_identity_epub(source, "Book", "Writer", "9781212121212", "Series", "1", text)
+            librarian = Librarian(paths, root / "catalogue.db")
+            opened = librarian.open_reading("Intake/book.epub")
+            bookmark = librarian.create_bookmark(opened.session_id, "Useful opening argument")
+
+            connection = sqlite3.connect(root / "catalogue.db")
+            try:
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM reading_positions").fetchone()[0], 0)
+            finally:
+                connection.close()
+            continued = librarian.continue_reading(opened.session_id)
+            librarian.mark_reading_position(continued.session_id)
+            reopened = librarian.open_bookmark(bookmark.bookmark_id)
+
+            self.assertEqual(reopened.text, opened.text)
+            self.assertEqual(librarian.list_bookmarks()[0].note, "Useful opening argument")
+            connection = sqlite3.connect(root / "catalogue.db")
+            try:
+                position = connection.execute("SELECT character_offset FROM reading_positions").fetchone()[0]
+            finally:
+                connection.close()
+            self.assertGreater(position, bookmark.displayed_until)
+
+    def test_bookmark_changed_edition_fails_and_retirement_is_auditable(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "book.txt"
+            source.write_text("A bookmarkable passage " * 100, encoding="utf-8")
+            librarian = Librarian(paths, root / "catalogue.db")
+            opened = librarian.open_reading("Intake/book.txt")
+            bookmark = librarian.create_bookmark(opened.session_id)
+            source.write_text("changed", encoding="utf-8")
+
+            with self.assertRaisesRegex(LibrarianError, "edition that changed"):
+                librarian.open_bookmark(bookmark.bookmark_id)
+            retired = librarian.retire_bookmark(bookmark.bookmark_id)
+            self.assertEqual(retired.status, "retired")
+            self.assertEqual(librarian.list_bookmarks(), ())
+            connection = sqlite3.connect(root / "catalogue.db")
+            try:
+                status = connection.execute(
+                    "SELECT status FROM reading_bookmarks WHERE bookmark_id=?", (bookmark.bookmark_id,)
+                ).fetchone()[0]
+            finally:
+                connection.close()
+            self.assertEqual(status, "retired")
+
+    def test_natural_bookmarks_list_reopen_after_restart_and_retire_by_number(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "book.txt"
+            source.write_text("A memorable passage " * 150, encoding="utf-8")
+            catalogue = root / "catalogue.db"
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, catalogue)
+            delegator._help_active = False
+            team_status.reset()
+
+            delegator.handle("Ask the Librarian to open: Intake/book.txt")
+            saved = delegator.handle("remember this passage: It frames the central idea")
+            self.assertIn("confirmed reading position was not changed", saved.response)
+
+            restarted = TeamDelegator.__new__(TeamDelegator)
+            restarted.librarian = Librarian(paths, catalogue)
+            restarted._help_active = False
+            listed = restarted.handle("show me my bookmarks")
+            self.assertIn("It frames the central idea", listed.response)
+            reopened = restarted.handle("open bookmark 1")
+            self.assertIn("A memorable passage", reopened.response)
+            retired = restarted.handle("retire bookmark 1")
+            self.assertIn("retired the bookmark", retired.response)
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:

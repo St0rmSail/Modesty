@@ -287,6 +287,23 @@ class TeamDelegator:
         r"^(?:please\s+)?(?:save|mark)\s+my\s+place[.!]?\s*$",
         re.IGNORECASE,
     )
+    NATURAL_BOOKMARK_PATTERN = re.compile(r"^(?:please\s+)?bookmark\s+this(?:\s+passage)?[.!]?\s*$", re.IGNORECASE)
+    NATURAL_NOTE_PASSAGE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:remember\s+this\s+passage|note\s+this)\s*:\s*(?P<note>.+)$",
+        re.IGNORECASE | re.DOTALL,
+    )
+    NATURAL_LIST_BOOKMARKS_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:show|list)\s+(?:me\s+)?(?:my\s+)?bookmarks[.!?]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_OPEN_BOOKMARK_PATTERN = re.compile(
+        r"^(?:please\s+)?open\s+bookmark\s+(?P<choice>.+?)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_RETIRE_BOOKMARK_PATTERN = re.compile(
+        r"^(?:please\s+)?retire\s+bookmark\s+(?P<choice>.+?)[.!]?\s*$",
+        re.IGNORECASE,
+    )
 
     def __init__(
         self,
@@ -317,11 +334,71 @@ class TeamDelegator:
         self._last_series_review_items = ()
         self._pending_series_review_id = None
         self._last_reading_session_id = None
+        self._last_bookmarks = ()
 
     def _natural_librarian_command(self, message: str) -> str | DelegationResult | None:
         """Translate a small contextual vocabulary into existing audited operations."""
 
         text = message.strip()
+        bookmark_note = self.NATURAL_NOTE_PASSAGE_PATTERN.match(text)
+        if self.NATURAL_BOOKMARK_PATTERN.match(text) or bookmark_note:
+            session_id = getattr(self, "_last_reading_session_id", None)
+            if not session_id:
+                return DelegationResult(True, "There is no currently displayed Librarian passage to bookmark.")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                bookmark = self.librarian.create_bookmark(
+                    session_id, bookmark_note.group("note") if bookmark_note else ""
+                )
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            return DelegationResult(
+                True,
+                f"The Librarian bookmarked {bookmark.title}, {bookmark.section}. "
+                "Your confirmed reading position was not changed."
+                + (f" Note: {bookmark.note}" if bookmark.note else ""),
+            )
+        if self.NATURAL_LIST_BOOKMARKS_PATTERN.match(text):
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                bookmarks = self.librarian.list_bookmarks()
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            self._last_bookmarks = bookmarks
+            return DelegationResult(True, self.librarian.bookmarks_response(bookmarks))
+        open_bookmark = self.NATURAL_OPEN_BOOKMARK_PATTERN.match(text)
+        retire_bookmark = self.NATURAL_RETIRE_BOOKMARK_PATTERN.match(text)
+        if open_bookmark or retire_bookmark:
+            bookmarks = tuple(getattr(self, "_last_bookmarks", ()) or ())
+            if not bookmarks:
+                return DelegationResult(True, "Show me your bookmarks first, so the Librarian has a visible list to choose from.")
+            choice = (open_bookmark or retire_bookmark).group("choice").strip()
+            selected = None
+            if choice.isdigit() and 1 <= int(choice) <= len(bookmarks):
+                selected = bookmarks[int(choice) - 1]
+            else:
+                tokens = self._choice_tokens(choice)
+                matches = [bookmark for bookmark in bookmarks if tokens and tokens.issubset(
+                    self._choice_tokens(f"{bookmark.bookmark_id} {bookmark.title} {bookmark.section} {bookmark.note}")
+                )]
+                if len(matches) == 1:
+                    selected = matches[0]
+                elif len(matches) > 1:
+                    return DelegationResult(True, "That description matches more than one displayed bookmark; use its number.")
+            if selected is None:
+                return DelegationResult(True, "That description does not identify one displayed bookmark.")
+            try:
+                if open_bookmark:
+                    excerpt = self.librarian.open_bookmark(selected.bookmark_id)
+                    self._last_reading_session_id = excerpt.session_id
+                    return DelegationResult(True, self.librarian.reading_response(excerpt))
+                retired = self.librarian.retire_bookmark(selected.bookmark_id)
+                self._last_bookmarks = tuple(bookmark for bookmark in bookmarks if bookmark.bookmark_id != retired.bookmark_id)
+                return DelegationResult(True, f"The Librarian retired the bookmark for {retired.title}, {retired.section}. The book was unchanged.")
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
         if self.NATURAL_DUPLICATE_REVIEW_PATTERN.match(text):
             return "Ask the Librarian to review edition groups"
         if self.NATURAL_CATALOGUE_PATTERN.match(text):

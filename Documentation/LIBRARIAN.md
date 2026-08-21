@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.31 Series Review Desk complete
+**Status:** Build 0.32 Passage Bookmarks and Notes complete
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -164,6 +164,14 @@ The live catalogue contains 14 series-bearing records across 10 source labels. `
 Only a confirmed exact-source series record changes the ordinary shelving proposal to `Originals/Author/Series/02 - Title/original-file`; decimal positions such as `2.5` remain sortable. Unconfirmed series metadata cannot reorganize a book, and already-shelved Originals remain untouched without a separate future preview and approval. Live acceptance should deliberately leave one uncertain series entry, confirm or correct one real book, verify the source hash, and show the series-aware destination in an ordinary preview without shelving it.
 
 Live acceptance passed on 2026-08-21. `Magic at the Gate` review `SR-909E9C9E` was deliberately left unconfirmed. Preferred `Magic in the Blood (266)` review `SR-F8BDDEE7` confirmed Allie Beckstrom volume 2 against unchanged SHA-256 `7e08f29050d19f771aa29b191a9862fb9a914dafdeb899855fd9f919396e296a`. Ordinary batch `LB-E26D366F` then placed that exact edition first in Ready with destination `Devon Monk/Allie Beckstrom/02 - Magic in the Blood/Magic in the Blood - Devon Monk.epub`. The source remained physically present in Intake and nothing was shelved. All 141 automated tests passed.
+
+## Build 0.32 bounded Passage Bookmarks and Notes
+
+The currently displayed reading passage can now become one of several private anchors. `Bookmark this` records its exact section and text span; `Remember this passage: <note>` adds a bounded private note. This does not move or replace the work's single explicitly saved reading position.
+
+`Show me my bookmarks` displays active anchors as a bounded numbered list with source, quote, and note. `Open bookmark <displayed number>` rechecks the exact source path and SHA-256 before reconstructing the passage, and creates an ordinary temporary reading session so Drew may continue from it. `Retire bookmark <displayed number>` removes the anchor from active lists while retaining its local audit row. Changed source bytes fail closed, and the reading file is never rewritten. Live acceptance must prove multiple anchors, independence from saved progress, survival across restart, exact reopening, and auditable retirement.
+
+Live acceptance passed on 2026-08-21. Multiple anchors were created, a private note survived restart, the original passage reopened correctly, the separately saved reading position remained independent, and retirement removed only the selected active bookmark while retaining its audit history. All 144 automated tests passed.
 
 ## Visual representation
 

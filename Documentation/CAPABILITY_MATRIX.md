@@ -1,7 +1,7 @@
 # Capability Matrix
 
-**Baseline:** Build 0.28.0 complete; Build 0.19 acceptance paused
-**Reviewed:** 2026-08-19
+**Baseline:** Build 0.32.0 complete; Build 0.19 acceptance paused
+**Reviewed:** 2026-08-21
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
 |---|---:|---:|---:|---|
@@ -25,7 +25,7 @@
 | Grand Library online mode | Yes | Yes | Yes | Closed-by-default loopback, bounded online provider, text-only media boundary, and truthful Study state demonstrated |
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
-| Librarian | Yes | Yes | Yes | Level 2 demonstrated: catalogue, bounded reading/search, exact-edition continuity, evidence-ranked edition review, reversible exact-duplicate resolution, natural control, and bounded five-item shelving; metadata correction, non-identical edition decisions, richer repair, OCR, and broader formats remain absent |
+| Librarian | Yes | Yes | Yes | Level 2 demonstrated: catalogue, bounded reading/search, exact-edition continuity, multiple private passage bookmarks and notes, edition review, reversible duplicate resolution, natural control, metadata/series confirmation, preferred editions, and bounded shelving; richer repair, OCR, broader formats, and a dedicated reader remain future work |
 | Team readiness display | Yes | Yes | Yes | Archivist, Researcher, and Librarian presence, readiness lamp, Team headset, and duty-state changes demonstrated; pedestal perspective and pale extraction halos deferred to polish |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Yes | Yes | Yes | Smithsonian, bounded Scribble Hub discovery, and one current-story evidence pass demonstrated without account action or silent filing |

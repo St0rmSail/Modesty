@@ -44,6 +44,11 @@ For ordinary work, speak to the visible context rather than memorizing job ident
 - `keep reading`
 - `save my place`
 - `resume Axeman`
+- `bookmark this` — anchors the passage currently on screen without moving your saved reading place
+- `remember this passage: <private note>` — anchors the passage and attaches a short private note
+- `show me my bookmarks`
+- `open bookmark <displayed number>`
+- `retire bookmark <displayed number>` — removes it from the active list but preserves its audit record
 - `show me what can be shelved`
 - `leave <displayed title or folder> out` — removes one unambiguous Ready item from the current preview
 - `shelve those` — approves only the Ready list in the shelving preview currently displayed
@@ -86,6 +91,8 @@ The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly insi
 **Examine** reads one explicitly named TXT, Markdown, HTML, DOCX, EPUB, or text-layer PDF beneath Intake. It reports embedded title and author where available, a bounded opening passage, readable extent, and a proposed `Originals/Author/Title/original-file` destination. It also creates a private local passage index so **find** can return source-linked passages from works actually examined. Nothing moves until the exact `LS-ID` approval. Approval rechecks the source hash, refuses collisions, and shelves the unchanged original. Scanned PDFs require later OCR; DRM and access-control bypass are never attempted.
 
 **Open** returns a bounded passage from the named exact edition. EPUB chapter headings such as `Chapter 12`, `Prologue`, and `Epilogue` are recognized when they appear as standalone headings. **Continue reading** displays the next passage but does not silently alter saved progress. **Mark my place** explicitly confirms the end of the latest displayed passage as the next unread position. **Resume** uses only that confirmed position and only for the same SHA-256 edition; changed or ambiguous editions fail safely. Reading positions remain private local generated data.
+
+**Bookmark this** records a bounded quote and exact location from the passage currently on screen. **Remember this passage: ...** adds a short private note to the same kind of anchor. Bookmarks are separate from the one saved reading position, so making or reopening one does not silently replace that position. **Show me my bookmarks** produces a numbered active list; **open bookmark ...** reopens that exact passage and permits ordinary continued reading; **retire bookmark ...** removes it from the active list without deleting its audit row. Each bookmark is tied to the source path and SHA-256 edition that created it. If those bytes change, reopening fails plainly instead of attaching the note to different text.
 
 **Identify works and editions** incrementally reads source-supplied title, author, strong identifiers, series, series number, publisher, language, and publication date from supported files in Intake and Originals. Each invocation refreshes at most 25 changed or new files so the Study remains responsive; repeat until the reported remaining count is zero. It reports exact byte duplicates separately from shared identifiers and normalized title/author review leads. It reuses unchanged catalogue entries and never merges, renames, moves, deletes, or overwrites a file.
 

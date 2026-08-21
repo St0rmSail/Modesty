@@ -47,7 +47,7 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Demonstrated:** Level 2 — on 2026-08-18 Modesty invoked the Librarian's bounded Intake catalogue and then completed one reversible source-identified text repair through both local Keep and Toss decisions without changing either original.
 
-**Implemented beyond the demonstrated level:** None. Build 0.28 is accepted within Level 2.
+**Implemented beyond the demonstrated level:** None. Build 0.32 is accepted within Level 2.
 
 **Build 0.20 increment achieved:** bridged Level 0 to Level 1 by proving that Modesty can invoke the Librarian, catalogue copied samples, report supported and unsupported formats, obvious container damage, exact duplicates, and stale records, and leave every source byte untouched.
 
@@ -62,6 +62,8 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 **Build 0.25 increment achieved:** turned aggregate relationship counts into four reviewable file-level groups while suppressing generic-metadata false matches and retaining a strict no-mutation boundary. Live evidence showed three exact duplicate pairs and one differing pair sharing an ISBN; no weak group was manufactured where author metadata was unknown.
 
 **Build 0.26 increment achieved:** Drew selected the canonical Handbooks member of a proven exact-hash group and approved `DR-44C88BB7`; the redundant `Song And Silence` copy was retained reversibly in Archive, nothing was deleted, and authority did not extend to non-identical editions.
+
+**Build 0.32 increment achieved:** several restart-persistent, exact-edition passage anchors can carry optional private notes independently of the single saved reading position. Live acceptance proved exact reopening, independent saved progress, restart survival, and auditable retirement with all 144 tests passing. This closes a practical annotation gap but remains Level 2 bounded retrieval and continuity rather than evidence-led investigation.
 
 **Build 0.27 increment achieved:** replaced mandatory command memorization with a bounded contextual Librarian dialogue while retaining deterministic IDs and exact operations underneath. Ambiguous copy descriptions stop for clarification, contextual approval is limited to one prepared duplicate action in the current Study session, and natural reading phrases preserve explicit progress confirmation. The live duplicate and reading-continuity flows passed with all 127 tests; this strengthens Level 2 governability without claiming a higher maturity level.
 

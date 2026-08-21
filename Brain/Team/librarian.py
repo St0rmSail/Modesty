@@ -183,6 +183,22 @@ class SeriesReviewDraft:
     status: str
 
 
+@dataclass(frozen=True)
+class PassageBookmark:
+    bookmark_id: str
+    source_sha256: str
+    source_relative_path: str
+    title: str
+    section_index: int
+    section: str
+    displayed_from: int
+    displayed_until: int
+    quote: str
+    note: str
+    created_at: str
+    status: str
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -359,6 +375,7 @@ class Librarian:
         try:
             connection = sqlite3.connect(self.catalogue_path)
             self._initialize_reading_schema(connection)
+            self._initialize_bookmark_schema(connection)
             rows = connection.execute(
                 """
                 SELECT title, author, source_relative_path, section,
@@ -398,6 +415,7 @@ class Librarian:
             self._initialize_edition_schema(connection)
             self._initialize_metadata_review_schema(connection)
             self._initialize_series_review_schema(connection)
+            self._initialize_bookmark_schema(connection)
             for label, root, path in files:
                 relative = f"{label}/{path.relative_to(root).as_posix()}"
                 seen.add(relative)
@@ -1109,6 +1127,9 @@ class Librarian:
             self._initialize_shelving_batch_schema(connection)
             self._initialize_metadata_review_schema(connection)
             self._initialize_series_review_schema(connection)
+            self._initialize_bookmark_schema(connection)
+            self._initialize_metadata_review_schema(connection)
+            self._initialize_series_review_schema(connection)
             self._initialize_preferred_edition_schema(connection)
             self._initialize_metadata_review_schema(connection)
             self._initialize_series_review_schema(connection)
@@ -1319,6 +1340,10 @@ class Librarian:
                         "UPDATE series_overrides SET source_relative_path=? WHERE source_sha256=?",
                         (new_relative, item.source_sha256),
                     )
+                    connection.execute(
+                        "UPDATE reading_bookmarks SET source_relative_path=? WHERE source_sha256=?",
+                        (new_relative, item.source_sha256),
+                    )
                 connection.execute(
                     "UPDATE shelving_batch_jobs SET status='shelved',resolved_at=? WHERE batch_id=?",
                     (datetime.now(timezone.utc).isoformat(timespec="seconds"), clean_id),
@@ -1498,6 +1523,7 @@ class Librarian:
             self._initialize_edition_schema(connection)
             self._initialize_reading_schema(connection)
             self._initialize_duplicate_resolution_schema(connection)
+            self._initialize_bookmark_schema(connection)
             rows = connection.execute(
                 "SELECT source_relative_path,sha256 FROM edition_items WHERE sha256 LIKE ? ORDER BY source_relative_path COLLATE NOCASE",
                 (f"{prefix}%",),
@@ -1593,6 +1619,10 @@ class Librarian:
                 )
                 connection.execute(
                     "UPDATE reading_sessions SET source_relative_path=? WHERE source_sha256=?",
+                    (keep, digest),
+                )
+                connection.execute(
+                    "UPDATE reading_bookmarks SET source_relative_path=? WHERE source_sha256=?",
                     (keep, digest),
                 )
                 connection.execute(
@@ -1701,6 +1731,10 @@ class Librarian:
                 )
                 connection.execute(
                     "UPDATE reading_passages SET source_relative_path=? WHERE source_sha256=?",
+                    (f"Originals/{row[2]}", row[1]),
+                )
+                connection.execute(
+                    "UPDATE reading_bookmarks SET source_relative_path=? WHERE source_sha256=?",
                     (f"Originals/{row[2]}", row[1]),
                 )
             return destination
@@ -1849,6 +1883,161 @@ class Librarian:
             raise LibrarianError(str(error)) from error
         finally:
             connection.close()
+
+    def create_bookmark(self, session_id: str, note: str = "") -> PassageBookmark:
+        """Anchor the currently displayed passage without changing reading progress."""
+
+        clean_id = self._clean_position_id(session_id)
+        clean_note = " ".join(note.split()).strip()
+        if len(clean_note) > 1_000:
+            raise LibrarianError("Keep a bookmark note to 1,000 characters or fewer.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_reading_schema(connection)
+            self._initialize_bookmark_schema(connection)
+            row = connection.execute(
+                """SELECT source_sha256,source_relative_path,title,section_index,
+                          displayed_from,displayed_until,status
+                   FROM reading_sessions WHERE session_id=?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[6] not in {"pending", "marked"}:
+                raise LibrarianError("There is no available displayed passage to bookmark.")
+            source = self._path_from_stacks_relative(row[1])
+            if not source.is_file() or self._sha256(source) != row[0]:
+                raise LibrarianError("That exact reading edition changed or moved; nothing was bookmarked.")
+            book = read_book(source)
+            section_index, start = self._valid_position(book, int(row[3]), int(row[4]))
+            until = min(int(row[5]), len(book.sections[section_index][1]))
+            if until <= start:
+                raise LibrarianError("That reading passage has no bookmarkable text.")
+            quote = " ".join(book.sections[section_index][1][start:until].split())[:360]
+            bookmark_id = f"BM-{secrets.token_hex(4).upper()}"
+            created = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            bookmark = PassageBookmark(
+                bookmark_id, row[0], row[1], row[2], section_index,
+                book.sections[section_index][0], start, until, quote, clean_note, created, "active",
+            )
+            with connection:
+                connection.execute(
+                    """INSERT INTO reading_bookmarks
+                           (bookmark_id,source_sha256,source_relative_path,title,section_index,
+                            section,displayed_from,displayed_until,quote,note,created_at,status,resolved_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', '')""",
+                    tuple(bookmark.__dict__.values())[:-1],
+                )
+            return bookmark
+        except LibrarianError:
+            raise
+        except (OSError, BookReadError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not preserve that bookmark safely.") from error
+        finally:
+            connection.close()
+
+    def list_bookmarks(self, limit: int = 10) -> tuple[PassageBookmark, ...]:
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_bookmark_schema(connection)
+            rows = connection.execute(
+                """SELECT bookmark_id,source_sha256,source_relative_path,title,section_index,
+                          section,displayed_from,displayed_until,quote,note,created_at,status
+                   FROM reading_bookmarks WHERE status='active'
+                   ORDER BY created_at DESC LIMIT ?""",
+                (max(1, min(limit, 20)),),
+            ).fetchall()
+            return tuple(PassageBookmark(*row) for row in rows)
+        finally:
+            connection.close()
+
+    def open_bookmark(self, bookmark_id: str) -> ReadingExcerpt:
+        bookmark = self._bookmark_by_id(bookmark_id)
+        if bookmark.status != "active":
+            raise LibrarianError("That bookmark is no longer active.")
+        source = self._path_from_stacks_relative(bookmark.source_relative_path)
+        try:
+            if not source.is_file() or self._sha256(source) != bookmark.source_sha256:
+                raise LibrarianError("That bookmark belongs to an edition that changed or is unavailable.")
+            book = read_book(source)
+            section_index, start = self._valid_position(book, bookmark.section_index, bookmark.displayed_from)
+            text = book.sections[section_index][1]
+            until = min(bookmark.displayed_until, len(text))
+            excerpt = text[start:until]
+            session_id = f"RP-{secrets.token_hex(4).upper()}"
+            connection = sqlite3.connect(self.catalogue_path)
+            try:
+                self._initialize_reading_schema(connection)
+                with connection:
+                    connection.execute(
+                        """INSERT INTO reading_sessions
+                               (session_id,source_sha256,source_relative_path,title,section_index,
+                                displayed_from,displayed_until,created_at,status)
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')""",
+                        (session_id, bookmark.source_sha256, bookmark.source_relative_path,
+                         book.title, section_index, start, until,
+                         datetime.now(timezone.utc).isoformat(timespec="seconds")),
+                    )
+            finally:
+                connection.close()
+            return ReadingExcerpt(
+                session_id, book.title, book.author, bookmark.source_relative_path,
+                book.sections[section_index][0], excerpt,
+                until >= len(text), False,
+            )
+        except (OSError, BookReadError) as error:
+            raise LibrarianError(str(error)) from error
+
+    def retire_bookmark(self, bookmark_id: str) -> PassageBookmark:
+        bookmark = self._bookmark_by_id(bookmark_id)
+        if bookmark.status != "active":
+            raise LibrarianError("That bookmark is no longer active.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_bookmark_schema(connection)
+            with connection:
+                connection.execute(
+                    "UPDATE reading_bookmarks SET status='retired',resolved_at=? WHERE bookmark_id=?",
+                    (datetime.now(timezone.utc).isoformat(timespec="seconds"), bookmark.bookmark_id),
+                )
+            return PassageBookmark(**{**bookmark.__dict__, "status": "retired"})
+        finally:
+            connection.close()
+
+    def _bookmark_by_id(self, bookmark_id: str) -> PassageBookmark:
+        clean_id = bookmark_id.strip().upper()
+        if not re.fullmatch(r"BM-[A-F0-9]{8}", clean_id):
+            raise LibrarianError("That bookmark identifier is invalid.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_bookmark_schema(connection)
+            row = connection.execute(
+                """SELECT bookmark_id,source_sha256,source_relative_path,title,section_index,
+                          section,displayed_from,displayed_until,quote,note,created_at,status
+                   FROM reading_bookmarks WHERE bookmark_id=?""",
+                (clean_id,),
+            ).fetchone()
+            if row is None:
+                raise LibrarianError("That bookmark does not exist.")
+            return PassageBookmark(*row)
+        finally:
+            connection.close()
+
+    @staticmethod
+    def bookmarks_response(bookmarks: tuple[PassageBookmark, ...]) -> str:
+        if not bookmarks:
+            return "The Librarian found no active passage bookmarks."
+        lines = []
+        for index, bookmark in enumerate(bookmarks, 1):
+            note = f"\n  Note: {bookmark.note}" if bookmark.note else ""
+            lines.append(
+                f"{index}. {bookmark.title} — {bookmark.section}\n"
+                f"   {bookmark.bookmark_id} · The Stacks/{bookmark.source_relative_path}\n"
+                f"   “{bookmark.quote}”{note}"
+            )
+        return (
+            f"The Librarian found {len(bookmarks)} active bookmark(s):\n\n"
+            + "\n\n".join(lines)
+            + "\n\nSay `open bookmark 1` or `retire bookmark 1` using the displayed number."
+        )
 
     @staticmethod
     def reading_response(excerpt: ReadingExcerpt) -> str:
@@ -2510,6 +2699,28 @@ class Librarian:
                 series_index TEXT NOT NULL,
                 review_id TEXT NOT NULL,
                 confirmed_at TEXT NOT NULL
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_bookmark_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS reading_bookmarks (
+                bookmark_id TEXT PRIMARY KEY,
+                source_sha256 TEXT NOT NULL,
+                source_relative_path TEXT NOT NULL,
+                title TEXT NOT NULL,
+                section_index INTEGER NOT NULL,
+                section TEXT NOT NULL,
+                displayed_from INTEGER NOT NULL,
+                displayed_until INTEGER NOT NULL,
+                quote TEXT NOT NULL,
+                note TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
             )
             """
         )

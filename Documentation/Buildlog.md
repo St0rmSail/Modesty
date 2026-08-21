@@ -261,3 +261,9 @@ The Librarian now prepares at most five Ready Intake items from the existing edi
 The live batch `LB-2A8EAE65` presented five Ready items, 28 held items, and 39 additional eligible items. Drew removed CRUMPETS and approved the remaining four. Physical verification confirmed all four destination files, absence of their former Intake paths, retention of CRUMPETS, a `shelved` batch ledger, and four updated edition paths with recorded hashes. All 132 automated tests and the syntax audit passed.
 
 The 28 held items reveal the next bounded problem. Build 0.29, **Metadata Review Desk**, will distinguish embedded metadata, filename-derived suggestions, and Drew-confirmed corrections. No inference becomes catalogue identity or shelving authority without explicit confirmation, and edition conflicts remain a separate workflow.
+
+Build 0.32.0 - Passage Bookmarks and Notes (complete)
+
+The Librarian can now retain several private passage anchors independently of a book's single saved reading position. Each anchor records a bounded quote, exact text span, source path, and SHA-256 edition, with an optional short private note. Active bookmarks are listed as visible numbered choices, reopen into an ordinary temporary reading session, survive restart, and fail closed if the edition changes. Retirement removes an anchor from active use without deleting its audit row, and no reading source is rewritten.
+
+Drew accepted the full live sequence on 2026-08-21: multiple anchors, note persistence across restart, exact passage reopening, independent saved reading progress, and selective retirement all passed. All 144 automated tests and the 87-file syntax check passed.

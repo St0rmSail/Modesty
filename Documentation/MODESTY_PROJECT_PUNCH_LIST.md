@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.28.0 - Bounded Intake Shelving Desk (complete); 0.19 acceptance paused
-**Current focus:** Build 0.31.0 - Series Review Desk
+**Current build:** 0.32.0 - Passage Bookmarks and Notes (complete); 0.19 acceptance paused
+**Current focus:** Select the next bounded Librarian increment
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -261,3 +261,15 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Live-test `Magic at the Gate` as left and preferred `Magic in the Blood (266)` as confirmed Allie Beckstrom volume 2.
 - [x] Verify unchanged source SHA-256 and the `Devon Monk/Allie Beckstrom/02 - Magic in the Blood/...` preview without moving it.
 - [x] Reconcile the acceptance evidence and 141-test milestone paperwork.
+
+## Build 0.32.0 - Passage Bookmarks and Notes - Complete
+
+- [x] Create several passage anchors independently of the single saved reading position.
+- [x] Attach a bounded private note to the displayed passage.
+- [x] List active bookmarks as stable visible choices.
+- [x] Reopen the exact source passage after restart.
+- [x] Fail closed when the source path or SHA-256 edition changes.
+- [x] Retire an active bookmark without deleting its audit row.
+- [x] Never rewrite or annotate the reading source itself.
+- [x] Update deterministic help and natural command examples.
+- [x] Pass live acceptance and all 144 automated tests.

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.31.0 - Series Review Desk (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.32.0 - Passage Bookmarks and Notes (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-21
 
 ## Completed build line
@@ -46,6 +46,12 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.32.0 - Passage Bookmarks and Notes - Complete
+
+Add multiple private, exact-edition passage anchors without disturbing the single saved reading position. A bookmark may carry a short note, survives restart, reopens the exact bounded passage, and can be retired without deleting its audit record. Source-path and SHA-256 checks fail closed after an edition changes; no book is rewritten.
+
+Live acceptance passed on 2026-08-21, including multiple anchors, private-note restart persistence, exact reopening, independent saved progress, retirement, and all 144 automated tests.
 
 ### 0.26.0 - Reversible Exact-Duplicate Resolution - Complete
 

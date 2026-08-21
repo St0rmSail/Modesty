@@ -127,6 +127,16 @@ class TeamDelegator:
         r"(?P<resolution_id>DR-[A-F0-9]{8})\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_SHELVING_BATCH_PREPARE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+prepare\s+"
+        r"(?:a\s+)?bounded\s+intake\s+shelving\s+batch\s*$",
+        re.IGNORECASE,
+    )
+    LIBRARIAN_SHELVING_BATCH_APPROVAL_PATTERN = re.compile(
+        r"^approve\s+(?:the\s+)?librarian\s+shelving\s+batch\s*:\s*"
+        r"(?P<batch_id>LB-[A-F0-9]{8})\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_REPAIR_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
@@ -207,6 +217,19 @@ class TeamDelegator:
         r"^(?:yes|yes,?\s+(?:please|do\s+that)|do\s+that|go\s+ahead)[.!]?\s*$",
         re.IGNORECASE,
     )
+    NATURAL_SHELVING_BATCH_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:show\s+me\s+what\s+(?:can|is\s+ready\s+to)\s+be\s+shelved|"
+        r"prepare\s+(?:the\s+)?next\s+shelf\s+batch|what\s+can\s+(?:the\s+)?librarian\s+shelve)[.!?]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_SHELVE_THOSE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:shelve\s+those|put\s+those\s+away)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_LEAVE_SHELF_ITEM_PATTERN = re.compile(
+        r"^(?:please\s+)?leave\s+(?P<choice>.+?)\s+out[.!]?\s*$",
+        re.IGNORECASE,
+    )
     NATURAL_OPEN_CHAPTER_PATTERN = re.compile(
         r"^(?:please\s+)?(?:open|read)\s+(?P<reference>.+?)\s+at\s+(?:chapter\s+)?"
         r"(?P<chapter>\d+|[a-z]+)[.!]?\s*$",
@@ -247,6 +270,7 @@ class TeamDelegator:
         self._help_active = False
         self._last_edition_groups = ()
         self._pending_duplicate_resolution_id = None
+        self._pending_shelving_batch_id = None
         self._last_reading_session_id = None
 
     def _natural_librarian_command(self, message: str) -> str | DelegationResult | None:
@@ -257,9 +281,49 @@ class TeamDelegator:
             return "Ask the Librarian to review edition groups"
         if self.NATURAL_CATALOGUE_PATTERN.match(text):
             return "Ask the Librarian to identify works and editions"
+        if self.NATURAL_SHELVING_BATCH_PATTERN.match(text):
+            return "Ask the Librarian to prepare a bounded Intake shelving batch"
+        leave_item = self.NATURAL_LEAVE_SHELF_ITEM_PATTERN.match(text)
+        if leave_item:
+            batch_id = getattr(self, "_pending_shelving_batch_id", None)
+            if not batch_id:
+                return DelegationResult(True, "There is no reviewed Librarian shelving batch to revise.")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                removed, remaining = self.librarian.exclude_from_shelving_batch(
+                    batch_id, leave_item.group("choice")
+                )
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            ready = "\n".join(
+                f"- The Stacks/{item.source_relative_path} -> The Stacks/Originals/{item.proposed_relative_path}"
+                for item in remaining
+            ) or "- None."
+            return DelegationResult(
+                True,
+                f"The Librarian left {removed.title} out of this batch. It remains in Intake.\n\n"
+                f"Updated Ready list ({len(remaining)}):\n{ready}\n\nNothing has moved.",
+            )
+        shelve_those = self.NATURAL_SHELVE_THOSE_PATTERN.match(text)
+        if shelve_those:
+            batch_id = getattr(self, "_pending_shelving_batch_id", None)
+            if not batch_id:
+                return DelegationResult(True, "There is no reviewed Librarian shelving batch waiting for approval.")
+            return f"Approve Librarian shelving batch: {batch_id}"
         approval = self.NATURAL_APPROVE_PATTERN.match(text)
-        if approval and getattr(self, "_pending_duplicate_resolution_id", None):
-            return f"Approve Librarian duplicate resolution: {self._pending_duplicate_resolution_id}"
+        if approval:
+            duplicate_id = getattr(self, "_pending_duplicate_resolution_id", None)
+            batch_id = getattr(self, "_pending_shelving_batch_id", None)
+            if duplicate_id and batch_id:
+                return DelegationResult(
+                    True,
+                    "Two Librarian actions are waiting. Say `shelve those` for the shelving batch, or name the duplicate choice again.",
+                )
+            if duplicate_id:
+                return f"Approve Librarian duplicate resolution: {duplicate_id}"
+            if batch_id:
+                return f"Approve Librarian shelving batch: {batch_id}"
         mark = self.NATURAL_MARK_PATTERN.match(text)
         if mark:
             session_id = getattr(self, "_last_reading_session_id", None)
@@ -422,6 +486,36 @@ class TeamDelegator:
                 f"Approved. The canonical copy remains at The Stacks/{keep}.\n"
                 f"The redundant exact copy or copies were retained in Archive:\n{archived_text}\n\n"
                 "Nothing was deleted.",
+            )
+        if self.LIBRARIAN_SHELVING_BATCH_PREPARE_PATTERN.match(message.strip()):
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                proposal = self.librarian.prepare_shelving_batch()
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting" if proposal.ready else "attention")
+            self._pending_shelving_batch_id = proposal.batch_id if proposal.ready else None
+            return DelegationResult(True, self.librarian.shelving_batch_response(proposal))
+        batch_approval = self.LIBRARIAN_SHELVING_BATCH_APPROVAL_PATTERN.match(message.strip())
+        if batch_approval:
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                destinations = self.librarian.approve_shelving_batch(batch_approval.group("batch_id"))
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "ready")
+            self._pending_shelving_batch_id = None
+            moved = "\n".join(f"- The Stacks/{path}" for path in destinations)
+            return DelegationResult(
+                True,
+                f"Approved. The Librarian shelved {len(destinations)} unchanged original(s):\n{moved}\n\n"
+                "Every source retained its recorded SHA-256 identity. Held-back items remain in Intake.",
             )
         if self.LIBRARIAN_INVENTORY_PATTERN.match(message.strip()):
             team_status.set_member_state("librarian", "working")

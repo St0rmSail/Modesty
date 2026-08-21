@@ -567,6 +567,145 @@ class LibrarianTest(unittest.TestCase):
         self.assertIsNone(delegator._natural_librarian_command("yes, do that"))
         self.assertIsNone(delegator._natural_librarian_command("keep reading"))
 
+    def test_bounded_shelving_batch_separates_ready_held_and_remaining(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            for index in range(7):
+                self._write_identity_epub(
+                    paths.intake / f"ready-{index}.epub",
+                    f"Ready Book {index}",
+                    f"Writer {index}",
+                    f"97800000000{index}",
+                    "Ready Series",
+                    str(index),
+                )
+            self._write_identity_epub(
+                paths.intake / "duplicate-a.epub", "Duplicate", "Writer D", "9781111111111", "", ""
+            )
+            shutil.copyfile(paths.intake / "duplicate-a.epub", paths.intake / "duplicate-b.epub")
+            (paths.intake / "unknown.txt").write_text("Unknown author source", encoding="utf-8")
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+
+            proposal = librarian.prepare_shelving_batch()
+
+            self.assertEqual(len(proposal.ready), 5)
+            self.assertEqual(proposal.eligible_remaining, 2)
+            self.assertEqual(proposal.held_count, 3)
+            held = " ".join(item.reason for item in proposal.held)
+            self.assertIn("edition relationship", held)
+            self.assertIn("author metadata is unknown", held)
+            self.assertTrue(all((paths.root / item.source_relative_path).exists() for item in proposal.ready))
+            response = librarian.shelving_batch_response(proposal)
+            self.assertIn("Nothing has moved", response)
+            self.assertIn("maximum 5", response)
+
+            destinations = librarian.approve_shelving_batch(proposal.batch_id)
+
+            self.assertEqual(len(destinations), 5)
+            self.assertTrue(all((paths.root / destination).is_file() for destination in destinations))
+            self.assertTrue((paths.intake / "duplicate-a.epub").is_file())
+            self.assertTrue((paths.intake / "duplicate-b.epub").is_file())
+            self.assertTrue((paths.intake / "unknown.txt").is_file())
+
+    def test_shelving_batch_rechecks_every_source_before_moving_anything(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            for index in range(2):
+                self._write_identity_epub(
+                    paths.intake / f"book-{index}.epub",
+                    f"Book {index}",
+                    f"Author {index}",
+                    f"978222222222{index}",
+                    "",
+                    "",
+                )
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+            proposal = librarian.prepare_shelving_batch()
+            changed = paths.root / proposal.ready[-1].source_relative_path
+            changed.write_bytes(b"changed after review")
+
+            with self.assertRaisesRegex(LibrarianError, "changed after review"):
+                librarian.approve_shelving_batch(proposal.batch_id)
+
+            self.assertTrue((paths.intake / "book-0.epub").is_file())
+            self.assertTrue((paths.intake / "book-1.epub").is_file())
+            self.assertEqual(list(paths.originals.rglob("*.epub")), [])
+
+    def test_natural_shelving_batch_preview_and_contextual_approval(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            self._write_identity_epub(
+                paths.intake / "lamp.epub", "The Lamp", "Alex Example", "9783333333333", "", ""
+            )
+            (paths.intake / "unknown.txt").write_text("Held safely", encoding="utf-8")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            preview = delegator.handle("show me what can be shelved")
+            self.assertIn("Ready (1", preview.response)
+            self.assertIn("author metadata is unknown", preview.response)
+            self.assertTrue((paths.intake / "lamp.epub").is_file())
+            approved = delegator.handle("shelve those")
+
+            self.assertIn("shelved 1 unchanged original", approved.response)
+            self.assertTrue((paths.originals / "Alex Example" / "The Lamp" / "lamp.epub").is_file())
+            self.assertTrue((paths.intake / "unknown.txt").is_file())
+
+    def test_contextual_yes_refuses_two_pending_librarian_actions(self):
+        delegator = TeamDelegator.__new__(TeamDelegator)
+        delegator._help_active = False
+        delegator._pending_duplicate_resolution_id = "DR-12345678"
+        delegator._pending_shelving_batch_id = "LB-12345678"
+
+        result = delegator._natural_librarian_command("yes, do that")
+
+        self.assertTrue(result.handled)
+        self.assertIn("Two Librarian actions", result.response)
+
+    def test_natural_shelving_selection_can_only_remove_one_unambiguous_ready_item(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            self._write_identity_epub(
+                paths.intake / "lamp.epub", "The Lamp", "Alex Example", "9784444444441", "", ""
+            )
+            self._write_identity_epub(
+                paths.intake / "scroll.epub", "The Scroll", "Alex Example", "9784444444442", "", ""
+            )
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            delegator.handle("show me what can be shelved")
+            vague = delegator.handle("leave Alex Example out")
+            self.assertIn("matches more than one", vague.response)
+            revised = delegator.handle("leave The Lamp out")
+            self.assertIn("left The Lamp out", revised.response)
+            self.assertIn("Updated Ready list (1)", revised.response)
+            approved = delegator.handle("shelve those")
+
+            self.assertIn("shelved 1 unchanged original", approved.response)
+            self.assertTrue((paths.intake / "lamp.epub").is_file())
+            self.assertTrue((paths.originals / "Alex Example" / "The Scroll" / "scroll.epub").is_file())
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:

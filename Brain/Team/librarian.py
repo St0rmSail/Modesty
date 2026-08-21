@@ -105,6 +105,25 @@ class DuplicateResolutionProposal:
     archive_moves: tuple[tuple[str, str], ...]
 
 
+@dataclass(frozen=True)
+class ShelvingBatchItem:
+    source_relative_path: str
+    source_sha256: str
+    title: str
+    author: str
+    proposed_relative_path: str
+    reason: str = ""
+
+
+@dataclass(frozen=True)
+class ShelvingBatchProposal:
+    batch_id: str
+    ready: tuple[ShelvingBatchItem, ...]
+    held: tuple[ShelvingBatchItem, ...]
+    held_count: int
+    eligible_remaining: int
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -114,6 +133,8 @@ class Librarian:
     READING_CHUNK = 1_800
     IDENTITY_FORMATS = {".epub", ".pdf", ".docx", ".txt", ".md", ".html", ".htm"}
     EDITION_REFRESH_BATCH = 25
+    SHELVING_BATCH_SIZE = 5
+    SHELVING_HELD_DISPLAY = 10
     REPAIRABLE = {".md", ".txt"}
     SUPPORTED = {
         ".epub": "EPUB",
@@ -442,6 +463,310 @@ class Librarian:
                 groups.append(self._review_group("Possible same work", identity, members))
                 claimed.update(row[0] for row in members)
         return tuple(groups[: max(1, min(limit, 50))])
+
+    def prepare_shelving_batch(self) -> ShelvingBatchProposal:
+        """Prepare a small source-backed Intake shelving batch without moving files."""
+
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_reading_schema(connection)
+            self._initialize_edition_schema(connection)
+            self._initialize_shelving_batch_schema(connection)
+            rows = connection.execute(
+                """SELECT source_relative_path,filename,size_bytes,modified_ns,sha256,
+                          title,author,identifiers_json,warning
+                   FROM edition_items
+                   ORDER BY source_relative_path COLLATE NOCASE"""
+            ).fetchall()
+            intake_rows = [row for row in rows if row[0].casefold().startswith("intake/")]
+            if not intake_rows:
+                raise LibrarianError(
+                    "The edition catalogue has no Intake items. Catalogue the books first, or Intake is already clear."
+                )
+            conflicts = self._edition_conflict_paths(rows)
+            pending_single = {
+                f"Intake/{row[0]}" for row in connection.execute(
+                    "SELECT source_relative_path FROM shelving_jobs WHERE status='pending'"
+                )
+            }
+            candidates: list[ShelvingBatchItem] = []
+            held: list[ShelvingBatchItem] = []
+            proposed_seen: set[str] = set()
+            for relative, filename, size, modified_ns, digest, title, author, _, warning in intake_rows:
+                source = self._path_from_stacks_relative(relative)
+                proposed = (
+                    Path(self._safe_shelf_name(author, "Unknown Author"))
+                    / self._safe_shelf_name(title, Path(filename).stem)
+                    / filename
+                ).as_posix()
+                reason = ""
+                if warning:
+                    reason = f"catalogue attention: {warning}"
+                elif not digest:
+                    reason = "no verified source hash"
+                elif self._identity_key(author) in {"", "unknownauthor"}:
+                    reason = "author metadata is unknown"
+                elif self._identity_key(title) in {"", "untitled", "unknown"}:
+                    reason = "title metadata is unknown"
+                elif relative in conflicts:
+                    reason = "edition relationship requires separate review"
+                elif relative in pending_single:
+                    reason = "an earlier single-item shelving proposal is still pending"
+                elif not source.is_file():
+                    reason = "the Intake source is unavailable"
+                else:
+                    stat = source.stat()
+                    if stat.st_size != size or stat.st_mtime_ns != modified_ns:
+                        reason = "the source changed after cataloguing"
+                    elif proposed.casefold() in proposed_seen:
+                        reason = "another item proposes the same destination"
+                    elif self._safe_collection_path(self.paths.originals, proposed, require_exists=False).exists():
+                        reason = "the proposed destination already exists"
+                item = ShelvingBatchItem(relative, digest, title, author, proposed, reason)
+                if reason:
+                    held.append(item)
+                else:
+                    proposed_seen.add(proposed.casefold())
+                    candidates.append(item)
+
+            ready = []
+            considered = 0
+            for item in candidates:
+                if len(ready) >= self.SHELVING_BATCH_SIZE:
+                    break
+                considered += 1
+                source = self._path_from_stacks_relative(item.source_relative_path)
+                if self._sha256(source) != item.source_sha256:
+                    held.append(ShelvingBatchItem(**{**item.__dict__, "reason": "the source hash changed after cataloguing"}))
+                else:
+                    ready.append(item)
+            eligible_remaining = max(0, len(candidates) - considered)
+            batch_id = f"LB-{secrets.token_hex(4).upper()}"
+            with connection:
+                connection.execute(
+                    "UPDATE shelving_batch_jobs SET status='superseded',resolved_at=? WHERE status='pending'",
+                    (datetime.now(timezone.utc).isoformat(timespec="seconds"),),
+                )
+                connection.execute(
+                    """INSERT INTO shelving_batch_jobs
+                           (batch_id,items_json,created_at,status,resolved_at)
+                       VALUES (?, ?, ?, 'pending', '')""",
+                    (
+                        batch_id,
+                        json.dumps([item.__dict__ for item in ready]),
+                        datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                    ),
+                )
+            return ShelvingBatchProposal(
+                batch_id,
+                tuple(ready),
+                tuple(held[: self.SHELVING_HELD_DISPLAY]),
+                len(held),
+                eligible_remaining,
+            )
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not prepare a bounded shelving batch safely.") from error
+        finally:
+            connection.close()
+
+    def approve_shelving_batch(self, batch_id: str) -> tuple[str, ...]:
+        """Move every item in one approved batch after complete preflight, with rollback."""
+
+        clean_id = batch_id.strip().upper()
+        if not re.fullmatch(r"LB-[A-F0-9]{8}", clean_id):
+            raise LibrarianError("That shelving-batch identifier is invalid.")
+        connection = sqlite3.connect(self.catalogue_path)
+        moved: list[tuple[Path, Path, ShelvingBatchItem]] = []
+        try:
+            self._initialize_reading_schema(connection)
+            self._initialize_edition_schema(connection)
+            self._initialize_shelving_batch_schema(connection)
+            row = connection.execute(
+                "SELECT items_json,status FROM shelving_batch_jobs WHERE batch_id=?",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[1] != "pending":
+                raise LibrarianError("That shelving batch is unavailable or already resolved.")
+            items = tuple(ShelvingBatchItem(**item) for item in json.loads(row[0]))
+            if not items:
+                raise LibrarianError("That shelving batch contains no ready items; nothing was moved.")
+            prepared = []
+            destinations: set[str] = set()
+            for item in items:
+                source = self._path_from_stacks_relative(item.source_relative_path)
+                destination = self._safe_collection_path(
+                    self.paths.originals, item.proposed_relative_path, require_exists=False
+                )
+                destination_key = str(destination).casefold()
+                if not source.is_file() or self._sha256(source) != item.source_sha256:
+                    raise LibrarianError("A batch source changed after review; prepare a new shelving batch.")
+                if destination.exists() or destination_key in destinations:
+                    raise LibrarianError("A proposed shelf destination is now occupied; nothing was moved.")
+                destinations.add(destination_key)
+                prepared.append((source, destination, item))
+            try:
+                for source, destination, item in prepared:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    source.replace(destination)
+                    moved.append((source, destination, item))
+            except OSError:
+                for source, destination, _ in reversed(moved):
+                    if destination.exists() and not source.exists():
+                        source.parent.mkdir(parents=True, exist_ok=True)
+                        destination.replace(source)
+                raise
+            for _, destination, item in moved:
+                if self._sha256(destination) != item.source_sha256:
+                    raise LibrarianError("A shelved original did not retain its recorded identity.")
+            with connection:
+                for _, _, item in moved:
+                    new_relative = f"Originals/{item.proposed_relative_path}"
+                    connection.execute(
+                        "UPDATE edition_items SET source_relative_path=? WHERE source_relative_path=?",
+                        (new_relative, item.source_relative_path),
+                    )
+                    connection.execute(
+                        "UPDATE reading_passages SET source_relative_path=? WHERE source_sha256=?",
+                        (new_relative, item.source_sha256),
+                    )
+                    connection.execute(
+                        "UPDATE reading_positions SET source_relative_path=? WHERE source_sha256=?",
+                        (new_relative, item.source_sha256),
+                    )
+                    connection.execute(
+                        "UPDATE reading_sessions SET source_relative_path=? WHERE source_sha256=?",
+                        (new_relative, item.source_sha256),
+                    )
+                connection.execute(
+                    "UPDATE shelving_batch_jobs SET status='shelved',resolved_at=? WHERE batch_id=?",
+                    (datetime.now(timezone.utc).isoformat(timespec="seconds"), clean_id),
+                )
+            return tuple(
+                destination.relative_to(self.paths.root).as_posix() for _, destination, _ in moved
+            )
+        except LibrarianError:
+            if moved:
+                for source, destination, _ in reversed(moved):
+                    if destination.exists() and not source.exists():
+                        source.parent.mkdir(parents=True, exist_ok=True)
+                        destination.replace(source)
+            raise
+        except (OSError, sqlite3.DatabaseError, TypeError, ValueError, json.JSONDecodeError) as error:
+            if moved:
+                for source, destination, _ in reversed(moved):
+                    if destination.exists() and not source.exists():
+                        source.parent.mkdir(parents=True, exist_ok=True)
+                        destination.replace(source)
+            raise LibrarianError("The Librarian could not complete that shelving batch safely.") from error
+        finally:
+            connection.close()
+
+    def exclude_from_shelving_batch(
+        self, batch_id: str, description: str
+    ) -> tuple[ShelvingBatchItem, tuple[ShelvingBatchItem, ...]]:
+        """Remove one unambiguously described item from a pending preview."""
+
+        clean_id = batch_id.strip().upper()
+        if not re.fullmatch(r"LB-[A-F0-9]{8}", clean_id):
+            raise LibrarianError("That shelving-batch identifier is invalid.")
+        tokens = self._selection_tokens(description)
+        if not tokens:
+            raise LibrarianError("Name the displayed title or folder you want left out.")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_shelving_batch_schema(connection)
+            row = connection.execute(
+                "SELECT items_json,status FROM shelving_batch_jobs WHERE batch_id=?",
+                (clean_id,),
+            ).fetchone()
+            if row is None or row[1] != "pending":
+                raise LibrarianError("That shelving batch is unavailable or already resolved.")
+            items = [ShelvingBatchItem(**item) for item in json.loads(row[0])]
+            matches = [
+                item for item in items
+                if tokens.issubset(
+                    self._selection_tokens(
+                        f"{item.source_relative_path} {item.title} {item.author} {item.proposed_relative_path}"
+                    )
+                )
+            ]
+            if not matches:
+                raise LibrarianError("That description does not identify an item in the current Ready list.")
+            if len(matches) > 1:
+                raise LibrarianError("That description matches more than one Ready item; name more of its title or folder.")
+            removed = matches[0]
+            remaining = tuple(item for item in items if item != removed)
+            with connection:
+                connection.execute(
+                    "UPDATE shelving_batch_jobs SET items_json=? WHERE batch_id=?",
+                    (json.dumps([item.__dict__ for item in remaining]), clean_id),
+                )
+            return removed, remaining
+        except LibrarianError:
+            raise
+        except (sqlite3.DatabaseError, TypeError, ValueError, json.JSONDecodeError) as error:
+            raise LibrarianError("The Librarian could not revise that shelving preview safely.") from error
+        finally:
+            connection.close()
+
+    @staticmethod
+    def _selection_tokens(value: str) -> set[str]:
+        stop = {"the", "a", "an", "copy", "file", "of", "in", "from", "please", "stacks", "intake", "originals"}
+        return {token for token in re.findall(r"[a-z0-9]+", value.casefold()) if token not in stop}
+
+    @staticmethod
+    def shelving_batch_response(proposal: ShelvingBatchProposal) -> str:
+        if proposal.ready:
+            ready = "\n".join(
+                f"- The Stacks/{item.source_relative_path} -> "
+                f"The Stacks/Originals/{item.proposed_relative_path}"
+                for item in proposal.ready
+            )
+        else:
+            ready = "- None."
+        held = "\n".join(
+            f"- The Stacks/{item.source_relative_path} — held: {item.reason}"
+            for item in proposal.held
+        ) or "- None."
+        hidden_held = proposal.held_count - len(proposal.held)
+        held_suffix = f"\n- {hidden_held} additional held item(s) not displayed." if hidden_held else ""
+        remaining = (
+            f"\nAdditional eligible Intake items awaiting a later batch: {proposal.eligible_remaining}"
+            if proposal.eligible_remaining else ""
+        )
+        return (
+            "The Librarian prepared a bounded Intake shelving preview.\n\n"
+            f"Batch: {proposal.batch_id}\n"
+            f"Ready ({len(proposal.ready)}; maximum {Librarian.SHELVING_BATCH_SIZE}):\n{ready}\n\n"
+            f"Held back ({proposal.held_count}):\n{held}{held_suffix}{remaining}\n\n"
+            "Nothing has moved. Unknown metadata, edition relationships, warnings, and destination conflicts stay in Intake. "
+            f"To approve only the Ready list, say: Approve Librarian shelving batch: {proposal.batch_id}"
+        )
+
+    @classmethod
+    def _edition_conflict_paths(cls, rows) -> set[str]:
+        conflicts: set[str] = set()
+        for index in (4,):
+            grouped = {}
+            for row in rows:
+                if row[index]:
+                    grouped.setdefault(row[index], []).append(row[0])
+            conflicts.update(path for members in grouped.values() if len(members) > 1 for path in members)
+        identifiers = {}
+        works = {}
+        for row in rows:
+            for scheme, value in json.loads(row[7] or "[]"):
+                if scheme.casefold() not in {"uuid", "identifier"} and cls._identity_key(value):
+                    identifiers.setdefault((scheme.casefold(), cls._identity_key(value)), []).append(row[0])
+            title_key = cls._identity_key(row[5])
+            author_key = cls._identity_key(row[6])
+            if title_key not in {"", "untitled", "unknown"} and author_key not in {"", "unknownauthor"}:
+                works.setdefault((author_key, title_key), []).append(row[0])
+        conflicts.update(path for members in identifiers.values() if len(set(members)) > 1 for path in members)
+        conflicts.update(path for members in works.values() if len(set(members)) > 1 for path in members)
+        return conflicts
 
     def prepare_exact_duplicate_resolution(
         self,
@@ -1369,6 +1694,20 @@ class Librarian:
                 sha256 TEXT NOT NULL,
                 keep_relative_path TEXT NOT NULL,
                 archive_moves_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_shelving_batch_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS shelving_batch_jobs (
+                batch_id TEXT PRIMARY KEY,
+                items_json TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 status TEXT NOT NULL,
                 resolved_at TEXT NOT NULL

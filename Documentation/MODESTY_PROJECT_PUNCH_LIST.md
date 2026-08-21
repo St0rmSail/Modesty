@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.27.0 - Natural Librarian Control Surface (complete); 0.19 acceptance paused
-**Current focus:** Build 0.28.0 - Bounded Intake Shelving Desk, after the overnight pause
+**Current build:** 0.28.0 - Bounded Intake Shelving Desk (complete); 0.19 acceptance paused
+**Current focus:** Build 0.29.0 - Metadata Review Desk
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -210,12 +210,23 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Update help around goals and examples instead of requiring a memorized command catalogue.
 - [x] Pass the natural duplicate and restart-safe reading flows plus all 127 automated tests.
 
-## Build 0.28.0 - Bounded Intake Shelving Desk - Next
+## Build 0.28.0 - Bounded Intake Shelving Desk - Complete
 
-- [ ] Review the current catalogue and define a small per-run proposal limit that keeps the Study responsive.
-- [ ] Separate items ready for a source-backed Author/Title destination from uncertain metadata and edition conflicts.
-- [ ] Present proposed destinations and reasons before any move.
-- [ ] Allow natural selection and approval without requiring job-ID memorization.
-- [ ] Recheck source hashes, refuse occupied destinations, and move no unapproved item.
-- [ ] Preserve unknown metadata visibly rather than guessing from filenames or prose.
-- [ ] Demonstrate one accepted small batch and one held-back ambiguous item in the live Stacks.
+- [x] Review the current catalogue and limit each Ready list to five items.
+- [x] Separate items ready for a source-backed Author/Title destination from uncertain metadata and edition conflicts.
+- [x] Present proposed destinations and reasons before any move.
+- [x] Allow natural review and approval without requiring job-ID memorization.
+- [x] Recheck all source hashes and destinations before the first move; roll back completed moves on failure.
+- [x] Preserve unknown metadata visibly rather than guessing from filenames or prose.
+- [x] Demonstrate five Ready items, natural exclusion of CRUMPETS, four approved moves, and 28 truthfully held items in the live Stacks.
+- [x] Physically verify four Originals, absent former Intake paths, retained CRUMPETS, resolved ledger state, and updated catalogue hashes.
+- [x] Pass all 132 automated tests.
+
+## Build 0.29.0 - Metadata Review Desk - Next
+
+- [ ] Present a bounded set of held items with incomplete source metadata.
+- [ ] Keep embedded metadata, filename-derived suggestions, and confirmed corrections visibly distinct.
+- [ ] Let Drew edit or reject title and author suggestions naturally.
+- [ ] Record source hash, original fields, confirmed fields, provenance, and resolution state.
+- [ ] Do not rewrite the source file or conflate metadata correction with edition-conflict resolution.
+- [ ] Feed only explicitly confirmed identity into a normal shelving preview.

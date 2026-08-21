@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.27 natural control surface complete
+**Status:** Build 0.28 bounded Intake shelving complete; Build 0.29 Metadata Review Desk next
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -122,6 +122,18 @@ Natural wording translates into the existing deterministic operation rather than
 This is functional accessibility and cognitive-load work, not visual polish. Live acceptance must prove one natural duplicate preview and approval, one ambiguity refusal, and the natural open/continue/save/restart/resume sequence before the build is complete.
 
 Live acceptance passed on 2026-08-19. Drew used the concise contextual vocabulary to review duplicates, received a safe clarification instead of a guessed choice, prepared and approved an exact-duplicate action without typing its hash or `DR-ID`, and completed the natural open, continue, save, restart, and resume reading sequence without typing an `RP-ID`. Exact confirmation gates remained intact and all 127 automated tests passed.
+
+## Build 0.28 bounded Intake shelving desk
+
+`Show me what can be shelved` uses the existing edition catalogue to prepare at most five Ready Intake items. Proposed `Originals/Author/Title/original-file` destinations come only from source-supplied author and title metadata. The preview separately reports a bounded sample of held items and reasons, plus counts for additional eligible or held material.
+
+An item is held when metadata is unknown, the catalogue reports a warning, the source belongs to an exact, identifier-linked, or title/author edition relationship, the source changed, an earlier single-item shelving proposal remains pending, or its destination exists or competes with another proposal. The Librarian does not use filenames or prose to invent missing identity and does not move an item merely to empty Intake.
+
+`Leave <title or folder> out` removes one unambiguously matched Ready item while leaving the source in Intake; it cannot add an item or redirect a destination. `Shelve those` approves only the resulting Ready list from the current Study session. The persistent exact form remains available through help. Approval performs a complete source-hash and destination preflight before the first move, updates local catalogue and reading references after success, and rolls completed filesystem moves back if a later move fails. The batch is all-or-nothing, and a new preview supersedes an older unapproved batch. Live acceptance must demonstrate one small approved real batch, one natural exclusion, and at least one truthful held-back item.
+
+Live acceptance passed on 2026-08-21. Batch `LB-2A8EAE65` presented five Ready items, 28 held items with reasons, and 39 additional eligible items deferred to later batches. Drew naturally removed `CRUMPETS` and approved the remaining four. Physical verification found all four unchanged originals at their proposed destinations, all four former Intake paths absent, CRUMPETS retained in Intake, the batch ledger marked `shelved`, and all four edition-catalogue paths updated with their hashes. All 132 automated tests passed.
+
+The run also exposed the next honest bottleneck: many held items lack trustworthy embedded author or title metadata. Build 0.29 should provide a bounded Metadata Review Desk where existing metadata, filename-derived suggestions, and Drew's corrections remain visibly distinct. Nothing inferred from a filename becomes canonical or authorizes shelving without explicit confirmation.
 
 ## Visual representation
 

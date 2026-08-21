@@ -24,9 +24,9 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.27.0 - Natural Librarian Control Surface (complete)**
+**0.28.0 - Bounded Intake Shelving Desk (complete)**
 
-Work is paused at a clean restore point before Build 0.28, the **Bounded Intake Shelving Desk**. That next increment will prepare small catalogue-backed shelving batches, separate safe source-metadata proposals from uncertain or conflicting items, and retain natural review plus explicit approval before any move.
+Build 0.28, the **Bounded Intake Shelving Desk**, prepares at most five catalogue-backed Ready items, separates uncertain metadata and edition conflicts with reasons, and retains natural exclusion plus explicit approval before any move. The accepted real batch presented five Ready items, held 28, let Drew leave CRUMPETS in Intake, and shelved four unchanged originals after complete preflight. All four destinations, source removals, catalogue hashes, and the resolved batch ledger were physically verified; all 132 tests passed. Build 0.29 will address incomplete metadata through explicit review rather than silent inference.
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 

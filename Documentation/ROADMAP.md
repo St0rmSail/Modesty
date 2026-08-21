@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.27.0 complete; work paused overnight before Build 0.28.0 - Bounded Intake Shelving Desk; Build 0.19 acceptance paused externally
+**Current marker:** Build 0.28.0 - Bounded Intake Shelving Desk (complete); Build 0.29.0 Metadata Review Desk next; Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-19
 
 ## Completed build line
@@ -85,13 +85,23 @@ Acceptance should naturally review the remaining real duplicate groups, prepare 
 
 Accepted on 2026-08-19: the natural duplicate dialogue clarified an ambiguous choice, prepared and approved only the selected exact-hash action, and retained the underlying confirmation boundary without requiring Drew to type a hash or job identifier. The natural chapter-open, continue, save, restart, and resume sequence also passed without requiring an `RP-ID`. All 127 automated tests passed.
 
-### 0.28.0 - Bounded Intake Shelving Desk - Next
+### 0.28.0 - Bounded Intake Shelving Desk - Complete
 
 Turn the existing single-book shelving proof into a useful but controlled Intake workflow. The Librarian should prepare a small catalogue-backed batch, distinguish items with sufficient source metadata from uncertain or conflicting editions, and present coherent proposed homes before any move. Drew should be able to select and approve naturally; exact IDs remain underneath for audit.
 
 The build must not become a blind bulk organizer. It may not guess authors or titles from prose, overwrite a destination, merge non-identical editions, approve its own proposal, or move an uncertain item merely to empty Intake. Source hashes and destination availability are rechecked at approval. Live acceptance requires one small approved batch and one deliberately held-back ambiguous item.
 
 **Overnight pause, 2026-08-19:** Build 0.27 is accepted, all 127 tests pass, and its restore-point paperwork is reconciled. Resume by reviewing the existing single-item shelving and edition-catalogue APIs, then specify the bounded proposal object and natural review dialogue before writing move logic.
+
+Implementation candidate, 2026-08-21: the Desk prepares at most five Ready items from existing source metadata, displays held-back reasons, persists one superseding batch preview, and accepts natural `shelve those` approval. Every source and destination is preflighted before movement; successful moves retain hashes and update local edition/reading references. Focused coverage includes batch bounds, edition and unknown-metadata holds, no-move preview, stale-source refusal before the first move, natural approval, and ambiguous contextual-confirmation refusal.
+
+Accepted on 2026-08-21: the real preview showed five Ready, 28 held, and 39 later-eligible items. Drew removed CRUMPETS naturally and approved four destinations. Physical verification confirmed the four Originals, absent former Intake paths, retained CRUMPETS, resolved batch ledger, and updated edition paths/hashes. All 132 tests passed.
+
+### 0.29.0 - Metadata Review Desk - Next
+
+Turn unknown or incomplete source identity into a reviewable correction problem without pretending a filename is authoritative metadata. Present a small held-item set with existing embedded fields, clearly labelled filename-derived suggestions where useful, and editable title/author values. Drew's explicit confirmation may update local catalogue metadata and prepare a shelving destination; inference alone may not.
+
+The build must retain source hashes, record original metadata and every confirmed correction, refuse ambiguous bulk approval, avoid rewriting the source file, and keep edition-conflict review separate. Live acceptance should correct one genuinely incomplete item, reject or leave one uncertain suggestion, and then show the corrected item entering an ordinary bounded shelving preview.
 
 ### 0.25.0 - Edition Review Desk - Complete
 

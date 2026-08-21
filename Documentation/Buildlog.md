@@ -253,3 +253,11 @@ Routine Librarian work now accepts a deliberately small contextual vocabulary wh
 Drew accepted the natural ambiguity, duplicate-resolution, and restart-safe reading flows on 2026-08-19. All 127 automated tests and syntax checks passed. Exact command forms remain in deterministic help for recovery and audit. The project is pinned overnight at this clean restore point.
 
 The morning continuation is Build 0.28.0, **Bounded Intake Shelving Desk**: use the existing catalogue to prepare a small reviewable set of coherent Author/Title destinations, hold uncertain metadata and edition conflicts aside, and allow natural selection plus explicit approval. It must recheck hashes and destinations, never overwrite, never guess merely to empty Intake, and demonstrate one safe batch plus one deliberately held-back ambiguous item.
+
+Build 0.28.0 - Bounded Intake Shelving Desk (complete)
+
+The Librarian now prepares at most five Ready Intake items from the existing edition catalogue, with source-backed Author/Title destinations and explicit reasons for held material. Natural `leave ... out` can remove one unambiguous Ready item without adding or redirecting anything; `shelve those` approves only the revised current batch. Every source hash and destination is preflighted before movement, batch moves roll back on failure, and successful moves update edition and reading references.
+
+The live batch `LB-2A8EAE65` presented five Ready items, 28 held items, and 39 additional eligible items. Drew removed CRUMPETS and approved the remaining four. Physical verification confirmed all four destination files, absence of their former Intake paths, retention of CRUMPETS, a `shelved` batch ledger, and four updated edition paths with recorded hashes. All 132 automated tests and the syntax audit passed.
+
+The 28 held items reveal the next bounded problem. Build 0.29, **Metadata Review Desk**, will distinguish embedded metadata, filename-derived suggestions, and Drew-confirmed corrections. No inference becomes catalogue identity or shelving authority without explicit confirmation, and edition conflicts remain a separate workflow.

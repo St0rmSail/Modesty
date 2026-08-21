@@ -2,7 +2,7 @@
 
 **Status:** Authoritative index
 **Reviewed:** 2026-08-19
-**Current build:** 0.27.0 - Natural Librarian Control Surface (complete); 0.28.0 Bounded Intake Shelving Desk next; 0.19 acceptance paused
+**Current build:** 0.28.0 - Bounded Intake Shelving Desk (complete); 0.29.0 Metadata Review Desk next; 0.19 acceptance paused
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 

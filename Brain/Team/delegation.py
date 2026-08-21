@@ -146,6 +146,10 @@ class TeamDelegator:
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+review\s+incomplete\s+metadata\s*$",
         re.IGNORECASE,
     )
+    LIBRARIAN_SERIES_LIST_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+review\s+series\s+metadata\s*$",
+        re.IGNORECASE,
+    )
     LIBRARIAN_REPAIR_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?librarian\s+to\s+"
         r"repair\s*:\s*(?P<filename>[^\r\n]+)$",
@@ -240,12 +244,20 @@ class TeamDelegator:
         r"^(?:please\s+)?(?:show|list)\s+(?:me\s+)?(?:the\s+)?books?\s+(?:that\s+)?(?:need|needing)\s+metadata[.!?]?\s*$",
         re.IGNORECASE,
     )
+    NATURAL_SERIES_LIST_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:show|list)\s+(?:me\s+)?(?:the\s+)?series(?:\s+desk|\s+metadata)?[.!?]?\s*$",
+        re.IGNORECASE,
+    )
     NATURAL_METADATA_REVIEW_PATTERN = re.compile(
         r"^(?:please\s+)?review(?:\s+metadata\s+for)?\s+(?P<choice>.+?)[.!]?\s*$",
         re.IGNORECASE,
     )
     NATURAL_METADATA_FIELD_PATTERN = re.compile(
         r"^(?:the\s+)?(?P<field>title|author)\s+is\s+(?P<value>.+?)[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    NATURAL_SERIES_FIELD_PATTERN = re.compile(
+        r"^(?:the\s+)?(?P<field>series|volume)\s+is\s+(?P<value>.+?)[.!]?\s*$",
         re.IGNORECASE,
     )
     NATURAL_METADATA_SAVE_PATTERN = re.compile(r"^(?:please\s+)?save\s+that[.!]?\s*$", re.IGNORECASE)
@@ -302,6 +314,8 @@ class TeamDelegator:
         self._pending_shelving_batch_id = None
         self._last_metadata_review_items = ()
         self._pending_metadata_review_id = None
+        self._last_series_review_items = ()
+        self._pending_series_review_id = None
         self._last_reading_session_id = None
 
     def _natural_librarian_command(self, message: str) -> str | DelegationResult | None:
@@ -342,6 +356,29 @@ class TeamDelegator:
             return DelegationResult(True, self.librarian.preferred_edition_response(proposal))
         if self.NATURAL_METADATA_LIST_PATTERN.match(text):
             return "Ask the Librarian to review incomplete metadata"
+        if self.NATURAL_SERIES_LIST_PATTERN.match(text):
+            return "Ask the Librarian to review series metadata"
+        series_review = self.NATURAL_METADATA_REVIEW_PATTERN.match(text)
+        if series_review and tuple(getattr(self, "_last_series_review_items", ()) or ()):
+            tokens = self._choice_tokens(series_review.group("choice"))
+            items = tuple(getattr(self, "_last_series_review_items", ()) or ())
+            matches = [
+                item for item in items
+                if tokens and tokens.issubset(self._choice_tokens(
+                    f"{item.source_relative_path} {item.title} {item.author} {item.series} {item.series_index}"
+                ))
+            ]
+            if len(matches) != 1:
+                if not matches:
+                    return DelegationResult(True, "That description does not identify one displayed series book.")
+                choices = "\n".join(f"- The Stacks/{item.source_relative_path}" for item in matches)
+                return DelegationResult(True, "That description matches more than one displayed series book:\n" + choices)
+            try:
+                draft = self.librarian.begin_series_review(matches[0].source_relative_path)
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            self._pending_series_review_id = draft.review_id
+            return DelegationResult(True, self.librarian.series_review_draft_response(draft))
         metadata_review = self.NATURAL_METADATA_REVIEW_PATTERN.match(text)
         if metadata_review and tuple(getattr(self, "_last_metadata_review_items", ()) or ()):
             choice = metadata_review.group("choice")
@@ -376,7 +413,31 @@ class TeamDelegator:
             except (LibrarianError, RuntimeError) as error:
                 return DelegationResult(True, str(error))
             return DelegationResult(True, self.librarian.metadata_review_draft_response(draft))
+        series_field = self.NATURAL_SERIES_FIELD_PATTERN.match(text)
+        if series_field:
+            review_id = getattr(self, "_pending_series_review_id", None)
+            if not review_id:
+                return DelegationResult(True, "There is no active series review. Show me the series first.")
+            try:
+                draft = self.librarian.update_series_review(
+                    review_id, series_field.group("field"), series_field.group("value")
+                )
+            except (LibrarianError, RuntimeError) as error:
+                return DelegationResult(True, str(error))
+            return DelegationResult(True, self.librarian.series_review_draft_response(draft))
         if self.NATURAL_METADATA_SAVE_PATTERN.match(text):
+            series_id = getattr(self, "_pending_series_review_id", None)
+            if series_id:
+                try:
+                    draft = self.librarian.resolve_series_review(series_id, save=True)
+                except (LibrarianError, RuntimeError) as error:
+                    return DelegationResult(True, str(error))
+                self._pending_series_review_id = None
+                return DelegationResult(
+                    True,
+                    f"Saved. Drew confirmed {draft.title} as {draft.draft_series}, volume {draft.draft_index}, "
+                    "for the unchanged exact source. The book itself was not rewritten.",
+                )
             review_id = getattr(self, "_pending_metadata_review_id", None)
             if not review_id:
                 return DelegationResult(True, "There is no active metadata review to save.")
@@ -391,6 +452,17 @@ class TeamDelegator:
                 "The catalogue was updated; the book itself was not rewritten. It may now appear in an ordinary shelving preview.",
             )
         if self.NATURAL_METADATA_LEAVE_PATTERN.match(text):
+            series_id = getattr(self, "_pending_series_review_id", None)
+            if series_id:
+                try:
+                    draft = self.librarian.resolve_series_review(series_id, save=False)
+                except (LibrarianError, RuntimeError) as error:
+                    return DelegationResult(True, str(error))
+                self._pending_series_review_id = None
+                return DelegationResult(
+                    True,
+                    f"The Librarian left the source series metadata for {draft.title} unconfirmed and unchanged.",
+                )
             review_id = getattr(self, "_pending_metadata_review_id", None)
             if not review_id:
                 return DelegationResult(True, "There is no active metadata review to leave.")
@@ -584,7 +656,24 @@ class TeamDelegator:
             team_status.set_member_state("librarian", "waiting" if items else "ready")
             self._last_metadata_review_items = items
             self._pending_metadata_review_id = None
+            self._last_series_review_items = ()
+            self._pending_series_review_id = None
             return DelegationResult(True, self.librarian.metadata_review_list_response(items))
+        if self.LIBRARIAN_SERIES_LIST_PATTERN.match(message.strip()):
+            team_status.set_member_state("librarian", "working")
+            try:
+                if self.librarian is None:
+                    self.librarian = Librarian(ReadingCollection().initialize())
+                items = self.librarian.series_review_items()
+            except (LibrarianError, RuntimeError) as error:
+                team_status.set_member_state("librarian", "attention")
+                return DelegationResult(True, str(error))
+            team_status.set_member_state("librarian", "waiting" if items else "ready")
+            self._last_series_review_items = items
+            self._pending_series_review_id = None
+            self._last_metadata_review_items = ()
+            self._pending_metadata_review_id = None
+            return DelegationResult(True, self.librarian.series_review_response(items))
         duplicate_prepare = self.LIBRARIAN_DUPLICATE_PREPARE_PATTERN.match(message.strip())
         if duplicate_prepare:
             team_status.set_member_state("librarian", "working")

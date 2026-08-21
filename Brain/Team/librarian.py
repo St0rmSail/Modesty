@@ -158,6 +158,31 @@ class PreferredEditionProposal:
     members: tuple[tuple[str, str, int], ...]
 
 
+@dataclass(frozen=True)
+class SeriesReviewItem:
+    source_relative_path: str
+    source_sha256: str
+    title: str
+    author: str
+    series: str
+    series_index: str
+    series_provenance: str
+    index_provenance: str
+
+
+@dataclass(frozen=True)
+class SeriesReviewDraft:
+    review_id: str
+    source_relative_path: str
+    source_sha256: str
+    title: str
+    original_series: str
+    original_index: str
+    draft_series: str
+    draft_index: str
+    status: str
+
+
 class Librarian:
     """Catalogue Intake and create reviewable derivatives without changing originals."""
 
@@ -170,6 +195,7 @@ class Librarian:
     SHELVING_BATCH_SIZE = 5
     SHELVING_HELD_DISPLAY = 10
     METADATA_REVIEW_SIZE = 5
+    SERIES_REVIEW_GROUPS = 5
     REPAIRABLE = {".md", ".txt"}
     SUPPORTED = {
         ".epub": "EPUB",
@@ -371,6 +397,7 @@ class Librarian:
             self._initialize_schema(connection)
             self._initialize_edition_schema(connection)
             self._initialize_metadata_review_schema(connection)
+            self._initialize_series_review_schema(connection)
             for label, root, path in files:
                 relative = f"{label}/{path.relative_to(root).as_posix()}"
                 seen.add(relative)
@@ -398,6 +425,10 @@ class Librarian:
                 author = metadata.author if metadata else ""
                 title_provenance = metadata.title_provenance if metadata else "unknown"
                 author_provenance = metadata.author_provenance if metadata else "unknown"
+                series = metadata.series if metadata else ""
+                series_index = metadata.series_index if metadata else ""
+                series_provenance = "embedded" if series else "unknown"
+                series_index_provenance = "embedded" if series_index else "unknown"
                 override = connection.execute(
                     "SELECT title,author FROM metadata_overrides WHERE source_sha256=?",
                     (digest,),
@@ -405,6 +436,13 @@ class Librarian:
                 if override:
                     title, author = override
                     title_provenance = author_provenance = "drew-confirmed"
+                series_override = connection.execute(
+                    "SELECT series,series_index FROM series_overrides WHERE source_sha256=?",
+                    (digest,),
+                ).fetchone() if digest else None
+                if series_override:
+                    series, series_index = series_override
+                    series_provenance = series_index_provenance = "drew-confirmed"
                 read_count += 1
                 with connection:
                     connection.execute(
@@ -413,8 +451,9 @@ class Librarian:
                             (source_relative_path, filename, extension, size_bytes, modified_ns,
                              sha256, title, author, identifiers_json, series, series_index,
                              publisher, language, published, warning, updated_at,
-                             title_provenance, author_provenance)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             title_provenance, author_provenance,
+                             series_provenance, series_index_provenance)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ON CONFLICT(source_relative_path) DO UPDATE SET
                             filename=excluded.filename, extension=excluded.extension,
                             size_bytes=excluded.size_bytes, modified_ns=excluded.modified_ns,
@@ -424,16 +463,19 @@ class Librarian:
                             language=excluded.language, published=excluded.published,
                             warning=excluded.warning, updated_at=excluded.updated_at,
                             title_provenance=excluded.title_provenance,
-                            author_provenance=excluded.author_provenance
+                            author_provenance=excluded.author_provenance,
+                            series_provenance=excluded.series_provenance,
+                            series_index_provenance=excluded.series_index_provenance
                         """,
                         (
                             relative, path.name, path.suffix.casefold(), stat.st_size, stat.st_mtime_ns,
                             digest, title, author,
-                            json.dumps(metadata.identifiers if metadata else ()), metadata.series if metadata else "",
-                            metadata.series_index if metadata else "", metadata.publisher if metadata else "",
+                            json.dumps(metadata.identifiers if metadata else ()), series,
+                            series_index, metadata.publisher if metadata else "",
                             metadata.language if metadata else "", metadata.published if metadata else "", warning,
                             datetime.now(timezone.utc).isoformat(timespec="seconds"),
                             title_provenance, author_provenance,
+                            series_provenance, series_index_provenance,
                         ),
                     )
             stale = [row[0] for row in connection.execute("SELECT source_relative_path FROM edition_items") if row[0] not in seen]
@@ -554,6 +596,209 @@ class Librarian:
             raise LibrarianError("The Librarian could not open the Metadata Review Desk safely.") from error
         finally:
             connection.close()
+
+    def series_review_items(self) -> tuple[SeriesReviewItem, ...]:
+        """Return a bounded set of source-series records, excluding retained alternatives."""
+
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_preferred_edition_schema(connection)
+            self._initialize_series_review_schema(connection)
+            rows = connection.execute(
+                """SELECT source_relative_path,filename,size_bytes,modified_ns,sha256,title,author,
+                          identifiers_json,warning,series,series_index,
+                          series_provenance,series_index_provenance
+                   FROM edition_items ORDER BY series COLLATE NOCASE,title COLLATE NOCASE"""
+            ).fetchall()
+            if not rows:
+                raise LibrarianError("The edition catalogue is empty. Catalogue the books first.")
+            conflict_rows = [row[:9] for row in rows]
+            groups = self._edition_conflict_groups(conflict_rows)
+            preferences = self._preferred_edition_dispositions(connection, conflict_rows, groups)
+            by_series = {}
+            for row in rows:
+                relative, _, _, _, digest, title, author, _, warning, series, index, series_source, index_source = row
+                if warning or not series or preferences.get(relative) == "alternate":
+                    continue
+                key = self._identity_key(series)
+                by_series.setdefault(key, []).append(SeriesReviewItem(
+                    relative, digest, title, author, series, index,
+                    series_source or "embedded", index_source or ("embedded" if index else "unknown"),
+                ))
+            selected_groups = sorted(by_series.values(), key=lambda members: members[0].series.casefold())[
+                : self.SERIES_REVIEW_GROUPS
+            ]
+            return tuple(item for members in selected_groups for item in members)
+        except LibrarianError:
+            raise
+        except sqlite3.DatabaseError as error:
+            raise LibrarianError("The Librarian could not open the Series Review Desk safely.") from error
+        finally:
+            connection.close()
+
+    def begin_series_review(self, source_relative_path: str) -> SeriesReviewDraft:
+        clean = source_relative_path.removeprefix("The Stacks/").strip().replace("\\", "/")
+        matches = [item for item in self.series_review_items() if item.source_relative_path.casefold() == clean.casefold()]
+        if len(matches) != 1:
+            raise LibrarianError("That book is not in the currently bounded Series Review Desk.")
+        item = matches[0]
+        source = self._path_from_stacks_relative(item.source_relative_path)
+        if not source.is_file() or self._sha256(source) != item.source_sha256:
+            raise LibrarianError("That source changed after cataloguing. Catalogue the books again before review.")
+        review_id = f"SR-{secrets.token_hex(4).upper()}"
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_series_review_schema(connection)
+            with connection:
+                connection.execute(
+                    "UPDATE series_review_jobs SET status='superseded',resolved_at=? WHERE status='pending'",
+                    (now,),
+                )
+                connection.execute(
+                    """INSERT INTO series_review_jobs
+                           (review_id,source_relative_path,source_sha256,title,original_series,
+                            original_index,draft_series,draft_index,created_at,status,resolved_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', '')""",
+                    (review_id, item.source_relative_path, item.source_sha256, item.title,
+                     item.series, item.series_index, item.series, item.series_index, now),
+                )
+            return SeriesReviewDraft(review_id, item.source_relative_path, item.source_sha256,
+                                     item.title, item.series, item.series_index,
+                                     item.series, item.series_index, "pending")
+        finally:
+            connection.close()
+
+    def update_series_review(self, review_id: str, field: str, value: str) -> SeriesReviewDraft:
+        clean_id = review_id.strip().upper()
+        clean_field = field.strip().casefold()
+        clean_value = " ".join(value.split()).strip()
+        if not re.fullmatch(r"SR-[A-F0-9]{8}", clean_id) or clean_field not in {"series", "volume"}:
+            raise LibrarianError("That series-review instruction is invalid.")
+        if clean_field == "series":
+            if not clean_value or len(clean_value) > 200:
+                raise LibrarianError("Give the Librarian a specific series name.")
+            column = "draft_series"
+        else:
+            if not re.fullmatch(r"\d+(?:\.\d+)?", clean_value):
+                raise LibrarianError("Give the Librarian a non-negative numeric volume such as 2 or 2.5.")
+            column = "draft_index"
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_series_review_schema(connection)
+            with connection:
+                changed = connection.execute(
+                    f"UPDATE series_review_jobs SET {column}=? WHERE review_id=? AND status='pending'",
+                    (clean_value, clean_id),
+                ).rowcount
+            if not changed:
+                raise LibrarianError("That series review is unavailable or already resolved.")
+            return self._series_review_draft(connection, clean_id)
+        finally:
+            connection.close()
+
+    def resolve_series_review(self, review_id: str, save: bool) -> SeriesReviewDraft:
+        clean_id = review_id.strip().upper()
+        connection = sqlite3.connect(self.catalogue_path)
+        try:
+            self._initialize_edition_schema(connection)
+            self._initialize_series_review_schema(connection)
+            draft = self._series_review_draft(connection, clean_id)
+            if draft.status != "pending":
+                raise LibrarianError("That series review is unavailable or already resolved.")
+            now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+            if not save:
+                with connection:
+                    connection.execute(
+                        "UPDATE series_review_jobs SET status='left',resolved_at=? WHERE review_id=?",
+                        (now, clean_id),
+                    )
+                return SeriesReviewDraft(**{**draft.__dict__, "status": "left"})
+            if not draft.draft_series or not re.fullmatch(r"\d+(?:\.\d+)?", draft.draft_index):
+                raise LibrarianError("A specific series name and numeric volume are required before saving.")
+            source = self._path_from_stacks_relative(draft.source_relative_path)
+            if not source.is_file() or self._sha256(source) != draft.source_sha256:
+                raise LibrarianError("That source changed during review. Nothing was saved.")
+            with connection:
+                connection.execute(
+                    """INSERT INTO series_overrides
+                           (source_sha256,source_relative_path,series,series_index,review_id,confirmed_at)
+                       VALUES (?, ?, ?, ?, ?, ?)
+                       ON CONFLICT(source_sha256) DO UPDATE SET source_relative_path=excluded.source_relative_path,
+                           series=excluded.series,series_index=excluded.series_index,
+                           review_id=excluded.review_id,confirmed_at=excluded.confirmed_at""",
+                    (draft.source_sha256, draft.source_relative_path, draft.draft_series,
+                     draft.draft_index, clean_id, now),
+                )
+                connection.execute(
+                    """UPDATE edition_items SET series=?,series_index=?,series_provenance='drew-confirmed',
+                           series_index_provenance='drew-confirmed',updated_at=?
+                       WHERE source_relative_path=? AND sha256=?""",
+                    (draft.draft_series, draft.draft_index, now,
+                     draft.source_relative_path, draft.source_sha256),
+                )
+                connection.execute(
+                    "UPDATE series_review_jobs SET status='confirmed',resolved_at=? WHERE review_id=?",
+                    (now, clean_id),
+                )
+            return SeriesReviewDraft(**{**draft.__dict__, "status": "confirmed"})
+        except LibrarianError:
+            raise
+        except (OSError, sqlite3.DatabaseError) as error:
+            raise LibrarianError("The Librarian could not resolve that series review safely.") from error
+        finally:
+            connection.close()
+
+    @staticmethod
+    def _series_review_draft(connection: sqlite3.Connection, review_id: str) -> SeriesReviewDraft:
+        row = connection.execute(
+            """SELECT review_id,source_relative_path,source_sha256,title,original_series,
+                      original_index,draft_series,draft_index,status
+               FROM series_review_jobs WHERE review_id=?""",
+            (review_id,),
+        ).fetchone()
+        if row is None:
+            raise LibrarianError("That series review does not exist.")
+        return SeriesReviewDraft(*row)
+
+    @staticmethod
+    def series_review_response(items: tuple[SeriesReviewItem, ...]) -> str:
+        if not items:
+            return "The Librarian found no source-supplied series metadata to review."
+        groups = {}
+        for item in items:
+            groups.setdefault(item.series, []).append(item)
+        blocks = []
+        for series, members in groups.items():
+            positions = {}
+            for item in members:
+                positions.setdefault(item.series_index or "unknown", []).append(item)
+            lines = []
+            for item in members:
+                duplicate = " — duplicate position needs attention" if len(positions[item.series_index or "unknown"]) > 1 else ""
+                lines.append(
+                    f"- Volume {item.series_index or 'unknown'}: {item.title} — {item.author}\n"
+                    f"  The Stacks/{item.source_relative_path}{duplicate}"
+                )
+            blocks.append(f"{series} ({len(members)} catalogued work(s)):\n" + "\n".join(lines))
+        return (
+            f"The Librarian prepared {len(groups)} bounded series group(s):\n\n"
+            + "\n\n".join(blocks)
+            + "\n\nThese are source-supplied fields, not verified bibliography. Nothing changed. "
+              "Say `review <displayed title>` to inspect one book."
+        )
+
+    @staticmethod
+    def series_review_draft_response(draft: SeriesReviewDraft) -> str:
+        return (
+            f"Series review: {draft.review_id}\nFile: The Stacks/{draft.source_relative_path}\n"
+            f"Book: {draft.title}\nSource series: {draft.original_series or 'Unknown'}\n"
+            f"Source volume: {draft.original_index or 'Unknown'}\n\n"
+            f"Staged series: {draft.draft_series or 'Not supplied'}\n"
+            f"Staged volume: {draft.draft_index or 'Not supplied'}\n\n"
+            "Say `series is ...` or `volume is ...`, then `save that`; say `leave it` to retain source metadata only."
+        )
 
     def prepare_preferred_edition(
         self,
@@ -862,8 +1107,11 @@ class Librarian:
             self._initialize_reading_schema(connection)
             self._initialize_edition_schema(connection)
             self._initialize_shelving_batch_schema(connection)
+            self._initialize_metadata_review_schema(connection)
+            self._initialize_series_review_schema(connection)
             self._initialize_preferred_edition_schema(connection)
             self._initialize_metadata_review_schema(connection)
+            self._initialize_series_review_schema(connection)
             rows = connection.execute(
                 """SELECT source_relative_path,filename,size_bytes,modified_ns,sha256,
                           title,author,identifiers_json,warning
@@ -880,6 +1128,12 @@ class Librarian:
             conflict_groups = self._edition_conflict_groups(rows)
             conflicts = {path for group in conflict_groups for path in group}
             preferences = self._preferred_edition_dispositions(connection, rows, conflict_groups)
+            series_overrides = {
+                digest: (series, index)
+                for digest, series, index in connection.execute(
+                    "SELECT source_sha256,series,series_index FROM series_overrides"
+                )
+            }
             pending_single = {
                 f"Intake/{row[0]}" for row in connection.execute(
                     "SELECT source_relative_path FROM shelving_jobs WHERE status='pending'"
@@ -890,11 +1144,22 @@ class Librarian:
             proposed_seen: set[str] = set()
             for relative, filename, size, modified_ns, digest, title, author, _, warning in intake_rows:
                 source = self._path_from_stacks_relative(relative)
-                proposed = (
-                    Path(self._safe_shelf_name(author, "Unknown Author"))
-                    / self._safe_shelf_name(title, Path(filename).stem)
-                    / filename
-                ).as_posix()
+                if digest in series_overrides:
+                    series, series_index = series_overrides[digest]
+                    proposed = (
+                        Path(self._safe_shelf_name(author, "Unknown Author"))
+                        / self._safe_shelf_name(series, "Unknown Series")
+                        / self._safe_shelf_name(
+                            f"{self._series_position(series_index)} - {title}", Path(filename).stem
+                        )
+                        / filename
+                    ).as_posix()
+                else:
+                    proposed = (
+                        Path(self._safe_shelf_name(author, "Unknown Author"))
+                        / self._safe_shelf_name(title, Path(filename).stem)
+                        / filename
+                    ).as_posix()
                 reason = ""
                 if warning:
                     reason = f"catalogue attention: {warning}"
@@ -929,6 +1194,7 @@ class Librarian:
 
             candidates.sort(key=lambda item: (
                 0 if preferences.get(item.source_relative_path) == "preferred" else 1,
+                0 if item.source_sha256 in series_overrides else 1,
                 item.source_relative_path.casefold(),
             ))
             held.sort(key=lambda item: (
@@ -1047,6 +1313,10 @@ class Librarian:
                     )
                     connection.execute(
                         "UPDATE metadata_overrides SET source_relative_path=? WHERE source_sha256=?",
+                        (new_relative, item.source_sha256),
+                    )
+                    connection.execute(
+                        "UPDATE series_overrides SET source_relative_path=? WHERE source_sha256=?",
                         (new_relative, item.source_sha256),
                     )
                 connection.execute(
@@ -1803,6 +2073,13 @@ class Librarian:
         cleaned = re.sub(r"\s+", " ", cleaned).strip(" .")
         return (cleaned or fallback)[:120]
 
+    @staticmethod
+    def _series_position(value: str) -> str:
+        whole, dot, fraction = value.partition(".")
+        whole = str(int(whole)).zfill(2)
+        fraction = fraction.rstrip("0")
+        return f"{whole}.{fraction}" if dot and fraction else whole
+
     def _resolve_reading_source(self, reference: str) -> tuple[Path, str]:
         raw = reference.strip().replace("\\", "/")
         if not raw:
@@ -2126,7 +2403,9 @@ class Librarian:
                 warning TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
                 title_provenance TEXT NOT NULL DEFAULT '',
-                author_provenance TEXT NOT NULL DEFAULT ''
+                author_provenance TEXT NOT NULL DEFAULT '',
+                series_provenance TEXT NOT NULL DEFAULT '',
+                series_index_provenance TEXT NOT NULL DEFAULT ''
             )
             """
         )
@@ -2135,6 +2414,10 @@ class Librarian:
             connection.execute("ALTER TABLE edition_items ADD COLUMN title_provenance TEXT NOT NULL DEFAULT ''")
         if "author_provenance" not in columns:
             connection.execute("ALTER TABLE edition_items ADD COLUMN author_provenance TEXT NOT NULL DEFAULT ''")
+        if "series_provenance" not in columns:
+            connection.execute("ALTER TABLE edition_items ADD COLUMN series_provenance TEXT NOT NULL DEFAULT ''")
+        if "series_index_provenance" not in columns:
+            connection.execute("ALTER TABLE edition_items ADD COLUMN series_index_provenance TEXT NOT NULL DEFAULT ''")
 
     @staticmethod
     def _initialize_metadata_review_schema(connection: sqlite3.Connection):
@@ -2194,6 +2477,38 @@ class Librarian:
                 chosen_sha256 TEXT NOT NULL,
                 members_json TEXT NOT NULL,
                 preference_id TEXT NOT NULL,
+                confirmed_at TEXT NOT NULL
+            )
+            """
+        )
+
+    @staticmethod
+    def _initialize_series_review_schema(connection: sqlite3.Connection):
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS series_review_jobs (
+                review_id TEXT PRIMARY KEY,
+                source_relative_path TEXT NOT NULL,
+                source_sha256 TEXT NOT NULL,
+                title TEXT NOT NULL,
+                original_series TEXT NOT NULL,
+                original_index TEXT NOT NULL,
+                draft_series TEXT NOT NULL,
+                draft_index TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                status TEXT NOT NULL,
+                resolved_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS series_overrides (
+                source_sha256 TEXT PRIMARY KEY,
+                source_relative_path TEXT NOT NULL,
+                series TEXT NOT NULL,
+                series_index TEXT NOT NULL,
+                review_id TEXT NOT NULL,
                 confirmed_at TEXT NOT NULL
             )
             """

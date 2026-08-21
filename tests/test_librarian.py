@@ -889,6 +889,77 @@ class LibrarianTest(unittest.TestCase):
             with self.assertRaisesRegex(LibrarianError, "changed after review"):
                 librarian.approve_preferred_edition(proposal.preference_id)
 
+    def test_series_confirmation_creates_series_aware_shelving_without_rewriting_source(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "volume.epub"
+            self._write_identity_epub(source, "Second Story", "Alex Writer", "9788888888888", "Old Label", "1")
+            original = source.read_bytes()
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+
+            items = librarian.series_review_items()
+            self.assertEqual(len(items), 1)
+            draft = librarian.begin_series_review(items[0].source_relative_path)
+            librarian.update_series_review(draft.review_id, "series", "True Series")
+            librarian.update_series_review(draft.review_id, "volume", "2")
+            saved = librarian.resolve_series_review(draft.review_id, save=True)
+            batch = librarian.prepare_shelving_batch()
+
+            self.assertEqual(saved.status, "confirmed")
+            self.assertEqual(source.read_bytes(), original)
+            self.assertEqual(
+                batch.ready[0].proposed_relative_path,
+                "Alex Writer/True Series/02 - Second Story/volume.epub",
+            )
+
+    def test_series_review_leave_and_changed_source_fail_closed(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "volume.epub"
+            self._write_identity_epub(source, "Story", "Writer", "9789999999999", "Series", "1")
+            librarian = Librarian(paths, root / "catalogue.db")
+            librarian.catalogue_editions()
+            left = librarian.begin_series_review("Intake/volume.epub")
+            self.assertEqual(librarian.resolve_series_review(left.review_id, save=False).status, "left")
+            changed = librarian.begin_series_review("Intake/volume.epub")
+            librarian.update_series_review(changed.review_id, "volume", "2")
+            source.write_bytes(b"changed")
+
+            with self.assertRaisesRegex(LibrarianError, "changed during review"):
+                librarian.resolve_series_review(changed.review_id, save=True)
+
+    def test_natural_series_review_is_contextual_and_does_not_hijack_metadata_review(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            project = root / "project"
+            project.mkdir()
+            paths = ReadingCollection(self._write_config(project, root / "Stacks"), project).initialize()
+            source = paths.intake / "gate.epub"
+            self._write_identity_epub(source, "Magic at the Gate", "Devon Monk", "9781010101010", "Allie Beckstrom", "1")
+            delegator = TeamDelegator.__new__(TeamDelegator)
+            delegator.librarian = Librarian(paths, root / "catalogue.db")
+            delegator._help_active = False
+            team_status.reset()
+            delegator.librarian.catalogue_editions()
+
+            shown = delegator.handle("show me the series")
+            self.assertIn("source-supplied fields", shown.response)
+            opened = delegator.handle("review Magic at the Gate")
+            self.assertIn("Series review:", opened.response)
+            changed = delegator.handle("volume is 5")
+            self.assertIn("Staged volume: 5", changed.response)
+            saved = delegator.handle("save that")
+            self.assertIn("volume 5", saved.response)
+            preview = delegator.handle("show me what can be shelved")
+            self.assertIn("Allie Beckstrom/05 - Magic at the Gate", preview.response)
+
     @staticmethod
     def _write_identity_epub(path, title, author, isbn, series, index, extra=""):
         with zipfile.ZipFile(path, "w") as archive:

@@ -52,6 +52,11 @@ For ordinary work, speak to the visible context rather than memorizing job ident
 - `title is <confirmed title>` / `author is <confirmed author>`
 - `save that` — confirms both staged fields for the unchanged exact source
 - `leave it` — closes the current metadata review without changing the catalogue
+- `show me the series`
+- `review <displayed series title>`
+- `series is <confirmed series name>` / `volume is <confirmed number>`
+- `save that` — confirms the staged series identity for the unchanged exact source
+- `leave it` — leaves source series metadata unconfirmed
 
 If a description matches more than one displayed file, Modesty asks for the title or folder instead of guessing. `Yes, do that` has no operational meaning unless one exact duplicate action is waiting for approval. The exact recovery forms below remain available for audit and help:
 
@@ -72,6 +77,7 @@ If a description matches more than one displayed file, Modesty asks for the titl
 - `Ask the Librarian to prepare a bounded Intake shelving batch`
 - `Approve Librarian shelving batch: <LB-ID>`
 - `Ask the Librarian to review incomplete metadata`
+- `Ask the Librarian to review series metadata`
 
 This performs a bounded read-only scan of copied files in `The Stacks/Intake`. It reports supported and unsupported formats, obvious damaged containers, exact duplicate groups, and stale catalogue entries. It does not rename, move, repair, convert, delete, publish, or file any reading material. The old Calibre catalogue is not required.
 
@@ -92,6 +98,8 @@ The first repair duty accepts one named UTF-8 `.txt` or `.md` file directly insi
 **Show me what can be shelved** prepares one bounded Intake preview containing at most five Ready items. Destinations use only source-supplied author and title metadata already in the edition catalogue. Unknown metadata, warnings, exact or possible edition relationships, changed sources, pending single-item proposals, and occupied or competing destinations are held back with reasons. Nothing moves during preview. **Leave ... out** can remove one unambiguously described Ready item; it cannot add or redirect a file. **Shelve those** approves only the resulting Ready list; approval rechecks every hash and destination before moving any item and rolls back completed moves if a later move fails. Held and removed items stay in Intake.
 
 **Show me books needing metadata** presents at most five incomplete Intake records that are not damaged and are not part of an edition conflict. Embedded fields, unknown fields, and a filename-derived title suggestion are labelled separately. **Review ...** can select only one item from that visible set. A filename suggestion is never staged automatically: Drew supplies a specific title and author, then **save that** records the confirmed catalogue identity against the unchanged SHA-256 source. **Leave it** records no correction. Saving never rewrites the reading file, and a changed source fails closed. The corrected item still moves only through the ordinary shelving preview and approval.
+
+**Show me the series** presents at most five source-supplied series groups, excluding editions already designated as retained alternatives. Source series names and volume numbers are explicitly unverified. **Review ...** selects one displayed book; **series is ...** and **volume is ...** stage corrections, while **save that** confirms both against the unchanged exact source. **Leave it** records no confirmed series identity. Confirmed series books receive an ordinary shelving proposal shaped as `Author/Series/02 - Title/original-file`; decimal positions remain sortable. Non-series and unconfirmed-series books retain the existing `Author/Title/original-file` proposal. No already-shelved book is reorganized automatically.
 
 ## Briefings
 

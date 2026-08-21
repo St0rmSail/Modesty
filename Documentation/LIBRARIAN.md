@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.30 Preferred Edition Desk complete
+**Status:** Build 0.31 Series Review Desk complete
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -154,6 +154,16 @@ The resulting `PE-ID` preview lists the chosen reading edition and every retaine
 Live acceptance should use the two real non-identical `Magic in the Blood` EPUBs: display the relationship, choose one exact path, approve the preference, confirm both sources remain physically present, and verify only the chosen edition enters an ordinary shelving preview. Do not shelve it during this acceptance.
 
 Live acceptance passed on 2026-08-21. Drew preferred `Intake/eBooks/Devon Monk/Magic in the Blood (266)/Magic in the Blood - Devon Monk.epub` through `PE-ED180937`, based on the displayed shared ISBN 9780451462671 relationship. The `(266)` source retained SHA-256 `7e08f29050d19f771aa29b191a9862fb9a914dafdeb899855fd9f919396e296a`; the retained `(251)` alternative retained SHA-256 `a25bb586f7f473b45811eced5b4c7e501948d347d929f2ed1c2ee047778a56d3`. Both files remained physically present in Intake. Ordinary batch `LB-0F661048` placed `(266)` first in Ready while the visible preview held `(251)` as the retained alternative. Nothing was shelved. All 138 automated tests passed.
+
+## Build 0.31 bounded Series Review Desk
+
+The live catalogue contains 14 series-bearing records across 10 source labels. `Show me the series` presents at most five groups at once and excludes editions already designated as retained alternatives. It displays each book's source-supplied series name, volume number, title, author, and exact path, and marks duplicate positions without claiming the bibliography is correct.
+
+`Review <displayed title>` opens one exact book. Existing source fields are staged but remain explicitly unconfirmed; `series is ...` and `volume is ...` allow natural correction. `Save that` requires a specific series and non-negative numeric position, rechecks the source SHA-256, and records the original fields, confirmed fields, provenance, and resolution locally. `Leave it` preserves source metadata without granting confirmed authority. Changed bytes cannot inherit a stale confirmation, and no EPUB or PDF is rewritten.
+
+Only a confirmed exact-source series record changes the ordinary shelving proposal to `Originals/Author/Series/02 - Title/original-file`; decimal positions such as `2.5` remain sortable. Unconfirmed series metadata cannot reorganize a book, and already-shelved Originals remain untouched without a separate future preview and approval. Live acceptance should deliberately leave one uncertain series entry, confirm or correct one real book, verify the source hash, and show the series-aware destination in an ordinary preview without shelving it.
+
+Live acceptance passed on 2026-08-21. `Magic at the Gate` review `SR-909E9C9E` was deliberately left unconfirmed. Preferred `Magic in the Blood (266)` review `SR-F8BDDEE7` confirmed Allie Beckstrom volume 2 against unchanged SHA-256 `7e08f29050d19f771aa29b191a9862fb9a914dafdeb899855fd9f919396e296a`. Ordinary batch `LB-E26D366F` then placed that exact edition first in Ready with destination `Devon Monk/Allie Beckstrom/02 - Magic in the Blood/Magic in the Blood - Devon Monk.epub`. The source remained physically present in Intake and nothing was shelved. All 141 automated tests passed.
 
 ## Visual representation
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.30.0 - Preferred Edition Desk (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.31.0 - Series Review Desk (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-21
 
 ## Completed build line
@@ -114,6 +114,14 @@ Turn a proven non-identical edition relationship into a bounded user decision wi
 The preference is keyed to the complete member-hash set. It permits only the chosen exact edition to enter ordinary shelving; alternatives remain retained and visibly held. Exact duplicates keep their separate reversible Archive workflow. Textual completeness analysis, automatic quality ranking, alternate deletion, conversion, and repair remain out of scope. Live acceptance uses the two real `Magic in the Blood` EPUBs and must confirm both remain present while only the chosen copy becomes Ready.
 
 Accepted on 2026-08-21: Drew chose the `(266)` `Magic in the Blood` EPUB from the displayed ISBN-linked pair and approved `PE-ED180937`. Both non-identical source files remained in Intake and matched their recorded hashes. The next ordinary shelving preview put `(266)` first in Ready and held `(251)` as the retained alternative. Nothing moved or was deleted, and all 138 tests passed.
+
+### 0.31.0 - Series Review Desk - Complete
+
+Turn source-supplied series labels into explicit, hash-bound catalogue decisions before using them to organize physical shelves. Present at most five series groups, remove retained alternative editions from the logical reading order, flag duplicate positions, and let Drew confirm or correct one exact book's series and numeric position.
+
+Confirmation changes only local catalogue authority and feeds a sortable `Author/Series/02 - Title/original-file` destination into the ordinary shelving preview. Source files and existing Originals remain untouched. Filename inference, online bibliographic research, autonomous order correction, and bulk migration remain outside this build. Live acceptance must leave one uncertain entry, confirm one real entry, verify its hash, and show the new destination without shelving it.
+
+Accepted on 2026-08-21: Drew left `Magic at the Gate` unconfirmed, then confirmed preferred `Magic in the Blood (266)` as Allie Beckstrom volume 2. The exact source retained its recorded hash and remained in Intake. The next ordinary preview placed it first in Ready at `Devon Monk/Allie Beckstrom/02 - Magic in the Blood/Magic in the Blood - Devon Monk.epub`. Nothing moved, and all 141 tests passed.
 
 ### 0.25.0 - Edition Review Desk - Complete
 

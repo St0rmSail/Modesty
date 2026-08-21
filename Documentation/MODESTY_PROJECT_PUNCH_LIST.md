@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
 **Current build:** 0.28.0 - Bounded Intake Shelving Desk (complete); 0.19 acceptance paused
-**Current focus:** Build 0.30.0 - Preferred Edition Desk
+**Current focus:** Build 0.31.0 - Series Review Desk
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -247,3 +247,17 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Live-test the real `Magic in the Blood` pair and verify both files remain present with their recorded hashes.
 - [x] Verify `(266)` appears first in Ready while `(251)` remains a visibly held retained alternative.
 - [x] Reconcile the acceptance evidence and 138-test milestone paperwork.
+
+## Build 0.31.0 - Series Review Desk - Complete
+
+- [x] Present no more than five source-supplied series groups per desk view.
+- [x] Exclude retained alternative editions from logical series order.
+- [x] Flag duplicate positions without inventing correct bibliography.
+- [x] Let Drew confirm or correct one exact book's series and numeric volume naturally.
+- [x] Record original fields, confirmed fields, exact hash, provenance, and disposition.
+- [x] Preserve `leave it` and changed-source fail-closed paths.
+- [x] Never rewrite a reading file or reorganize an existing Original automatically.
+- [x] Produce series-aware ordinary shelving destinations only after confirmation.
+- [x] Live-test `Magic at the Gate` as left and preferred `Magic in the Blood (266)` as confirmed Allie Beckstrom volume 2.
+- [x] Verify unchanged source SHA-256 and the `Devon Monk/Allie Beckstrom/02 - Magic in the Blood/...` preview without moving it.
+- [x] Reconcile the acceptance evidence and 141-test milestone paperwork.

@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
 
 from Runtime.Conversation import ConversationPanel
 from Runtime.Conversation.briefing_hologram import BriefingHologram
+from Runtime.Reading.reading_desk import ReadingDesk
 from Runtime.Rendering.renderer import StudyRenderer
 from Runtime.Time import PresenceSession
 
@@ -127,14 +128,21 @@ class StudyView(QWidget):
             stretch=1,
             alignment=Qt.AlignmentFlag.AlignVCenter,
         )
+        self.reading_desk = ReadingDesk()
+        self.reading_desk.hide()
+        self.overlay_layout.addWidget(self.reading_desk, stretch=1)
         self.conversation = ConversationDock(presence)
         self.overlay_layout.addWidget(self.conversation, alignment=Qt.AlignmentFlag.AlignRight)
         self.conversation.panel.briefing_requested.connect(self._open_briefing)
+        self.conversation.panel.reading_requested.connect(self._open_reading_desk)
         self.conversation.panel.response_received.connect(self._briefing_response)
+        self.conversation.panel.response_received.connect(self._reading_response)
         self.conversation.panel.graceful_exit_requested.connect(self._graceful_exit)
         self.briefing.question_submitted.connect(self.conversation.panel.send_external)
         self.briefing.closed.connect(self._close_briefing)
         self.briefing.outcome_recorded.connect(self.conversation.panel.record_briefing_outcome)
+        self.reading_desk.command_submitted.connect(self.conversation.panel.send_external)
+        self.reading_desk.closed.connect(self._close_reading_desk)
         self.briefing_animation = None
         layers.addWidget(overlay)
         layers.setCurrentWidget(overlay)
@@ -180,6 +188,26 @@ class StudyView(QWidget):
     def _briefing_response(self, response: str):
         if self.briefing.isVisible():
             self.briefing.append_modesty_response(response)
+
+    def _open_reading_desk(self, response: str):
+        if self.reading_desk.isVisible():
+            self.reading_desk.accept_response(response)
+            return
+        if not self.reading_desk.open_response(response):
+            QMessageBox.warning(self, "Reading Desk unavailable", "The Librarian did not return a readable passage.")
+            return
+        self.conversation.hide()
+        self.reading_desk.setMaximumWidth(max(720, int(self.contentsRect().width() * 0.72)))
+        self.reading_desk.show()
+
+    def _reading_response(self, response: str):
+        if self.reading_desk.isVisible():
+            self.reading_desk.accept_response(response)
+
+    def _close_reading_desk(self):
+        self.reading_desk.hide()
+        self.conversation.show()
+        self.conversation.panel.input.setFocus()
 
     @staticmethod
     def _graceful_exit():

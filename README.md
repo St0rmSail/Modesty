@@ -24,7 +24,7 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.32.0 - Passage Bookmarks and Notes (complete)**
+**0.33.0 - Reading Desk (complete)**
 
 Build 0.29 adds a bounded **Metadata Review Desk** for incomplete Intake records. It visibly separates embedded catalogue fields, filename suggestions, and Drew-confirmed corrections; requires both title and author plus explicit `save that`; binds corrections to the unchanged SHA-256 source; never rewrites a book; and sends corrected items back through the ordinary shelving preview. Live acceptance left the Sandstorm suggestion unchanged once, then confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell and placed that exact unchanged source first in the ordinary shelving preview. All 135 tests passed.
 
@@ -35,6 +35,10 @@ Build 0.31 adds a bounded **Series Review Desk**. Source-supplied series fields 
 Build 0.32 adds private **Passage Bookmarks and Notes**. A displayed passage can be anchored independently of the saved reading position, optionally carry a short note, survive restart, and be reopened from a numbered list. Every bookmark is bound to the exact source SHA-256; changed editions fail closed. Retirement hides a bookmark from the active list without deleting its audit record, and no reading source is rewritten.
 
 Live acceptance passed on 2026-08-21. Drew created multiple passage anchors, retained a private note through restart, reopened the original anchored passage, kept the separately saved reading position independent, and retired an anchor successfully. All 144 automated tests passed.
+
+Build 0.33 adds a dedicated large-format **Reading Desk** so book text no longer depends on the narrow conversation panel. Opening, resuming, and bookmark reopening present the bounded exact-edition passage on a legible local surface with session-local previous/next navigation, explicit place saving, and existing bookmark/note controls. Earlier cached pages are review-only so they cannot act on a newer backend endpoint. Closing never saves silently, and the book remains unchanged.
+
+Live acceptance passed on 2026-08-21. The Desk opened legibly with chat hidden; Next and Previous preserved the bounded session; older cached pages disabled write controls; note bookmarking, explicit place saving, clean closing, and restart-safe resume all passed. All 145 automated tests passed.
 
 Build 0.13 completed the Researcher, visible bounded Scribble Hub discovery, Briefing Hologram, Pending Report decisions, and truthful Team presentation state. Build 0.14 added local time, persistent session presence, clean/interrupted shutdown awareness, contextual greetings, and immediate offline working-time conversions.
 

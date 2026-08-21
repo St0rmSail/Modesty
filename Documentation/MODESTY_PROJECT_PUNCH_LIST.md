@@ -1,6 +1,6 @@
 # Modesty Project Punch List
 
-**Current build:** 0.32.0 - Passage Bookmarks and Notes (complete); 0.19 acceptance paused
+**Current build:** 0.33.0 - Reading Desk (complete); 0.19 acceptance paused
 **Current focus:** Select the next bounded Librarian increment
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
@@ -273,3 +273,14 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Never rewrite or annotate the reading source itself.
 - [x] Update deterministic help and natural command examples.
 - [x] Pass live acceptance and all 144 automated tests.
+
+## Build 0.33.0 - Reading Desk - Complete
+
+- [x] Open a dedicated legible surface for ordinary open, resume, and bookmark passages.
+- [x] Keep the conversation panel out of the reading area while the Desk is open.
+- [x] Provide Next Passage and session-local Previous controls.
+- [x] Disable save and bookmark actions while reviewing an older cached passage.
+- [x] Reuse explicit Save Place, Bookmark, and Bookmark with Note operations.
+- [x] Close without silently advancing progress or changing the source.
+- [x] Pass the live visual and restart-safe continuity sequence.
+- [x] Reconcile acceptance evidence and all 145 automated tests.

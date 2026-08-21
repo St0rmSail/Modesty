@@ -267,3 +267,9 @@ Build 0.32.0 - Passage Bookmarks and Notes (complete)
 The Librarian can now retain several private passage anchors independently of a book's single saved reading position. Each anchor records a bounded quote, exact text span, source path, and SHA-256 edition, with an optional short private note. Active bookmarks are listed as visible numbered choices, reopen into an ordinary temporary reading session, survive restart, and fail closed if the edition changes. Retirement removes an anchor from active use without deleting its audit row, and no reading source is rewritten.
 
 Drew accepted the full live sequence on 2026-08-21: multiple anchors, note persistence across restart, exact passage reopening, independent saved reading progress, and selective retirement all passed. All 144 automated tests and the 87-file syntax check passed.
+
+Build 0.33.0 - Reading Desk (complete)
+
+Bounded exact-edition passages now open on a dedicated large-format local Reading Desk rather than depending on the narrow chat transcript. It shows title, author, section, source, and legible text; keeps chat out of the reading area; and reuses the existing audited Next, Save Place, Bookmark, and note operations. Previous revisits only pages already displayed in the current Desk session, and write controls are disabled on older cached pages so they cannot act on a newer backend endpoint. Closing never advances progress or changes a source.
+
+Drew accepted legibility, navigation, older-page safety, note bookmarking, explicit place saving, clean close, and restart-safe resume on 2026-08-21. All 145 automated tests and the 89-file syntax check passed.

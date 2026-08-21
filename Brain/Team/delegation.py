@@ -393,7 +393,7 @@ class TeamDelegator:
                 if open_bookmark:
                     excerpt = self.librarian.open_bookmark(selected.bookmark_id)
                     self._last_reading_session_id = excerpt.session_id
-                    return DelegationResult(True, self.librarian.reading_response(excerpt))
+                    return DelegationResult(True, self.librarian.reading_response(excerpt), "open_reading_desk")
                 retired = self.librarian.retire_bookmark(selected.bookmark_id)
                 self._last_bookmarks = tuple(bookmark for bookmark in bookmarks if bookmark.bookmark_id != retired.bookmark_id)
                 return DelegationResult(True, f"The Librarian retired the bookmark for {retired.title}, {retired.section}. The book was unchanged.")
@@ -923,7 +923,7 @@ class TeamDelegator:
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "waiting")
             self._last_reading_session_id = excerpt.session_id
-            return DelegationResult(True, self.librarian.reading_response(excerpt))
+            return DelegationResult(True, self.librarian.reading_response(excerpt), "open_reading_desk")
         continue_match = self.LIBRARIAN_CONTINUE_PATTERN.match(message.strip())
         if continue_match:
             team_status.set_member_state("librarian", "working")
@@ -936,7 +936,7 @@ class TeamDelegator:
                 return DelegationResult(True, str(error))
             team_status.set_member_state("librarian", "waiting")
             self._last_reading_session_id = excerpt.session_id
-            return DelegationResult(True, self.librarian.reading_response(excerpt))
+            return DelegationResult(True, self.librarian.reading_response(excerpt), "open_reading_desk")
         mark_match = self.LIBRARIAN_MARK_PATTERN.match(message.strip())
         if mark_match:
             team_status.set_member_state("librarian", "working")

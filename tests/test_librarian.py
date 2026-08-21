@@ -370,6 +370,7 @@ class LibrarianTest(unittest.TestCase):
 
             opened = delegator.handle("Ask the Librarian to open: Intake/story.txt")
             self.assertIn("Mark my place: RP-", opened.response)
+            self.assertEqual(opened.action, "open_reading_desk")
             session_id = re.search(r"RP-[A-F0-9]{8}", opened.response).group(0)
             continued = delegator.handle(f"Continue reading: {session_id}")
             self.assertIn(session_id, continued.response)
@@ -1043,6 +1044,7 @@ class LibrarianTest(unittest.TestCase):
             self.assertIn("It frames the central idea", listed.response)
             reopened = restarted.handle("open bookmark 1")
             self.assertIn("A memorable passage", reopened.response)
+            self.assertEqual(reopened.action, "open_reading_desk")
             retired = restarted.handle("retire bookmark 1")
             self.assertIn("retired the bookmark", retired.response)
 

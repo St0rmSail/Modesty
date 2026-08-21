@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.32.0 - Passage Bookmarks and Notes (complete); Build 0.19 acceptance paused externally
+**Current marker:** Build 0.33.0 - Reading Desk (complete); Build 0.19 acceptance paused externally
 **Reviewed:** 2026-08-21
 
 ## Completed build line
@@ -46,6 +46,12 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.33.0 - Reading Desk - Complete
+
+Move bounded exact-edition reading out of the cramped chat transcript and onto a dedicated legible local surface. Reuse the established session, save-place, bookmark, note, source-hash, and fail-closed rules. Previous navigation is limited to pages already shown during the current Desk session; older cached pages cannot save or bookmark against a newer endpoint. Closing never saves automatically and no reading source changes.
+
+Live acceptance passed on 2026-08-21, including legibility, chat hiding, safe Next/Previous review, disabled stale-page actions, note bookmarking, explicit save closure, clean return, restart-safe resume, and all 145 automated tests.
 
 ### 0.32.0 - Passage Bookmarks and Notes - Complete
 

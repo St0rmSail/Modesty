@@ -107,6 +107,7 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("show me my bookmarks", text)
         self.assertIn("open bookmark <displayed number>", text)
         self.assertIn("retire bookmark <displayed number>", text)
+        self.assertIn("Reading Desk", text)
         self.assertIn("Ask the Librarian to identify works and editions", text)
         self.assertIn("Ask the Librarian to review edition groups", text)
         self.assertIn("Ask the Librarian to prepare exact duplicate resolution: <hash> keep: <Stacks relative path>", text)

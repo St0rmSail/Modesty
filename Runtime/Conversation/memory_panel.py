@@ -64,6 +64,7 @@ class ConversationPanel(QWidget):
     hide_requested = Signal()
     grand_library_state_changed = Signal(str)
     briefing_requested = Signal(str)
+    reading_requested = Signal(str)
     response_received = Signal(str)
     graceful_exit_requested = Signal()
 
@@ -438,6 +439,8 @@ class ConversationPanel(QWidget):
             elif delegated.action and delegated.action.startswith("open_briefing:"):
                 self.briefing_button.show()
                 self.briefing_requested.emit(delegated.action.partition(":")[2])
+            elif delegated.action == "open_reading_desk":
+                self.reading_requested.emit(delegated.response)
             elif delegated.action == "close_study":
                 self.graceful_exit_requested.emit()
             self._set_input_enabled(True)

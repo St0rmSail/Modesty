@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.32 Passage Bookmarks and Notes complete
+**Status:** Build 0.33 Reading Desk complete
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 
@@ -172,6 +172,14 @@ The currently displayed reading passage can now become one of several private an
 `Show me my bookmarks` displays active anchors as a bounded numbered list with source, quote, and note. `Open bookmark <displayed number>` rechecks the exact source path and SHA-256 before reconstructing the passage, and creates an ordinary temporary reading session so Drew may continue from it. `Retire bookmark <displayed number>` removes the anchor from active lists while retaining its local audit row. Changed source bytes fail closed, and the reading file is never rewritten. Live acceptance must prove multiple anchors, independence from saved progress, survival across restart, exact reopening, and auditable retirement.
 
 Live acceptance passed on 2026-08-21. Multiple anchors were created, a private note survived restart, the original passage reopened correctly, the separately saved reading position remained independent, and retirement removed only the selected active bookmark while retaining its audit history. All 144 automated tests passed.
+
+## Build 0.33 bounded Reading Desk
+
+Opening, resuming, or reopening a bookmark now presents its bounded passage on a dedicated large-format local surface instead of relying on the narrow conversation transcript. The Desk displays title, author, section, exact Stacks source, and book text at a legible size. Next Passage calls the established exact reading session; Previous revisits only passages already displayed during the current Desk session.
+
+Save Place, Bookmark, and Bookmark with Note submit the existing audited Librarian operations. They are enabled only on the newest displayed passage, preventing an older cached page from silently acting on a newer backend endpoint. Closing the Desk returns to chat and never advances progress. This build does not render original typography or images, paginate an entire book in memory, add search, synchronize devices, rewrite sources, or become a general ebook manager. Live acceptance must verify legibility, next/previous behaviour, disabled older-page write controls, explicit saving, bookmark-with-note, closing, and restart-safe resume.
+
+Live acceptance passed on 2026-08-21. The large surface, hidden chat, legibility, Next/Previous history, disabled older-page write controls, note bookmark, explicit Save Place closure, return to the Study, and restart-safe resume all behaved correctly. All 145 automated tests passed and no reading source changed.
 
 ## Visual representation
 

@@ -40,7 +40,8 @@ main.py
 | Personal Chronicle | `chronicle_episodes` in `Data/modesty.db`, `Runtime/Conversation/chronicle_dialog.py` | Explicitly narrative structured storage, visible lifecycle controls, and bounded active-only recall demonstrated |
 | Local schedule | `Runtime/Time/schedule.py`, `reminders` in `Data/modesty.db`, `Runtime/Conversation/schedule_dialog.py` | Persistent explicit reminders, due greeting context, commands, and visible lifecycle demonstrated |
 | Librarian and private reading collection | `Brain/Team/librarian.py`, `Runtime/Reading/`, `Config/reading_collection.json` | **The Stacks** canonical; Level 2 reading, search, exact-edition continuity, relationship review, reversible exact-duplicate resolution, natural control, and bounded batch shelving demonstrated |
-| Perception, voice, tools, planning | package/config placeholders | Not implemented |
+| Local Voice | `Runtime/Voice/`, `Config/voice.json`, Qt Multimedia, sherpa-onnx | Implemented; live audio/coexistence acceptance pending |
+| Perception, general tools, planning | package/config placeholders | Not implemented |
 
 ## Data ownership
 

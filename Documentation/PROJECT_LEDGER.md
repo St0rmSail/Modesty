@@ -1,7 +1,7 @@
 # Project Ledger
 
 **Status:** Authoritative index
-**Current build:** 0.36.0 complete; Researcher, Librarian, and Fishing Buddy parked; Voice is next
+**Current build:** 0.37.0 complete; Researcher, Librarian, and Fishing Buddy parked; background presence and Discord Communications are next
 **Reviewed:** 2026-09-06
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.

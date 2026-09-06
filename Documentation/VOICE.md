@@ -1,6 +1,6 @@
 # Modesty Voice
 
-**Status:** Active Voice Foundation design; no permanent voice selected or runtime implemented
+**Status:** Build 0.37 complete and live accepted; no permanent voice selected
 
 **Reviewed:** 2026-09-06
 
@@ -117,4 +117,10 @@ Wake words, always-listening operation, full duplex, remote clients, Discord, vo
 - Not currently installed in the project environment: sounddevice, PyAudio, NumPy, SciPy, Torch, ONNX Runtime, faster-whisper, OpenAI Whisper, Kokoro, Piper, or WebRTC VAD packages.
 - NVIDIA reported approximately 6.6 GB of 8 GB VRAM free during the audit; Ollama had no model loaded at that instant. The accepted `gemma4:e2b` model remains installed, so simultaneous loaded-model testing is still required.
 
-The existing Qt runtime can enumerate the correct microphone and headphone endpoints without opening a stream or installing another capture library. This makes a lean Qt shared-mode capture/playback adapter the preferred integration surface, subject to a live coexistence test. Engine selection remains open until current local STT/TTS runtime compatibility and measured combined load are reviewed.
+The implementation uses Qt Multimedia for shared capture and per-application playback routing, and `sherpa-onnx` 1.13.7 for both local inference directions. Recognition uses the official Whisper `base.en` INT8 encoder/decoder on CPU. Provisional speech uses the official Kokoro multilingual v1.0 model on CPU with `af_nicole` speaker 6 at speed 1.12. This deliberately preserves RTX VRAM for Ollama and keeps the engines behind a replaceable adapter.
+
+The official 6.62-second Whisper test recording transcribed correctly in 0.288 seconds on this machine, an observed real-time factor of 0.043. A practical `af_nicole` sentence and a short runtime smoke sentence both synthesized successfully. The downloaded archives were path-checked before extraction. Recorded archive SHA-256 identities are `475BC7052CE299C007F6D5D5407BA8601F819A2867F6EECEE510ED17DF581542` for Whisper base.en and `C133D26353D776DA730870DAC7DA07DBFC9A5E3BC80CC5E8E83AB6E823BE7046` for Kokoro multi-lang v1.0.
+
+Model files live under ignored `Data/Models/Voice`; tracked configuration stores project-relative model locations and descriptive device preferences, never endpoint indices. Voice starts `MIC OFF`. The on-screen control uses press-and-hold; the configured F8 key uses the same press/release state machine. Raw capture stays in memory and is discarded after transcription. Generated speech uses one temporary WAV that is removed after playback.
+
+Live acceptance on 2026-09-06 passed the bounded voice turn, visible state changes, recognized-text routing, provisional headphone speech, immediate interruption, F8 and on-screen controls, typed fallback, shutdown/restart, and simultaneous Discord/game coexistence. Drew observed no discernible rerouting, degradation, or retained device lock. The automatic Realtek failure path remains policy- and test-covered rather than physically demonstrated by unplugging the headphones during this acceptance.

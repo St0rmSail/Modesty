@@ -1,9 +1,9 @@
 # Modesty Project Punch List
 
-**Current build:** 0.36.0 - RF4 Codex Questions complete; Researcher, Librarian, and Fishing Buddy parked
-**Current focus:** Define and implement Modesty's local Voice foundation; Discord follows background presence
+**Current build:** 0.37.0 - Voice Foundation complete; Researcher, Librarian, and Fishing Buddy parked
+**Current focus:** Minimum background presence, then bounded Discord Communications
 
-## Build 0.37.0 - Voice Foundation - Approved, Implementation Pending
+## Build 0.37.0 - Voice Foundation - Complete
 
 - [x] Preserve local, original, low-overhead speech and Drew's explicit permanent-voice selection gate.
 - [x] Make the Voice Agent pipeline replaceable so permanent voice selection does not block implementation.
@@ -14,10 +14,11 @@
 - [x] Audit available local audio devices, runtime dependencies, and machine capacity without opening an audio stream.
 - [x] Confirm separate HD3000 input, SG03 stereo output, and the SG03 hands-free/profile collision risk.
 - [x] Require replaceable descriptive device preferences, explicit rebinding, safe mic-off on input failure, and visible Realtek-speaker fallback on headphone failure.
-- [ ] Prove shared-mode capture and playback without changing any Windows default.
-- [ ] Select the smallest suitable local STT and provisional TTS adapters from evidence gathered on this machine.
-- [ ] Implement and test the bounded end-to-end voice turn.
-- [ ] Pass simultaneous game, Discord, and Modesty audio plus clean shutdown/restart without rerouting or device lock.
+- [x] Prove shared-mode capture and playback without changing any Windows default.
+- [x] Select sherpa-onnx with CPU Whisper base.en INT8 and provisional CPU Kokoro output from evidence gathered on this machine.
+- [x] Implement the bounded end-to-end voice turn and pass automated engine, device-policy, help, regression, and syntax checks.
+- [x] Demonstrate the bounded end-to-end voice turn through the live Study.
+- [x] Pass simultaneous game, Discord, and Modesty audio plus clean shutdown/restart without discernible rerouting or device lock.
 
 ## Build 0.36.0 - RF4 Codex Questions - Complete
 

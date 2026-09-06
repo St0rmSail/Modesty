@@ -55,6 +55,15 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Remind me on 2026-08-16 at 09:30", result.response)
         self.assertIn("not implemented yet", result.response)
 
+    def test_voice_help_documents_deliberate_controls_and_fallback(self):
+        text = command_help("voice")
+        self.assertIn("MIC OFF", text)
+        self.assertIn("Hold to talk", text)
+        self.assertIn("F8", text)
+        self.assertIn("Stop voice", text)
+        self.assertIn("Realtek speakers", text)
+        self.assertIn("provisional", text)
+
     def test_researcher_help_explains_story_investigation_boundary(self):
         text = command_help("researcher")
         self.assertIn("Investigate current story page", text)

@@ -3,8 +3,10 @@
 import sqlite3
 
 from PySide6.QtCore import QEvent, QThread, Qt, Signal
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
     QComboBox,
+    QApplication,
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -25,6 +27,7 @@ from Runtime.Core import team_status
 from Runtime.Research.browser_window import ScribbleHubResearchWindow
 from Runtime.Research.pending_reports import PendingReportStore
 from Runtime.Time import PresenceSession, ReminderStore
+from Runtime.Voice import VoiceController
 
 
 SYSTEM_PROMPT = """You are Modesty, Drew's local-first personal AI assistant.
@@ -33,11 +36,14 @@ while becoming focused and analytical when the work calls for it. Anita and
 Merry are only named aspects of your single personality, never separate people,
 agents, or identities. Speak naturally, clearly, and concisely. You can retain
 conversation history and use personal memories that Drew has explicitly
-approved. You do not yet have document knowledge, internet, vision, voice, or
-general tools. The Team are unseen functional specialists, not chat
+approved. You do not independently have document knowledge, internet, vision,
+or general tools. The Team are unseen functional specialists, not chat
 personalities; you alone speak to Drew. Explicit Archivist duties are handled
 by deterministic local code outside this model conversation. Never claim to
-have used capabilities you do not possess."""
+have used capabilities you do not possess. The surrounding local application
+may deliberately transcribe Drew's push-to-talk audio and speak your bounded
+Return; do not claim that this grants hearing, wake-word, or always-listening
+capability."""
 
 MODEL_CONTEXT_MESSAGES = 30
 
@@ -96,6 +102,7 @@ class ConversationPanel(QWidget):
         self.input_draft = ""
 
         self._build_ui()
+        self._build_voice()
         self._open_memory()
 
     def _build_ui(self):
@@ -223,6 +230,46 @@ class ConversationPanel(QWidget):
 
         self.status = QLabel(f"Local conversation · {DEFAULT_MODEL}")
         layout.addWidget(self.status)
+
+    def _build_voice(self):
+        self.voice = VoiceController(self)
+        self.voice.transcript_ready.connect(self.send_external)
+        self.voice.state_changed.connect(self._voice_state_changed)
+        self.voice.notice.connect(self._voice_notice)
+        self.response_received.connect(self.voice.speak)
+
+        voice_row = QHBoxLayout()
+        self.voice_button = QPushButton("MIC OFF")
+        self.voice_button.setObjectName("smallButton")
+        self.voice_button.setToolTip("Enable or disable deliberate push-to-talk")
+        voice_row.addWidget(self.voice_button)
+        self.voice_button.clicked.connect(self.voice.toggle_enabled)
+
+        self.ptt_button = QPushButton("Hold to talk")
+        self.ptt_button.setObjectName("smallButton")
+        self.ptt_button.setEnabled(False)
+        voice_row.addWidget(self.ptt_button)
+        self.ptt_button.pressed.connect(self.voice.begin_push_to_talk)
+        self.ptt_button.released.connect(self.voice.end_push_to_talk)
+
+        self.stop_voice_button = QPushButton("Stop voice")
+        self.stop_voice_button.setObjectName("smallButton")
+        voice_row.addWidget(self.stop_voice_button)
+        self.stop_voice_button.clicked.connect(self.voice.cancel)
+        self.layout().insertLayout(self.layout().count() - 1, voice_row)
+
+        sequence = QKeySequence(self.voice.config.push_to_talk_key)
+        self.ptt_key = sequence[0].key() if sequence.count() else Qt.Key.Key_F8
+        QApplication.instance().installEventFilter(self)
+        self._voice_state_changed("MIC READY" if self.voice.enabled else "MIC OFF")
+
+    def _voice_state_changed(self, state: str):
+        self.voice_button.setText("Voice On" if self.voice.enabled else "MIC OFF")
+        self.ptt_button.setEnabled(self.voice.enabled and self.worker is None)
+        self.status.setText(state)
+
+    def _voice_notice(self, message: str):
+        self.transcript.appendPlainText(f"\nVoice: {message}")
 
     def _open_memory(self):
         try:
@@ -456,6 +503,14 @@ class ConversationPanel(QWidget):
         self.worker.start()
 
     def eventFilter(self, watched, event):
+        if event.type() == QEvent.Type.KeyPress and event.key() == self.ptt_key:
+            if not event.isAutoRepeat():
+                self.voice.begin_push_to_talk()
+            return True
+        if event.type() == QEvent.Type.KeyRelease and event.key() == self.ptt_key:
+            if not event.isAutoRepeat():
+                self.voice.end_push_to_talk()
+            return True
         if watched is self.input and event.type() == QEvent.Type.KeyPress:
             key = event.key()
             if key == Qt.Key.Key_Up:
@@ -570,3 +625,4 @@ class ConversationPanel(QWidget):
         self.memories_button.setEnabled(enabled and self.memory is not None)
         self.chronicle_button.setEnabled(enabled and self.memory is not None)
         self.schedule_button.setEnabled(enabled)
+        self.ptt_button.setEnabled(enabled and self.voice.enabled)

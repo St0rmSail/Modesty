@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.36.0 complete; Researcher, Librarian, and Fishing Buddy parked; Voice is next
+**Current marker:** Build 0.37.0 complete; Researcher, Librarian, and Fishing Buddy parked; background presence and Discord Communications are next
 **Reviewed:** 2026-09-06
 
 ## Completed build line
@@ -47,7 +47,13 @@ Pause record, 2026-08-16: implementation and all 102 live automated tests pass. 
 
 ## Most recently completed
 
-### 0.36.0 - RF4 Codex Questions
+### 0.37.0 - Voice Foundation
+
+Modesty now has a deliberate local voice path through the Study. Qt owns shared-mode HD3000 capture and per-application headphone playback; CPU Whisper base.en INT8 and provisional CPU Kokoro remain replaceable adapters. Both the on-screen control and F8 are hold-to-talk, Voice starts hard-off, raw capture is ephemeral, long reports remain visual, playback can be stopped immediately, and typing never disappears.
+
+Drew accepted the live end-to-end turn, interruption, restart, and simultaneous Discord/game coexistence on 2026-09-06. No discernible rerouting, degradation, Windows-default change, or retained device lock occurred. The current `af_nicole` speaker remains an engineering baseline rather than Modesty's permanent voice. All 172 automated tests and 112-file syntax checks pass.
+
+### Previous restore point: 0.36.0 - RF4 Codex Questions
 
 Make the newly populated RF4 codex useful through short natural questions. Modesty should answer one-species enquiries with source-ranked trophy thresholds, waters, bait suggestions, activity and hook guidance; clearly distinguish community seed evidence from local knowledge; say when a field is unknown; and avoid dumping database internals. This build does not add live hotspots, personal progress, automated catches, recipes or background refresh.
 
@@ -59,9 +65,9 @@ The Fishing Buddy is now deliberately parked. Her remaining functional sequence 
 
 ## Next capability tracks
 
-### Local Voice foundation
+### Completed Local Voice foundation
 
-Build 0.37 is **Voice Foundation**. It uses the HD3000 desktop microphone, headphone playback, and shared on-screen/configurable-keyboard push-to-talk. Listening and speaking remain separate controls. The increment establishes explicit microphone activation and hard-off state, bounded local speech recognition, visible listening/transcribing/thinking/speaking state, immediate playback stop, a fresh voice turn, raw-audio discard by default, text fallback, and clean failure without making permanent voice selection a prerequisite. Local speech output uses a replaceable provisional engine so auditions can continue without rebuilding the conversation pipeline. See [VOICE.md](VOICE.md).
+Build 0.37 **Voice Foundation** is complete. It uses the HD3000 desktop microphone, headphone playback, and shared on-screen/F8 hold-to-talk. Listening and speaking remain separate controls. It establishes explicit microphone activation and hard-off state, bounded local speech recognition, visible listening/transcribing/thinking/speaking state, immediate playback stop, a fresh voice turn, raw-audio discard by default, text fallback, and clean failure without making permanent voice selection a prerequisite. Local speech output uses a replaceable provisional engine so auditions can continue without rebuilding the conversation pipeline. See [VOICE.md](VOICE.md).
 
 The Voice adapter must use shared device access, leave Windows playback/recording/communications defaults unchanged, and release every stream cleanly. Live acceptance includes Discord and game audio already active on the headphones while Modesty listens and speaks; neither application may be rerouted, muted, disabled, degraded by a silent profile switch, or left locked afterward.
 

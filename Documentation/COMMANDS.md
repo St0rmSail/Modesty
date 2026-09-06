@@ -2,7 +2,15 @@
 
 **Status:** Authoritative user command reference
 
-Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Librarian**, **Help with the Fishing Buddy**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
+Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Librarian**, **Help with the Fishing Buddy**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, **Help with Voice**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
+
+## Voice
+
+Voice starts safely at **MIC OFF** on every launch. Select **MIC OFF** once to enable the Voice controls. Hold **Hold to talk**, speak, and release it to transcribe and send the turn. Alternatively, hold the configured **F8** key while speaking and release it to send. Select **Stop voice** to stop playback immediately; typing remains available at all times.
+
+The status line shows `MIC OFF`, `MIC READY`, `LISTENING`, `TRANSCRIBING`, `THINKING`, `PREPARING SPEECH`, or `SPEAKING`. Raw microphone audio stays in memory only for the current transcription. If the preferred HD3000 is absent, Modesty returns to `MIC OFF` rather than choosing another microphone. If the preferred headphones are absent, only Modesty falls back to the approved Realtek speakers and reports that visibly; she does not change a Windows default.
+
+The current `af_nicole` output is provisional engineering speech, not Modesty's approved permanent voice. Long reports remain in the panel; Voice speaks only the bounded Return.
 
 ## Fishing Buddy
 

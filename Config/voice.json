@@ -1,0 +1,12 @@
+{
+  "enabled": false,
+  "push_to_talk_key": "F8",
+  "preferred_input": "Desktop Microphone (Microsoft LifeCam HD-3000)",
+  "preferred_output": "Headphones (2- Monster Airmars SG03)",
+  "fallback_output": "Speakers (Realtek(R) Audio)",
+  "stt_model": "Data/Models/Voice/sherpa-onnx-whisper-base.en",
+  "tts_model": "Data/Models/Voice/kokoro-multi-lang-v1_0",
+  "provisional_voice": "af_nicole",
+  "provisional_speaker_id": 6,
+  "speech_speed": 1.12
+}

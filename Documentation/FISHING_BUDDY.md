@@ -1,6 +1,6 @@
 # The Fishing Buddy
 
-**Status:** Canonical simulator-companion Team role; Build 0.35 Fishing Codex evidence intake live-accepted
+**Status:** Canonical simulator-companion Team role; Build 0.36 RF4 Codex Questions live-accepted at demonstrated Level 2
 **Reviewed:** 2026-09-06
 
 The Fishing Buddy is the unseen Team specialist who helps Drew play and learn from fishing simulators. Real-world angling remains a later secondary mode. She is not a chat personality. Modesty consults her through the Team headset and presents the advice, observations, and companionship. The companion runs independently of a game window so the Study may occupy another monitor and a later remote client may use a tablet or phone.
@@ -67,6 +67,14 @@ The first live observation showed that a normal save cycle rewrites almost every
 RF4 Tackle Box may seed the RF4 codex as a distinct weakest-rank `community_reference` source. Stable catalogue intake includes species names, trophy thresholds, location associations, bait associations, activity, time and hook guidance. It cannot silently populate another game's records, overwrite stronger evidence, or masquerade as Drew's observation. Groundbait recipes are a later bounded intake capped at five per meaningful grouping.
 
 Dynamic hotspots have a separate evidence lifecycle. New community leads begin as **rumoured**. A spot becomes **known** only after local testing or equivalent stronger verification. **Favourite** is reserved exclusively for Drew's explicit personal selection from known spots; neither an importer nor repeated success may assign it automatically. Rumours remain available for fresh suggestions and refresh monitoring without displacing known local results.
+
+## Build 0.36 — RF4 Codex Questions
+
+The first useful RF4 enquiry layer answers short natural one-species questions about trophy thresholds, listed waters, bait associations, activity, time, depth, hook guidance and community notes. Drew may mention RF4 directly or address the Fishing Buddy without memorising one rigid sentence. Clear minor spelling errors may resolve approximately; ambiguous or absent species are refused rather than guessed.
+
+Every answer is confined to the Russian Fishing 4 records and labels its selected source and evidence rank. Missing fields remain `not yet established`, and absence from the imported bait list is not proof that a bait cannot work. Long lists are bounded for the conversation panel. This increment does not infer hotspots, recipes, live catches, player progress, tackle ownership or facts from another game.
+
+Drew accepted bait suggestions, waters, trophy weights, an Atlantic cod overview, a named-bait check, approximate spelling recovery, and clean unknown-species refusal through the live Study on 2026-09-06. All 165 automated tests and syntax checks passed. Together with the bounded source-labelled RF4 intake, this raises the Fishing Buddy's demonstrated maturity to Level 2 bounded retrieval; it does not imply personal game-state observation or autonomous fishing advice.
 
 ## Visual representation
 

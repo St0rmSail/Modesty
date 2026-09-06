@@ -1,6 +1,11 @@
 """Fishing Buddy's first bounded simulator duty."""
 
-from Runtime.Fishing import AnglerObservationStore, AnglerSaveInspector, FishingCodex, RF4AlmanacImporter
+import re
+
+from Runtime.Fishing import (
+    AnglerObservationStore, AnglerSaveInspector, FishingCodex, RF4AlmanacImporter,
+    RF4CodexQuestions,
+)
 
 
 class FishingBuddy:
@@ -91,3 +96,91 @@ class FishingBuddy:
             "Every imported claim is labelled RF4 community reference at the weakest evidence rank. "
             "No personal progress, live catches, hotspots, recipes, or other games were changed.",
         ))
+
+    def answer_rf4_question(self, question: str) -> str:
+        brief = RF4CodexQuestions(self.codex).lookup(question)
+        if brief is None:
+            return (
+                "The Fishing Buddy could not identify one RF4 species confidently from that question. "
+                "Try the fish's full name; she will not guess between similar species."
+            )
+        query = question.casefold()
+        correction = (
+            f"I matched that approximately to {brief.species_name}. "
+            if brief.approximate_match else ""
+        )
+        source_note = (
+            f"Source: {brief.source_title} ({brief.source_locator}); "
+            f"{brief.confidence.replace('_', ' ')}."
+        )
+        if "trophy" in query:
+            trophy = self._weight(brief.trophy_weight_grams)
+            super_trophy = self._weight(brief.super_trophy_weight_grams)
+            return (
+                f"{correction}{brief.species_name}: trophy {trophy}; super trophy {super_trophy}.\n"
+                f"{source_note}"
+            )
+        if re.search(r"\bwhere\b|\bwhich (?:lake|water|location)\b", query):
+            waters = self._short_list(brief.locations)
+            return f"{correction}For {brief.species_name}, the RF4 seed catalogue lists: {waters}.\n{source_note}"
+        bait_question = re.search(r"\bwould\s+(.+?)\s+work\s+for\b", query)
+        if bait_question:
+            proposed = bait_question.group(1).strip(" ?.,")
+            proposed = re.sub(r"^(?:a|an|the)\s+", "", proposed)
+            normal = RF4CodexQuestions._normalise(proposed)
+            matches = [
+                bait for bait in brief.baits
+                if normal and (
+                    normal in RF4CodexQuestions._normalise(bait)
+                    or RF4CodexQuestions._normalise(bait) in normal
+                )
+            ]
+            if matches:
+                answer = f"Yes - the community seed list includes {', '.join(matches)} for {brief.species_name}."
+            else:
+                answer = (
+                    f"The current community seed does not list {proposed} for {brief.species_name}. "
+                    "That is not proof that it cannot work."
+                )
+            return f"{correction}{answer}\n{source_note}"
+        if re.search(r"\b(?:bait|use|catch with|works? for)\b", query):
+            baits = self._short_list(brief.baits)
+            hook = f" Hook guidance: {brief.hook_guidance}." if brief.hook_guidance else ""
+            return f"{correction}For {brief.species_name}, try {baits}.{hook}\n{source_note}"
+        lines = [f"{correction}{brief.species_name} in RF4:"]
+        if brief.locations:
+            lines.append("Waters: " + self._short_list(brief.locations))
+        if brief.baits:
+            lines.append("Suggested baits: " + self._short_list(brief.baits))
+        lines.append(
+            f"Trophy: {self._weight(brief.trophy_weight_grams)}; "
+            f"super trophy: {self._weight(brief.super_trophy_weight_grams)}"
+        )
+        activity = "; ".join(value for value in (brief.activity, brief.active_time) if value)
+        if activity:
+            lines.append("Activity: " + activity)
+        if brief.hook_guidance:
+            lines.append("Hook guidance: " + brief.hook_guidance)
+        if brief.depth_guidance:
+            lines.append("Depth: " + brief.depth_guidance)
+        if brief.notes:
+            lines.append("Community note: " + brief.notes)
+        lines.append(source_note)
+        return "\n".join(lines)
+
+    @staticmethod
+    def _weight(grams: int | None) -> str:
+        if grams is None:
+            return "not yet established"
+        if grams < 1000:
+            return f"{grams} g"
+        kilograms = grams / 1000
+        return f"{kilograms:g} kg"
+
+    @staticmethod
+    def _short_list(values: tuple[str, ...], maximum: int = 8) -> str:
+        if not values:
+            return "not yet established"
+        shown = ", ".join(values[:maximum])
+        remaining = len(values) - maximum
+        return shown + (f", plus {remaining} more" if remaining > 0 else "")

@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.34.0 complete; Build 0.35 active; Build 0.19 acceptance paused
+**Baseline:** Build 0.36.0 complete; Build 0.19 acceptance paused
 **Reviewed:** 2026-09-06
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -26,7 +26,7 @@
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
 | Librarian | Yes | Yes | Yes | Level 2 demonstrated through Build 0.33: catalogue, collection control, exact-edition continuity, bookmarks/notes, and the accepted large-format Reading Desk. Richer repair, OCR, broader formats, full ebook rendering, and synchronization remain future work |
-| Fishing Buddy | Yes | Yes | Partial | Build 0.34 demonstrated; Build 0.35 adds a live RF4-only weakest-rank community catalogue of 251 species plus bait and water links, a tested contextual recommendation foundation, and a parked opaque The Angler inspector; no personal game-state adapter or automatic catch tracking yet |
+| Fishing Buddy | Yes | Yes | Partial | Level 2 demonstrated through Build 0.36: a live RF4-only weakest-rank catalogue of 251 species plus concise source-labelled natural retrieval with safe approximate matching and truthful unknowns. The Angler inspector is parked; no personal game-state adapter or automatic catch tracking yet |
 | Team readiness display | Yes | Yes | Yes | Archivist, Researcher, and Librarian presence, readiness lamp, Team headset, and duty-state changes demonstrated; pedestal perspective and pale extraction halos deferred to polish |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Yes | Yes | Yes | Smithsonian, bounded Scribble Hub discovery, and one current-story evidence pass demonstrated without account action or silent filing |

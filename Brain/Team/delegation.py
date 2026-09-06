@@ -666,6 +666,16 @@ class TeamDelegator:
             return DelegationResult(True, self.fishing_buddy.inspect_angler_save())
         if self.FISHING_BUDDY_INSPECT_PATTERN.match(message.strip()):
             return DelegationResult(True, self.fishing_buddy.inspect_simulators())
+        fishing_question = self.FISHING_BUDDY_QUESTION_PATTERN.match(message.strip())
+        if fishing_question:
+            return DelegationResult(
+                True, self.fishing_buddy.answer_rf4_question(fishing_question.group("question"))
+            )
+        direct_rf4_question = self.RF4_DIRECT_QUESTION_PATTERN.match(message.strip())
+        if direct_rf4_question:
+            return DelegationResult(
+                True, self.fishing_buddy.answer_rf4_question(direct_rf4_question.group("question"))
+            )
         natural_help = self.NATURAL_HELP_PATTERN.match(message.strip())
         if natural_help:
             self._help_active = True
@@ -1276,4 +1286,13 @@ class TeamDelegator:
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
         r"compare\s+(?:the\s+)?angler\s+observation\s*$",
         re.IGNORECASE,
+    )
+    FISHING_BUDDY_QUESTION_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy(?:\s+to)?\s*[:,-]?\s*"
+        r"(?P<question>(?:what|where|which|tell|would|how)\b.+)$",
+        re.IGNORECASE | re.DOTALL,
+    )
+    RF4_DIRECT_QUESTION_PATTERN = re.compile(
+        r"^(?P<question>(?:what|where|which|tell|would|how)\b.+\brf4\b.*)$",
+        re.IGNORECASE | re.DOTALL,
     )

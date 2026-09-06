@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.35.0 - Fishing Codex Evidence Intake complete; Researcher and Librarian parked
+**Current marker:** Build 0.36.0 - RF4 Codex Questions complete; Researcher and Librarian parked
 **Reviewed:** 2026-09-06
 
 ## Completed build line
@@ -45,11 +45,15 @@ Definition of done:
 
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
-## Next build
+## Most recently completed
 
 ### 0.36.0 - RF4 Codex Questions
 
 Make the newly populated RF4 codex useful through short natural questions. Modesty should answer one-species enquiries with source-ranked trophy thresholds, waters, bait suggestions, activity and hook guidance; clearly distinguish community seed evidence from local knowledge; say when a field is unknown; and avoid dumping database internals. This build does not add live hotspots, personal progress, automated catches, recipes or background refresh.
+
+Implemented for live acceptance: direct questions that mention RF4 and natural questions addressed to the Fishing Buddy share one deterministic, RF4-only evidence path. Clear minor species misspellings are tolerated; uncertain species are refused. Responses remain bounded, expose source rank, preserve unknowns, and never treat an absent bait link as proof of impossibility.
+
+Drew accepted the full live question set on 2026-09-06: bait advice, waters, trophy thresholds, a species overview, a named-bait check, approximate spelling recovery, and unknown-species refusal. All 165 automated tests and syntax checks passed. The next Fishing Buddy increment will be selected from this clean restore point rather than silently extending Build 0.36.
 
 ## Recently completed
 

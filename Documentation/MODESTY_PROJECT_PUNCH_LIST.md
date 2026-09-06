@@ -1,7 +1,17 @@
 # Modesty Project Punch List
 
-**Current build:** 0.35.0 - Fishing Codex Evidence Intake complete; Researcher and Librarian parked
-**Current focus:** Restore point before Build 0.36.0 - RF4 Codex Questions
+**Current build:** 0.36.0 - RF4 Codex Questions complete; Researcher and Librarian parked
+**Current focus:** Clean restore point; choose the next Fishing Buddy increment
+
+## Build 0.36.0 - RF4 Codex Questions - Complete
+
+- [x] Add a deterministic RF4-only one-species lookup over the private codex.
+- [x] Answer trophy, water, bait-check, bait-suggestion and general species questions naturally.
+- [x] Tolerate a clear minor species misspelling and refuse ambiguous or absent species.
+- [x] Bound long lists, label source and evidence rank, and preserve unknown as unknown.
+- [x] Keep absent bait evidence distinct from proof that a bait cannot work.
+- [x] Update deterministic command help and project documentation with the new natural surface.
+- [x] Pass the live Modesty question set and accept the reply quality with all 165 automated tests passing.
 
 ## Build 0.35.0 - Fishing Codex Evidence Intake - Complete
 

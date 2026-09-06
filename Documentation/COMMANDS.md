@@ -11,6 +11,11 @@ Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **
 - `Ask the Fishing Buddy to begin an Angler observation`
 - `Ask the Fishing Buddy to compare the Angler observation`
 - `Ask the Fishing Buddy to import the RF4 Almanac`
+- `What should I use for tench in RF4?`
+- `Ask the Fishing Buddy: Where can I catch common roach?`
+- `Ask the Fishing Buddy: What is trophy weight for bream?`
+- `Ask the Fishing Buddy: Tell me about Atlantic cod.`
+- `Ask the Fishing Buddy: Would cheese work for tench?`
 
 This prepares the four private local codex foundations and performs a bounded, read-only installation check. Russian Fishing 4 is discovered as a standalone launcher installation. Steam manifests are used only for Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler. The check does not read or change saves, attach to a running game, contact the internet, or perform account actions.
 
@@ -19,6 +24,8 @@ The Angler save inspection recognises only bounded local container files, signat
 For a controlled change observation, close The Angler cleanly and begin an observation. Play normally, make one small memorable change such as catching one fish, then close the game cleanly again and compare the observation. Modesty reports only which relative containers changed, were added, or disappeared. The baseline contains hashes and sizes but no decoded save content or account-directory name.
 
 The RF4 Almanac import makes one bounded public retrieval from RF4 Tackle Box and populates only the Russian Fishing 4 codex with its fish catalogue, trophy thresholds, locations, baits, activity, time and hook guidance. Every claim retains the exact RF4 source at the weakest community-reference rank. It does not import live catches, hotspots or recipes, touch another game's tables, or access an account.
+
+RF4 codex questions are natural rather than exact commands. Mention RF4 directly, or begin with **Ask the Fishing Buddy**. Modesty resolves one species, tolerates a clear minor misspelling, and refuses an uncertain match. Replies are short, source-labelled, and say when the catalogue does not establish an answer. A missing bait association is not presented as proof that the bait cannot work.
 
 ## Grand Library
 

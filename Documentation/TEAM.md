@@ -43,6 +43,7 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 | **Researcher** | Conduct explicit online research and return evidence-led findings through Modesty | Borrows task-relevant Bookshelf packets; no local filesystem access; cannot silently file, message, or download | Scribble Hub and Briefing lifecycle demonstrated; archaeologist Bobblehead with lit Lamp of Learning approved |
 | **Librarian** | Maintain The Stacks, editions, manuscript repairs, reading position, and cross-post continuity | Never overwrites originals, defeats DRM, republishes works, or silently places copyrighted material on the Bookshelf | Level 2 catalogue, reading, continuity, edition review, reversible exact-duplicate handling, natural control, and bounded batch shelving demonstrated; Alexandrian Bobblehead accepted |
 | **Fishing Buddy** | Maintain four private simulator codices, interpret fishing evidence and player progress, recommend sessions and tackle, and provide external companionship through Modesty | No save writes, injection, packet interception, anti-cheat evasion, prohibited scraping, silent account action, or invented game state | Build 0.36 demonstrated at Level 2 through bounded source-labelled RF4 intake and natural retrieval; future Bobblehead earned but not yet created |
+| **Communications** | Manage approved external messaging platforms, beginning with Discord; retrieve bounded messages, identify relevant items, summarize, and prepare replies for Modesty | No unapproved server/channel access, silent sending, credential exposure, impersonation, indefinite surveillance, or absorption of Researcher duties | Canonical role and Discord first-duty contract approved; implementation follows Voice and minimum background presence; moniker, device, outfit, and Bobblehead remain open |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |
 | **Vision** | Webcam, screen, screenshot, and OCR perception | Explicit indicators and hard-off controls required | Conceptual |
@@ -50,7 +51,7 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 | **Accountant** | Budget, finance, and shopping support | Financial actions require strong confirmation | Recurring concept; contract unresolved |
 | **Gaming Guru** | Games, character designs, modlists, and gaming reference knowledge | Separate gaming material from Modesty project canon | Domain confirmed; contract unresolved |
 
-Artist and briefing/courier specialists remain Proposed until Drew confirms that either deserves a permanent Team role rather than being a tool or capability of another member. The Fishing Buddy was promoted to the canonical roster on 2026-09-06 for an immediate real-world trip duty.
+Artist and briefing/courier specialists remain Proposed until Drew confirms that either deserves a permanent Team role rather than being a tool or capability of another member. The Fishing Buddy and Communications specialist are canonical roles; Voice remains Modesty's own interface rather than an alternate chat personality.
 
 ## Archivist clarification
 

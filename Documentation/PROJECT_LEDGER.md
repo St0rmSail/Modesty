@@ -1,7 +1,7 @@
 # Project Ledger
 
 **Status:** Authoritative index
-**Current build:** 0.36.0 - RF4 Codex Questions complete; Researcher and Librarian parked
+**Current build:** 0.36.0 complete; Researcher, Librarian, and Fishing Buddy parked; Voice is next
 **Reviewed:** 2026-09-06
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
@@ -33,6 +33,7 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Personality Canon](MODESTY_PERSONALITY_CANON.md): the Anita/Merry identity rule.
 - [Build Log](Buildlog.md): chronological milestone record.
 - [Voice](VOICE.md): local voice direction, current audition findings, and selection gate.
+- [Communications](COMMUNICATIONS.md): external messaging ownership, Discord sequence, permissions, approval, audit, and retention boundaries.
 - [Researcher](RESEARCHER.md): report contract, first Scribble Hub assignment, and browser/rights boundary.
 - [Librarian](LIBRARIAN.md): private reading collection, editions, repairs, provenance, and continuity.
 - [Fishing Buddy](FISHING_BUDDY.md): fishing-trip preparation, evidence boundary, post-trip learning, and First Cast contract.

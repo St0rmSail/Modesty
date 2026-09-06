@@ -1,6 +1,6 @@
 # The Fishing Buddy
 
-**Status:** Canonical simulator-companion Team role; Build 0.36 RF4 Codex Questions live-accepted at demonstrated Level 2
+**Status:** Parked at Build 0.36; RF4 Codex Questions live-accepted at demonstrated Level 2
 **Reviewed:** 2026-09-06
 
 The Fishing Buddy is the unseen Team specialist who helps Drew play and learn from fishing simulators. Real-world angling remains a later secondary mode. She is not a chat personality. Modesty consults her through the Team headset and presents the advice, observations, and companionship. The companion runs independently of a game window so the Study may occupy another monitor and a later remote client may use a tablet or phone.
@@ -75,6 +75,8 @@ The first useful RF4 enquiry layer answers short natural one-species questions a
 Every answer is confined to the Russian Fishing 4 records and labels its selected source and evidence rank. Missing fields remain `not yet established`, and absence from the imported bait list is not proof that a bait cannot work. Long lists are bounded for the conversation panel. This increment does not infer hotspots, recipes, live catches, player progress, tackle ownership or facts from another game.
 
 Drew accepted bait suggestions, waters, trophy weights, an Atlantic cod overview, a named-bait check, approximate spelling recovery, and clean unknown-species refusal through the live Study on 2026-09-06. All 165 automated tests and syntax checks passed. Together with the bounded source-labelled RF4 intake, this raises the Fishing Buddy's demonstrated maturity to Level 2 bounded retrieval; it does not imply personal game-state observation or autonomous fishing advice.
+
+The Fishing Buddy is deliberately parked at this clean restore point while Voice, background presence, and Discord communication receive priority. When resumed, the next functional target is dynamic RF4 hotspot evidence followed by method-aware tackle and a personal-state-informed session planner. Parking does not cancel the remaining codex, game-adapter, companion, remote-display, or visual work.
 
 ## Visual representation
 

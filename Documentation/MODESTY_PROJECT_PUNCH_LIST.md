@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.36.0 - RF4 Codex Questions complete; Researcher and Librarian parked
-**Current focus:** Clean restore point; choose the next Fishing Buddy increment
+**Current build:** 0.36.0 - RF4 Codex Questions complete; Researcher, Librarian, and Fishing Buddy parked
+**Current focus:** Define and implement Modesty's local Voice foundation; Discord follows background presence
 
 ## Build 0.36.0 - RF4 Codex Questions - Complete
 

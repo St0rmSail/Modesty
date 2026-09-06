@@ -40,6 +40,7 @@
 | Schedule and calendar awareness | Yes | Partial | Yes | Local reminders, lifecycle commands/window, and due opening context demonstrated; recurrence, accounts, and background delivery remain unimplemented |
 | Personal Chronicle | Yes | Yes | Yes | Structured episodes, visible review, corrected-place matching, concrete active-only recall, provenance, retirement exclusion, and factual-evidence boundary demonstrated |
 | Voice | Partial | No | No | Config disabled |
+| Discord communications | Yes | No | No | Dedicated Communications specialist approved. First duty is bounded read, summarize, draft, and exact approval before send; depends on minimum background presence |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |
 | Agentic planning/resume | Partial | No | No | No executive implementation yet |

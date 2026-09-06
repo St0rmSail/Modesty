@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.36.0 - RF4 Codex Questions complete; Researcher and Librarian parked
+**Current marker:** Build 0.36.0 complete; Researcher, Librarian, and Fishing Buddy parked; Voice is next
 **Reviewed:** 2026-09-06
 
 ## Completed build line
@@ -54,6 +54,20 @@ Make the newly populated RF4 codex useful through short natural questions. Modes
 Implemented for live acceptance: direct questions that mention RF4 and natural questions addressed to the Fishing Buddy share one deterministic, RF4-only evidence path. Clear minor species misspellings are tolerated; uncertain species are refused. Responses remain bounded, expose source rank, preserve unknowns, and never treat an absent bait link as proof of impossibility.
 
 Drew accepted the full live question set on 2026-09-06: bait advice, waters, trophy thresholds, a species overview, a named-bait check, approximate spelling recovery, and unknown-species refusal. All 165 automated tests and syntax checks passed. The next Fishing Buddy increment will be selected from this clean restore point rather than silently extending Build 0.36.
+
+The Fishing Buddy is now deliberately parked. Her remaining functional sequence is dynamic hotspot evidence, method-aware tackle and recipes, personal RF4 state, session planning, catch/experiment learning, fresh Researcher-fed evidence, maps, companion behaviour, remote display, visuals, and later adapters for the other games.
+
+## Next capability tracks
+
+### Local Voice foundation
+
+Voice is the next active design and implementation track. Listening and speaking remain separate controls. The first increment must establish explicit microphone activation and hard-off state, local speech recognition, visible listening/thinking/speaking state, interruption and cancellation, text fallback, and clean failure without making permanent voice selection a prerequisite. Local speech output follows through a replaceable engine so auditions can continue without rebuilding the conversation pipeline. See [VOICE.md](VOICE.md).
+
+### Background presence and Discord Communications
+
+Discord follows the Voice foundation and the minimum background-presence host needed for Modesty to remain operational while the Study is hidden. Discord belongs to the dedicated Communications specialist, not the Researcher or Fishing Buddy. The first Discord duty is one explicitly approved server and channel: read a bounded recent window, identify mentions and actionable items, summarize them through Modesty, draft a reply, and send nothing until Drew explicitly approves that exact draft.
+
+Later increments may add selected-channel monitoring, notifications, scheduled summaries, attachments, voice-channel participation, and narrowly governed autonomous replies. Each requires its own permissions, visible state, audit, retention, rate limits, recovery and revocation. Account credentials never enter chat, project files, the Bookshelf, or the Filing Cabinet. See [COMMUNICATIONS.md](COMMUNICATIONS.md).
 
 ## Recently completed
 

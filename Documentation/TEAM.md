@@ -1,6 +1,6 @@
 # The Team
 
-**Status:** Canonical framework; Archivist, Researcher, and Librarian have demonstrated duties; Fishing Buddy is entering her first build
+**Status:** Canonical framework; Archivist, Researcher, Librarian, and Fishing Buddy have demonstrated duties
 **Reviewed:** 2026-09-06
 
 The Team is a group of unseen functional specialists working behind the scenes. They are not chat personalities and never speak to Drew as alternate characters. Modesty is the sole conversational presence: she consults the Team through her headset and communicates their results. Team activity is monitored through corresponding Bobbleheads on her Bookshelf.
@@ -42,7 +42,7 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 | **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Inventory, retrieval, filing, and approval-gated Bookshelf curation demonstrated; visual representation remains |
 | **Researcher** | Conduct explicit online research and return evidence-led findings through Modesty | Borrows task-relevant Bookshelf packets; no local filesystem access; cannot silently file, message, or download | Scribble Hub and Briefing lifecycle demonstrated; archaeologist Bobblehead with lit Lamp of Learning approved |
 | **Librarian** | Maintain The Stacks, editions, manuscript repairs, reading position, and cross-post continuity | Never overwrites originals, defeats DRM, republishes works, or silently places copyrighted material on the Bookshelf | Level 2 catalogue, reading, continuity, edition review, reversible exact-duplicate handling, natural control, and bounded batch shelving demonstrated; Alexandrian Bobblehead accepted |
-| **Fishing Buddy** | Prepare real fishing trips, interpret fishing-specific conditions, maintain tackle/catch lessons, and return practical water-side guidance through Modesty | Cannot invent current conditions or regulations, purchase, book, message, obtain permits, or replace medical and emergency judgement | Role canonical; Build 0.34 First Cast awaiting the real trip particulars; Bobblehead not yet earned |
+| **Fishing Buddy** | Maintain four private simulator codices, interpret fishing evidence and player progress, recommend sessions and tackle, and provide external companionship through Modesty | No save writes, injection, packet interception, anti-cheat evasion, prohibited scraping, silent account action, or invented game state | Build 0.34 First Cast demonstrated at Level 1; future Bobblehead earned but not yet created |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |
 | **Vision** | Webcam, screen, screenshot, and OCR perception | Explicit indicators and hard-off controls required | Conceptual |

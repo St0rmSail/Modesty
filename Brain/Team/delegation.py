@@ -6,6 +6,7 @@ import re
 
 from Brain.Team.archivist import Archivist
 from Brain.Team.librarian import Librarian, LibrarianError
+from Brain.Team.fishing_buddy import FishingBuddy
 from Runtime.Knowledge.catalog import KnowledgeCatalog
 from Runtime.Knowledge.stores import KnowledgeStores
 from Runtime.Library import GatewayError, GrandLibraryGateway
@@ -312,6 +313,7 @@ class TeamDelegator:
         smithsonian_provider=None,
         librarian: Librarian | None = None,
         pending_reports: PendingReportStore | None = None,
+        fishing_buddy: FishingBuddy | None = None,
     ):
         if archivist is None:
             paths = KnowledgeStores().initialize()
@@ -323,6 +325,7 @@ class TeamDelegator:
         )
         self.librarian = librarian
         self.pending_reports = pending_reports or PendingReportStore()
+        self.fishing_buddy = fishing_buddy or FishingBuddy()
         self.reminders = ReminderStore()
         self._help_active = False
         self._last_edition_groups = ()
@@ -653,6 +656,8 @@ class TeamDelegator:
         return {token for token in re.findall(r"[a-z0-9]+", value.casefold()) if token not in stop}
 
     def handle(self, message: str) -> DelegationResult:
+        if self.FISHING_BUDDY_INSPECT_PATTERN.match(message.strip()):
+            return DelegationResult(True, self.fishing_buddy.inspect_simulators())
         natural_help = self.NATURAL_HELP_PATTERN.match(message.strip())
         if natural_help:
             self._help_active = True
@@ -1239,3 +1244,8 @@ class TeamDelegator:
                 "Should the Archivist file that privately in the Filing Cabinet, or on the shared Bookshelf?",
             )
         return DelegationResult(False)
+    FISHING_BUDDY_INSPECT_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
+        r"(?:inspect|check|find)\s+(?:my\s+)?(?:fishing\s+)?(?:games|simulators)\s*$",
+        re.IGNORECASE,
+    )

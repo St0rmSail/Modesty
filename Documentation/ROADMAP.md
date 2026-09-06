@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.34.0 - First Cast (specification active); Researcher and Librarian parked
+**Current marker:** Build 0.34.0 - First Cast complete; Researcher and Librarian parked
 **Reviewed:** 2026-09-06
 
 ## Completed build line
@@ -45,13 +45,21 @@ Definition of done:
 
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
-## Active build
+## Next build
 
-### 0.34.0 - First Cast - Specification Active
+### 0.35.0 - First Read-only Game Adapter - Proposed
 
-Give the newly canonical Fishing Buddy one genuine duty: prepare Drew's real weekend fishing trip. The result is a concise Trip Card separating Drew-confirmed facts, current sourced conditions and rules, fishing recommendations, unresolved unknowns, a packing/tackle checklist, and a go, caution, postpone, or insufficient-information assessment.
+Inspect The Angler's candidate local save format without changing it, identify which facts can be extracted truthfully, and propose the smallest useful progress adapter. No parser is authorized until the format, stability, privacy, and failure behaviour are reviewed.
 
-Implementation begins only after the real trip's date, water or area, access method, intended target or target-selection request, available equipment, and hard constraints are known. The first build does not purchase, book, message, obtain permits, navigate, monitor in the background, or invent current facts. See [The Fishing Buddy](FISHING_BUDDY.md).
+## Recently completed
+
+### 0.34.0 - First Cast - Complete
+
+Give the newly canonical Fishing Buddy one genuine simulator duty: establish separate private local codex foundations for Russian Fishing 4, Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler; discover local installations and possible read-only data surfaces; and report the safest next adapter without reading meaning into unknown files.
+
+The build may inspect bounded standalone launcher/install evidence for Russian Fishing 4 and read Steam manifests for the other three games. It may report path/source capability, but cannot modify saves, inject into games, intercept traffic, evade anti-cheat, scrape prohibited sources, operate accounts, claim catches, or begin background monitoring. A short natural command, deterministic help, tests, and a live discovery report are required. See [The Fishing Buddy](FISHING_BUDDY.md).
+
+Accepted with all four installations found, standalone RF4 correctly separated from Steam, The Angler's save directory labelled only as a candidate source, and all 148 tests passing.
 
 ### 0.33.0 - Reading Desk - Complete
 

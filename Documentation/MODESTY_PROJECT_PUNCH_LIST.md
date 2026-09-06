@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.33.0 - Reading Desk complete; Researcher and Librarian parked
-**Current focus:** Build 0.34.0 - Fishing Buddy: First Cast
+**Current build:** 0.34.0 - Fishing Buddy: First Cast complete; Researcher and Librarian parked
+**Current focus:** Select and bound Build 0.35.0 - first read-only game adapter
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -285,11 +285,15 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Pass the live visual and restart-safe continuity sequence.
 - [x] Reconcile acceptance evidence and all 145 automated tests.
 
-## Build 0.34.0 - Fishing Buddy: First Cast - Specification Active
+## Build 0.34.0 - Fishing Buddy: First Cast - Complete
 
 - [x] Promote the Fishing Buddy to a distinct canonical Team role.
 - [x] Separate fishing judgement from Researcher evidence gathering, Nurse guidance, Archivist filing, and Schedule reminders.
-- [x] Define the first Trip Card and explicit non-authorities.
-- [ ] Record the real trip's date, water or area, access method, intended targets, available tackle, and hard constraints.
-- [ ] Implement one bounded preparation duty with current-source provenance and safe failure.
-- [ ] Demonstrate a useful real trip briefing before awarding the Bobblehead.
+- [x] Reframe the primary portfolio around four fishing simulators while retaining real fishing as secondary future scope.
+- [x] Define local-only per-game codex, external companion, information, entertainment, and future fishing-mode visuals.
+- [x] Record no-save-write, no-injection, no-traffic-interception, no-anti-cheat-evasion, and source-permission boundaries.
+- [x] Implement private codex foundations and read-only installation/source discovery.
+- [x] Add one concise natural command plus help and tests.
+- [x] Demonstrate a truthful local discovery report before awarding the Bobblehead.
+- [x] Correctly discover RF4 as a standalone installation and use Steam only for the other three games.
+- [x] Pass all 148 automated tests and accept the live four-game report.

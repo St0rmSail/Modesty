@@ -24,7 +24,7 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.33.0 - Reading Desk (complete)**
+**0.34.0 - Fishing Buddy: First Cast (complete)**
 
 Build 0.29 adds a bounded **Metadata Review Desk** for incomplete Intake records. It visibly separates embedded catalogue fields, filename suggestions, and Drew-confirmed corrections; requires both title and author plus explicit `save that`; binds corrections to the unchanged SHA-256 source; never rewrites a book; and sends corrected items back through the ordinary shelving preview. Live acceptance left the Sandstorm suggestion unchanged once, then confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell and placed that exact unchanged source first in the ordinary shelving preview. All 135 tests passed.
 
@@ -54,7 +54,7 @@ Build 0.19 attempts the Researcher's Level 4 threshold by combining one visible 
 
 The implementation and 102-test live suite are complete and were preserved in commit `9268c83`. The final end-to-end acceptance run was paused on 2026-08-16 because Scribble Hub returned Cloudflare 522 origin timeouts for several hours. This is an external source outage, not a demonstrated Modesty failure. The Researcher remains at demonstrated Level 3 until a real mixed-source Briefing and disposition pass after Scribble Hub recovers; further Researcher work is deliberately parked.
 
-After Build 0.33, Drew deliberately parked both the Researcher and Librarian portfolios. The next active role is the canonical **Fishing Buddy**, beginning with Build 0.34 First Cast: preparation of one real weekend fishing trip from explicit trip particulars and current sourced conditions.
+After Build 0.33, Drew deliberately parked both the Researcher and Librarian portfolios. Build 0.34 gives the canonical **Fishing Buddy** her first callable duty and private local codex foundations for RF4, Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler. The accepted live report found standalone RF4 and the three Steam games without reading or changing game data. The Angler is the next bounded read-only adapter candidate. Real-world fishing remains secondary future scope.
 
 Build 0.20 establishes canonical **The Stacks** at `E:\Modesty Stacks` and gives the Librarian a bounded read-only catalogue of copied Intake samples. The lost Calibre library is no longer a prerequisite. No repair, conversion, rename, move, deletion, publication, or reading-continuity work enters this first duty.
 

@@ -2,7 +2,13 @@
 
 **Status:** Authoritative user command reference
 
-Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Librarian**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
+Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **Help with the Grand Library**, **Help with the Researcher**, **Help with the Librarian**, **Help with the Fishing Buddy**, **Help with the Archivist**, **Help with Briefings**, **Help with chat**, or **Help with time zones** for exact instructions. After the index is open, a natural follow-up such as **the Grand Library please** also works.
+
+## Fishing Buddy
+
+- `Ask the Fishing Buddy to inspect my simulators`
+
+This prepares the four private local codex foundations and performs a bounded, read-only installation check. Russian Fishing 4 is discovered as a standalone launcher installation. Steam manifests are used only for Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler. The check does not read or change saves, attach to a running game, contact the internet, or perform account actions.
 
 ## Grand Library
 

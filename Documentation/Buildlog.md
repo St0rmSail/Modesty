@@ -273,3 +273,9 @@ Build 0.33.0 - Reading Desk (complete)
 Bounded exact-edition passages now open on a dedicated large-format local Reading Desk rather than depending on the narrow chat transcript. It shows title, author, section, source, and legible text; keeps chat out of the reading area; and reuses the existing audited Next, Save Place, Bookmark, and note operations. Previous revisits only pages already displayed in the current Desk session, and write controls are disabled on older cached pages so they cannot act on a newer backend endpoint. Closing never advances progress or changes a source.
 
 Drew accepted legibility, navigation, older-page safety, note bookmarking, explicit place saving, clean close, and restart-safe resume on 2026-08-21. All 145 automated tests and the 89-file syntax check passed.
+
+Build 0.34.0 - Fishing Buddy: First Cast (complete)
+
+The Fishing Buddy now owns separate private local codex foundations for Russian Fishing 4, Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler. Her first deterministic duty performs a bounded read-only installation and candidate-source inspection and is available through natural command help.
+
+The live report correctly found RF4 as a standalone installation at `G:\RF42026`; Steam manifests were used only for the other three installed games. The Angler's local save directory was labelled a candidate read-only source, not interpreted as verified game state. No save, account, running game, or network service changed. Drew accepted the report on 2026-09-06; all 148 automated tests passed. The Fishing Buddy reaches demonstrated Level 1 and earns her future Bobblehead.

@@ -1,7 +1,7 @@
 # Roadmap
 
-**Current marker:** Build 0.33.0 - Reading Desk (complete); Build 0.19 acceptance paused externally
-**Reviewed:** 2026-08-21
+**Current marker:** Build 0.34.0 - First Cast (specification active); Researcher and Librarian parked
+**Reviewed:** 2026-09-06
 
 ## Completed build line
 
@@ -46,6 +46,12 @@ Definition of done:
 Pause record, 2026-08-16: implementation and all 102 live automated tests pass. The planned real pairing could not complete because Scribble Hub returned persistent Cloudflare 522 origin timeouts. Resume from the live mixed-source Briefing test after the service recovers; do not rebuild the adapter, award Level 4, or call the build failed on the strength of an external outage.
 
 ## Active build
+
+### 0.34.0 - First Cast - Specification Active
+
+Give the newly canonical Fishing Buddy one genuine duty: prepare Drew's real weekend fishing trip. The result is a concise Trip Card separating Drew-confirmed facts, current sourced conditions and rules, fishing recommendations, unresolved unknowns, a packing/tackle checklist, and a go, caution, postpone, or insufficient-information assessment.
+
+Implementation begins only after the real trip's date, water or area, access method, intended target or target-selection request, available equipment, and hard constraints are known. The first build does not purchase, book, message, obtain permits, navigate, monitor in the background, or invent current facts. See [The Fishing Buddy](FISHING_BUDDY.md).
 
 ### 0.33.0 - Reading Desk - Complete
 

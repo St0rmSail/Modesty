@@ -26,6 +26,7 @@
 | Local document indexing/RAG | Yes | Yes | Yes | FTS5 passage retrieval with source paths; embeddings remain unjustified |
 | Archivist | Yes | Yes | Yes | Functional contract and truthful Bobblehead presence demonstrated |
 | Librarian | Yes | Yes | Yes | Level 2 demonstrated through Build 0.33: catalogue, collection control, exact-edition continuity, bookmarks/notes, and the accepted large-format Reading Desk. Richer repair, OCR, broader formats, full ebook rendering, and synchronization remain future work |
+| Fishing Buddy | Yes | No | No | Canonical Build 0.34 First Cast contract; awaiting real trip particulars before implementation; Bobblehead not yet earned |
 | Team readiness display | Yes | Yes | Yes | Archivist, Researcher, and Librarian presence, readiness lamp, Team headset, and duty-state changes demonstrated; pedestal perspective and pale extraction halos deferred to polish |
 | Team orchestration | Partial | No | No | Noticeboard is only an in-memory prototype |
 | Web research gateway | Yes | Yes | Yes | Smithsonian, bounded Scribble Hub discovery, and one current-story evidence pass demonstrated without account action or silent filing |

@@ -1,6 +1,6 @@
 # The Librarian
 
-**Status:** Build 0.33 Reading Desk complete
+**Status:** Parked at demonstrated Level 2 after completed Build 0.33 Reading Desk
 
 The Librarian is a dedicated unseen Team specialist responsible for Drew's private reading collection. She is not the Archivist under another name and never speaks as a separate chat personality. Modesty consults her through the Team headset and presents her results.
 

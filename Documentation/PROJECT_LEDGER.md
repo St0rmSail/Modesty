@@ -1,8 +1,8 @@
 # Project Ledger
 
 **Status:** Authoritative index
-**Reviewed:** 2026-08-21
-**Current build:** 0.33.0 - Reading Desk (complete); 0.19 acceptance paused
+**Current build:** 0.34.0 - First Cast (specification active); Researcher and Librarian parked
+**Reviewed:** 2026-09-06
 
 The Ledger keeps design, software, and status aligned. It records conclusions rather than raw conversation. If a document disagrees with running code, the disagreement must be investigated; a planned folder or enthusiastic discussion is not proof of implementation.
 
@@ -35,6 +35,7 @@ The Ledger keeps design, software, and status aligned. It records conclusions ra
 - [Voice](VOICE.md): local voice direction, current audition findings, and selection gate.
 - [Researcher](RESEARCHER.md): report contract, first Scribble Hub assignment, and browser/rights boundary.
 - [Librarian](LIBRARIAN.md): private reading collection, editions, repairs, provenance, and continuity.
+- [Fishing Buddy](FISHING_BUDDY.md): fishing-trip preparation, evidence boundary, post-trip learning, and First Cast contract.
 - [Briefing Hologram](BRIEFING_HOLOGRAM.md): substantial-output presentation and Pending Report lifecycle.
 - [Command Help](COMMANDS.md): authoritative user-facing deterministic command reference.
 - [Time and Presence](TIME_AND_PRESENCE.md): session truth, presence states, greeting, scheduling direction, and narrative boundary.

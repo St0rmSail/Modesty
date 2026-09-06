@@ -1,6 +1,6 @@
 # The Researcher
 
-**Status:** Build 0.18 story comparison complete; Build 0.19 mixed-source research implemented with live acceptance paused
+**Status:** Parked at demonstrated Level 3; Build 0.19 is committed and tested with live mixed-source acceptance paused
 
 **Capability benchmark:** Level 3 demonstrated. Build 0.17 bridged bounded discovery to one evidence-led story investigation. See [AGENT_CAPABILITY_BENCHMARK.md](AGENT_CAPABILITY_BENCHMARK.md).
 

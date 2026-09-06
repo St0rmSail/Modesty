@@ -77,7 +77,7 @@ This comparison is architectural and deliberately approximate. “Locally hosted
 
 **Build 0.31 increment achieved:** bounded, explicit series confirmation now produces sortable series-aware destinations. It filters retained alternative editions from logical order, preserves source metadata provenance, and requires exact-source confirmation before series fields affect shelving. `Magic at the Gate` passed the leave path and preferred `Magic in the Blood (266)` passed confirmation and series-aware preview. This strengthens Level 2 rather than adding autonomous bibliographic investigation.
 
-**Not yet present:** preferred decisions between non-identical editions, rich bookmarks and annotations, series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, device synchronization, Calibre migration, and autonomous collection governance. The lost Calibre library is not a prerequisite; `Calibre migration` here means only optional handling if compatible fragments are ever rediscovered.
+**Not yet present:** autonomous edition completeness or quality analysis, broad series normalization, PDF/EPUB repair or conversion, OCR, MOBI/AZW3/RTF/legacy-DOC readers, update tracking, device synchronization, optional Calibre-fragment intake, and autonomous collection governance. Preferred-edition decisions, confirmed series handling, passage bookmarks and private notes, and the Reading Desk are demonstrated through Build 0.33.
 
 Capable contemporary local library systems such as Calibre already provide mature metadata editing, conversion, device support, and large-catalogue management. Document-management and ebook-repair toolchains can add OCR and validation. Modesty's Librarian is therefore far behind established library software in breadth. Her intended advantage is not replacing those tools prematurely: it is a governable assistant layer that preserves originals, joins provenance and reading continuity across formats, and presents uncertain changes for approval.
 
@@ -101,7 +101,8 @@ Update the entry when a build begins, after live acceptance, and during every re
 | Specialist | Demonstrated | Current increment |
 |---|---:|---|
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
-| Researcher | Level 3 | Build 0.19 mixed Scribble Hub/YouTube synthesis is implemented and tested; Level 4 remains pending the postponed live report after Scribble Hub recovers. |
-| Librarian | Level 2 | Build 0.31 series review is accepted; autonomous bibliography, completeness analysis, conversion, and OCR remain absent. |
+| Researcher | Level 3 | Parked; Build 0.19 mixed Scribble Hub/YouTube synthesis is committed and tested, while Level 4 remains pending the postponed live report. |
+| Librarian | Level 2 | Parked after accepted Build 0.33 Reading Desk; autonomous bibliography, completeness analysis, conversion, and OCR remain absent. |
+| Fishing Buddy | Level 0 | Role and Build 0.34 First Cast contract are canonical; the first real trip duty and Bobblehead remain unearned. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

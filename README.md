@@ -52,7 +52,9 @@ Build 0.18 adds bounded same-source-type corroboration: collect two or three pub
 
 Build 0.19 attempts the Researcher's Level 4 threshold by combining one visible Scribble Hub story page with one explicitly supplied public English YouTube transcript. Timestamped speaker-reported passages remain distinct from observed page metadata, conflicts and missing corroboration are explicit, and unavailable captions fail closed. See [YouTube Research Boundary](Documentation/YOUTUBE_RESEARCH.md).
 
-The implementation and 102-test live suite are complete. The final end-to-end acceptance run was paused on 2026-08-16 because Scribble Hub returned Cloudflare 522 origin timeouts for several hours. This is an external source outage, not a demonstrated Modesty failure. Build 0.19 remains uncommitted and the Researcher remains at demonstrated Level 3 until a real mixed-source Briefing and disposition pass after Scribble Hub recovers.
+The implementation and 102-test live suite are complete and were preserved in commit `9268c83`. The final end-to-end acceptance run was paused on 2026-08-16 because Scribble Hub returned Cloudflare 522 origin timeouts for several hours. This is an external source outage, not a demonstrated Modesty failure. The Researcher remains at demonstrated Level 3 until a real mixed-source Briefing and disposition pass after Scribble Hub recovers; further Researcher work is deliberately parked.
+
+After Build 0.33, Drew deliberately parked both the Researcher and Librarian portfolios. The next active role is the canonical **Fishing Buddy**, beginning with Build 0.34 First Cast: preparation of one real weekend fishing trip from explicit trip particulars and current sourced conditions.
 
 Build 0.20 establishes canonical **The Stacks** at `E:\Modesty Stacks` and gives the Librarian a bounded read-only catalogue of copied Intake samples. The lost Calibre library is no longer a prerequisite. No repair, conversion, rename, move, deletion, publication, or reading-continuity work enters this first duty.
 

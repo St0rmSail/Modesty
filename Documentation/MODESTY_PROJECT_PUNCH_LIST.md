@@ -1,7 +1,7 @@
 # Modesty Project Punch List
 
-**Current build:** 0.33.0 - Reading Desk (complete); 0.19 acceptance paused
-**Current focus:** Select the next bounded Librarian increment
+**Current build:** 0.33.0 - Reading Desk complete; Researcher and Librarian parked
+**Current focus:** Build 0.34.0 - Fishing Buddy: First Cast
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 
@@ -284,3 +284,12 @@ The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md)
 - [x] Close without silently advancing progress or changing the source.
 - [x] Pass the live visual and restart-safe continuity sequence.
 - [x] Reconcile acceptance evidence and all 145 automated tests.
+
+## Build 0.34.0 - Fishing Buddy: First Cast - Specification Active
+
+- [x] Promote the Fishing Buddy to a distinct canonical Team role.
+- [x] Separate fishing judgement from Researcher evidence gathering, Nurse guidance, Archivist filing, and Schedule reminders.
+- [x] Define the first Trip Card and explicit non-authorities.
+- [ ] Record the real trip's date, water or area, access method, intended targets, available tackle, and hard constraints.
+- [ ] Implement one bounded preparation duty with current-source provenance and safe failure.
+- [ ] Demonstrate a useful real trip briefing before awarding the Bobblehead.

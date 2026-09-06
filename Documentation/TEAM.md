@@ -1,7 +1,7 @@
 # The Team
 
-**Status:** Canonical framework; Archivist, Researcher, and Librarian have demonstrated duties
-**Reviewed:** 2026-08-19
+**Status:** Canonical framework; Archivist, Researcher, and Librarian have demonstrated duties; Fishing Buddy is entering her first build
+**Reviewed:** 2026-09-06
 
 The Team is a group of unseen functional specialists working behind the scenes. They are not chat personalities and never speak to Drew as alternate characters. Modesty is the sole conversational presence: she consults the Team through her headset and communicates their results. Team activity is monitored through corresponding Bobbleheads on her Bookshelf.
 
@@ -42,6 +42,7 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 | **Archivist** | Maintain the Filing Cabinet and living Bookshelf; curate, classify, link, index, retrieve, and preserve provenance | Cannot move Filing Cabinet material onto the Bookshelf without Drew's approval | Inventory, retrieval, filing, and approval-gated Bookshelf curation demonstrated; visual representation remains |
 | **Researcher** | Conduct explicit online research and return evidence-led findings through Modesty | Borrows task-relevant Bookshelf packets; no local filesystem access; cannot silently file, message, or download | Scribble Hub and Briefing lifecycle demonstrated; archaeologist Bobblehead with lit Lamp of Learning approved |
 | **Librarian** | Maintain The Stacks, editions, manuscript repairs, reading position, and cross-post continuity | Never overwrites originals, defeats DRM, republishes works, or silently places copyrighted material on the Bookshelf | Level 2 catalogue, reading, continuity, edition review, reversible exact-duplicate handling, natural control, and bounded batch shelving demonstrated; Alexandrian Bobblehead accepted |
+| **Fishing Buddy** | Prepare real fishing trips, interpret fishing-specific conditions, maintain tackle/catch lessons, and return practical water-side guidance through Modesty | Cannot invent current conditions or regulations, purchase, book, message, obtain permits, or replace medical and emergency judgement | Role canonical; Build 0.34 First Cast awaiting the real trip particulars; Bobblehead not yet earned |
 | **Nurse** | Health, medication, reminders, and wellbeing support | High-trust domain requiring explicit safeguards | Conceptual |
 | **Planner** | Decompose and track longer jobs | Plans do not imply permission to execute | Implied; not specified enough to build |
 | **Vision** | Webcam, screen, screenshot, and OCR perception | Explicit indicators and hard-off controls required | Conceptual |
@@ -49,7 +50,7 @@ A dedicated **Housekeeper** is not currently a Team role and earns no Bobblehead
 | **Accountant** | Budget, finance, and shopping support | Financial actions require strong confirmation | Recurring concept; contract unresolved |
 | **Gaming Guru** | Games, character designs, modlists, and gaming reference knowledge | Separate gaming material from Modesty project canon | Domain confirmed; contract unresolved |
 
-Artist, briefing/courier, and fishing-oriented specialists appeared in brainstorming. They remain Proposed until Drew confirms that each deserves a permanent Team role rather than being a tool or capability of another member.
+Artist and briefing/courier specialists remain Proposed until Drew confirms that either deserves a permanent Team role rather than being a tool or capability of another member. The Fishing Buddy was promoted to the canonical roster on 2026-09-06 for an immediate real-world trip duty.
 
 ## Archivist clarification
 

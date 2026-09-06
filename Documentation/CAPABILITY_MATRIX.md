@@ -39,7 +39,7 @@
 | Background service presence | Yes | Partial | No | State is defined; hidden Study host, restore control, scheduled work, and remote client are not implemented |
 | Schedule and calendar awareness | Yes | Partial | Yes | Local reminders, lifecycle commands/window, and due opening context demonstrated; recurrence, accounts, and background delivery remain unimplemented |
 | Personal Chronicle | Yes | Yes | Yes | Structured episodes, visible review, corrected-place matching, concrete active-only recall, provenance, retirement exclusion, and factual-evidence boundary demonstrated |
-| Voice | Partial | No | No | Config disabled |
+| Voice | Yes | No | No | Build 0.37 contract approved: HD3000 plus headphones, screen/key push-to-talk, local replaceable STT/TTS, explicit state and hard-off, raw-audio discard, concise spoken Returns, and text fallback; implementation pending |
 | Discord communications | Yes | No | No | Dedicated Communications specialist approved. First duty is bounded read, summarize, draft, and exact approval before send; depends on minimum background presence |
 | Vision/OCR | Partial | No | No | Config disabled; privacy controls required |
 | General tools and computer actions | Partial | No | No | Permission and undo framework required |

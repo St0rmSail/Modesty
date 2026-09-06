@@ -30,7 +30,7 @@ The Angler's opaque save containers now have a safe content-free observation lay
 
 Drew accepted the complete live RF4 question set on 2026-09-06. Modesty now returns concise natural one-species answers drawn only from the source-ranked RF4 catalogue, with bounded lists, safe approximate-name matching, truthful unknowns, and no cross-game leakage. All 165 automated tests pass.
 
-The Fishing Buddy is parked at this accepted restore point. Local Voice is the next active track; minimum background presence and the canonical Communications specialist's bounded Discord read, summarize, draft, and approval-before-send duty follow.
+The Fishing Buddy is parked at this accepted restore point. Build 0.37 Voice Foundation is approved for the HD3000 desktop microphone, headphone playback, on-screen and configurable-keyboard push-to-talk, local replaceable recognition and speech, visible privacy state, ephemeral raw audio, and reliable text fallback. Minimum background presence and the canonical Communications specialist's bounded Discord read, summarize, draft, and approval-before-send duty follow.
 
 Build 0.29 adds a bounded **Metadata Review Desk** for incomplete Intake records. It visibly separates embedded catalogue fields, filename suggestions, and Drew-confirmed corrections; requires both title and author plus explicit `save that`; binds corrections to the unchanged SHA-256 source; never rewrites a book; and sends corrected items back through the ordinary shelving preview. Live acceptance left the Sandstorm suggestion unchanged once, then confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell and placed that exact unchanged source first in the ordinary shelving preview. All 135 tests passed.
 

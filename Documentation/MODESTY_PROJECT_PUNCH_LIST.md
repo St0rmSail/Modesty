@@ -3,6 +3,18 @@
 **Current build:** 0.36.0 - RF4 Codex Questions complete; Researcher, Librarian, and Fishing Buddy parked
 **Current focus:** Define and implement Modesty's local Voice foundation; Discord follows background presence
 
+## Build 0.37.0 - Voice Foundation - Approved, Implementation Pending
+
+- [x] Preserve local, original, low-overhead speech and Drew's explicit permanent-voice selection gate.
+- [x] Make the Voice Agent pipeline replaceable so permanent voice selection does not block implementation.
+- [x] Select HD3000 desktop microphone input and headphone playback as the first operating target.
+- [x] Require shared on-screen and configurable-keyboard push-to-talk plus visible hard-off and activity states.
+- [x] Separate local capture, recognition, turn control, conversation, synthesis, and playback.
+- [x] Keep raw audio ephemeral by default, retain typed fallback, and keep the Team headset's meaning unchanged.
+- [ ] Audit available local audio devices, runtime dependencies, and measured machine capacity.
+- [ ] Select the smallest suitable local STT and provisional TTS adapters from evidence gathered on this machine.
+- [ ] Implement and test the bounded end-to-end voice turn.
+
 ## Build 0.36.0 - RF4 Codex Questions - Complete
 
 - [x] Add a deterministic RF4-only one-species lookup over the private codex.

@@ -61,7 +61,7 @@ The Fishing Buddy is now deliberately parked. Her remaining functional sequence 
 
 ### Local Voice foundation
 
-Voice is the next active design and implementation track. Listening and speaking remain separate controls. The first increment must establish explicit microphone activation and hard-off state, local speech recognition, visible listening/thinking/speaking state, interruption and cancellation, text fallback, and clean failure without making permanent voice selection a prerequisite. Local speech output follows through a replaceable engine so auditions can continue without rebuilding the conversation pipeline. See [VOICE.md](VOICE.md).
+Build 0.37 is **Voice Foundation**. It uses the HD3000 desktop microphone, headphone playback, and shared on-screen/configurable-keyboard push-to-talk. Listening and speaking remain separate controls. The increment establishes explicit microphone activation and hard-off state, bounded local speech recognition, visible listening/transcribing/thinking/speaking state, immediate playback stop, a fresh voice turn, raw-audio discard by default, text fallback, and clean failure without making permanent voice selection a prerequisite. Local speech output uses a replaceable provisional engine so auditions can continue without rebuilding the conversation pipeline. See [VOICE.md](VOICE.md).
 
 ### Background presence and Discord Communications
 

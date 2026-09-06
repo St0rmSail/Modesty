@@ -73,6 +73,7 @@ class ConversationPanel(QWidget):
     reading_requested = Signal(str)
     response_received = Signal(str)
     graceful_exit_requested = Signal()
+    background_requested = Signal()
 
     def __init__(
         self,
@@ -490,6 +491,8 @@ class ConversationPanel(QWidget):
                 self.reading_requested.emit(delegated.response)
             elif delegated.action == "close_study":
                 self.graceful_exit_requested.emit()
+            elif delegated.action == "hide_study":
+                self.background_requested.emit()
             self._set_input_enabled(True)
             self.input.setFocus()
             return

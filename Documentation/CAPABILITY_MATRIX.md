@@ -1,6 +1,6 @@
 # Capability Matrix
 
-**Baseline:** Build 0.37.0 complete; Build 0.19 acceptance paused
+**Baseline:** Build 0.38.0 complete; Build 0.19 acceptance paused
 **Reviewed:** 2026-09-06
 
 | Capability | Design | Code | Demonstrated | Notes / gap |
@@ -36,7 +36,7 @@
 | Briefing Hologram and Pending Reports | Yes | Yes | Yes | Readable expanding surface, compact questioning, restart-safe pending state, gated disposition, reversible duty movement, and truthful headset state demonstrated; gesture artwork remains polish |
 | Local time and session presence | Yes | Yes | Yes | Afternoon and sub-minute greetings, graceful shutdown, nine-minute absence, clean restart, and isolated interrupted recovery demonstrated |
 | Offline working time zones | Yes | Yes | Yes | Fixed African/GMT and DST-aware Britain, Europe, Thailand, Australia, New Zealand, and US named zones demonstrated locally |
-| Background service presence | Yes | Partial | No | State is defined; hidden Study host, restore control, scheduled work, and remote client are not implemented |
+| Background service presence | Yes | Yes | Yes | Build 0.38 live accepted: close/command hide retains the local process and heartbeat, tray restores the same session, and Bye/tray Quit shut down cleanly; scheduled duties, remote clients, and orchestration remain future work |
 | Schedule and calendar awareness | Yes | Partial | Yes | Local reminders, lifecycle commands/window, and due opening context demonstrated; recurrence, accounts, and background delivery remain unimplemented |
 | Personal Chronicle | Yes | Yes | Yes | Structured episodes, visible review, corrected-place matching, concrete active-only recall, provenance, retirement exclusion, and factual-evidence boundary demonstrated |
 | Voice | Yes | Yes | Yes | Build 0.37 live accepted: Qt shared audio, CPU Whisper base.en INT8, provisional CPU Kokoro, screen/F8 hold-to-talk, hard-off/activity state, ephemeral raw audio, concise spoken Returns, immediate interruption, approved speaker fallback, text fallback, restart, and Discord/game coexistence; permanent voice remains open |

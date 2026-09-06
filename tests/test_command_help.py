@@ -64,6 +64,25 @@ class CommandHelpTest(unittest.TestCase):
         self.assertIn("Realtek speakers", text)
         self.assertIn("provisional", text)
 
+        delegated = TeamDelegator.__new__(TeamDelegator).handle("Help with Voice")
+        self.assertTrue(delegated.handled)
+        self.assertIn("Hold to talk", delegated.response)
+
+    def test_hide_study_is_distinct_from_true_shutdown(self):
+        delegator = TeamDelegator.__new__(TeamDelegator)
+        hidden = delegator.handle("Hide the Study")
+        self.assertTrue(hidden.handled)
+        self.assertEqual("hide_study", hidden.action)
+        self.assertIn("background", hidden.response)
+
+        closed = delegator.handle("Bye")
+        self.assertEqual("close_study", closed.action)
+
+        help_result = delegator.handle("Help with background presence")
+        self.assertTrue(help_result.handled)
+        self.assertIn("tray icon", help_result.response)
+        self.assertIn("true clean shutdown", help_result.response)
+
     def test_researcher_help_explains_story_investigation_boundary(self):
         text = command_help("researcher")
         self.assertIn("Investigate current story page", text)

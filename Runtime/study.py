@@ -16,7 +16,7 @@ Current through:
 
 import sys
 
-from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QTimer, Qt
+from PySide6.QtCore import QEasingCurve, QPropertyAnimation, QTimer, Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -34,7 +34,7 @@ from Runtime.Conversation import ConversationPanel
 from Runtime.Conversation.briefing_hologram import BriefingHologram
 from Runtime.Reading.reading_desk import ReadingDesk
 from Runtime.Rendering.renderer import StudyRenderer
-from Runtime.Time import PresenceSession
+from Runtime.Time import BackgroundPresenceHost, PresenceSession
 
 
 class ConversationDock(QWidget):
@@ -108,6 +108,9 @@ class ConversationDock(QWidget):
 class StudyView(QWidget):
     """Layer the conversation controls over the unchanged Study renderer."""
 
+    background_requested = Signal()
+    graceful_exit_requested = Signal()
+
     def __init__(self, presence: PresenceSession | None = None):
         super().__init__()
 
@@ -137,7 +140,10 @@ class StudyView(QWidget):
         self.conversation.panel.reading_requested.connect(self._open_reading_desk)
         self.conversation.panel.response_received.connect(self._briefing_response)
         self.conversation.panel.response_received.connect(self._reading_response)
-        self.conversation.panel.graceful_exit_requested.connect(self._graceful_exit)
+        self.conversation.panel.graceful_exit_requested.connect(
+            self.graceful_exit_requested.emit
+        )
+        self.conversation.panel.background_requested.connect(self.background_requested.emit)
         self.briefing.question_submitted.connect(self.conversation.panel.send_external)
         self.briefing.closed.connect(self._close_briefing)
         self.briefing.outcome_recorded.connect(self.conversation.panel.record_briefing_outcome)
@@ -209,12 +215,6 @@ class StudyView(QWidget):
         self.conversation.show()
         self.conversation.panel.input.setFocus()
 
-    @staticmethod
-    def _graceful_exit():
-        # Allow Modesty's goodbye to paint before the normal Qt shutdown.
-        QTimer.singleShot(900, QApplication.instance().quit)
-
-
 class StudyWindow(QMainWindow):
     """The Windows application shell containing the Study View."""
 
@@ -224,7 +224,12 @@ class StudyWindow(QMainWindow):
         self.setWindowTitle("Modesty's Study")
         self.resize(1280, 720)
         self.presence = presence
-        self.setCentralWidget(StudyView(presence))
+        self.study_view = StudyView(presence)
+        self.setCentralWidget(self.study_view)
+        self.background_host = BackgroundPresenceHost(self, presence)
+        self.background_host.start()
+        self.study_view.background_requested.connect(self.hide_to_background)
+        self.study_view.graceful_exit_requested.connect(self.quit_cleanly)
         self.heartbeat_timer = None
         if presence is not None:
             presence.set_presence("present")
@@ -232,6 +237,19 @@ class StudyWindow(QMainWindow):
             self.heartbeat_timer.setInterval(30_000)
             self.heartbeat_timer.timeout.connect(presence.heartbeat)
             self.heartbeat_timer.start()
+
+    def hide_to_background(self):
+        QTimer.singleShot(500, self.background_host.hide)
+
+    def quit_cleanly(self):
+        # Allow the farewell to paint, then mark this as a true exit before Qt
+        # closes the window so the close handler cannot misread it as hiding.
+        QTimer.singleShot(900, self.background_host.quit)
+
+    def closeEvent(self, event):
+        if self.background_host.handle_close(event):
+            return
+        super().closeEvent(event)
 
 
 def run(presence: PresenceSession | None = None):

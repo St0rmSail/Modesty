@@ -12,6 +12,16 @@ The status line shows `MIC OFF`, `MIC READY`, `LISTENING`, `TRANSCRIBING`, `THIN
 
 The current `af_nicole` output is provisional engineering speech, not Modesty's approved permanent voice. Long reports remain in the panel; Voice speaks only the bounded Return.
 
+## Background presence
+
+- `Hide the Study`
+- `Close the Study`
+- `Bye`
+
+**Hide the Study** and the ordinary Windows close button hide the visual Study while Modesty's local process remains alive in `background` presence. Restore the Study by selecting or double-clicking Modesty's Windows tray icon. The tray menu also provides **Show the Study** and **Quit Modesty**.
+
+**Bye** remains a true clean shutdown. **Quit Modesty** on the tray is also a true shutdown. Hiding the Study does not authorize scheduled work, internet access, Discord access, or fictional claims that work occurred.
+
 ## Fishing Buddy
 
 - `Ask the Fishing Buddy to inspect my simulators`

@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.37.0 complete; Researcher, Librarian, and Fishing Buddy parked; background presence and Discord Communications are next
+**Current marker:** Build 0.38.0 complete; Researcher, Librarian, and Fishing Buddy parked; bounded Discord Communications is next
 **Reviewed:** 2026-09-06
 
 ## Completed build line
@@ -47,7 +47,13 @@ Pause record, 2026-08-16: implementation and all 102 live automated tests pass. 
 
 ## Most recently completed
 
-### 0.37.0 - Voice Foundation
+### 0.38.0 - Background Presence Foundation
+
+Modesty can now remain locally operational while the visual Study is hidden. The Windows close button and deterministic **Hide the Study** command move the existing session to `background`; a Windows tray icon restores the same maximized Study to `present`. The tray exposes explicit show and quit actions. **Bye** remains a clean full shutdown and no longer passes through the background notification path.
+
+Drew accepted close-to-tray, tray restoration, command-driven hiding, tray controls, retained session behavior, and corrected goodbye shutdown on 2026-09-06. All 173 automated tests and 113-file syntax checks pass. No scheduled work, online access, Discord authority, or invented background activity was added.
+
+### Previous restore point: 0.37.0 - Voice Foundation
 
 Modesty now has a deliberate local voice path through the Study. Qt owns shared-mode HD3000 capture and per-application headphone playback; CPU Whisper base.en INT8 and provisional CPU Kokoro remain replaceable adapters. Both the on-screen control and F8 are hold-to-talk, Voice starts hard-off, raw capture is ephemeral, long reports remain visual, playback can be stopped immediately, and typing never disappears.
 
@@ -73,9 +79,9 @@ The Voice adapter must use shared device access, leave Windows playback/recordin
 
 The initial audit confirms that Qt can distinguish the HD3000 microphone, SG03 stereo headphones, SG03 headset input/hands-free path, and Realtek speakers. Preferences are bound by descriptive identity and capability, never durable numeric indices. Missing preferred input fails to mic-off. Missing preferred headphones activate the explicitly authorized Realtek-speaker fallback inside Modesty with a visible notice and no Windows-default change. Replacement headphones remain Drew-selected, so equipment wear, port changes, driver reinstall, or Windows reinstall cannot promote an arbitrary new device.
 
-### Background presence and Discord Communications
+### Discord Communications
 
-Discord follows the Voice foundation and the minimum background-presence host needed for Modesty to remain operational while the Study is hidden. Discord belongs to the dedicated Communications specialist, not the Researcher or Fishing Buddy. The first Discord duty is one explicitly approved server and channel: read a bounded recent window, identify mentions and actionable items, summarize them through Modesty, draft a reply, and send nothing until Drew explicitly approves that exact draft.
+The Voice foundation and minimum background-presence host are now complete. Discord belongs to the dedicated Communications specialist, not the Researcher or Fishing Buddy. The first Discord duty is one explicitly approved server and channel: read a bounded recent window, identify mentions and actionable items, summarize them through Modesty, draft a reply, and send nothing until Drew explicitly approves that exact draft.
 
 Later increments may add selected-channel monitoring, notifications, scheduled summaries, attachments, voice-channel participation, and narrowly governed autonomous replies. Each requires its own permissions, visible state, audit, retention, rate limits, recovery and revocation. Account credentials never enter chat, project files, the Bookshelf, or the Filing Cabinet. See [COMMUNICATIONS.md](COMMUNICATIONS.md).
 

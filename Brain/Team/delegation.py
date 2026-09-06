@@ -194,25 +194,29 @@ class TeamDelegator:
     )
     TOPIC_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:help(?:\s+me)?\s+with|show\s+(?:me\s+)?(?:the\s+)?)\s+"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|voice|microphone|push\s+to\s+talk|background(?:\s+presence)?|study|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:commands?|please|again|help|open))?\??\s*$",
         re.IGNORECASE,
     )
     NATURAL_HELP_PATTERN = re.compile(
         r"^(?:please\s+)?(?:remind\s+me\s+(?:how\s+to|about)|"
         r"what(?:'s|\s+is)\s+the\s+command\s+for)\s+(?:open\s+|use\s+)?"
-        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
+        r"(?:the\s+)?(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|voice|microphone|push\s+to\s+talk|background(?:\s+presence)?|study|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:please|again))?\??\s*$",
         re.IGNORECASE,
     )
     HELP_FOLLOWUP_PATTERN = re.compile(
         r"^(?:the\s+)?(?:(?:one|section|commands?)\s+(?:about|for)\s+)?"
-        r"(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|time(?:\s+zones?)?|schedule|reminders?)"
+        r"(?P<topic>grand\s+library|researcher|librarian|briefings?|archivist|library|chat|conversation|voice|microphone|push\s+to\s+talk|background(?:\s+presence)?|study|time(?:\s+zones?)?|schedule|reminders?)"
         r"(?:\s+(?:please|thanks|thank\s+you|help))?\??\s*$",
         re.IGNORECASE,
     )
     GRACEFUL_EXIT_PATTERN = re.compile(
         r"^(?:bye|goodbye)(?:,?\s+modesty)?[.!]?\s*$",
+        re.IGNORECASE,
+    )
+    HIDE_STUDY_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:hide|close|minimi[sz]e)\s+(?:the\s+)?study[.!]?\s*$",
         re.IGNORECASE,
     )
     NATURAL_DUPLICATE_REVIEW_PATTERN = re.compile(
@@ -699,6 +703,12 @@ class TeamDelegator:
 
         if self.GRACEFUL_EXIT_PATTERN.match(message.strip()):
             return DelegationResult(True, "Goodbye, Drew.", "close_study")
+        if self.HIDE_STUDY_PATTERN.match(message.strip()):
+            return DelegationResult(
+                True,
+                "I will keep running in the background. Use my tray icon when you want the Study back.",
+                "hide_study",
+            )
 
         time_response = handle_time_command(message)
         if time_response is not None:

@@ -28,6 +28,9 @@ TOPICS = {
     "voice": "Voice",
     "microphone": "Voice",
     "push to talk": "Voice",
+    "background": "Background presence",
+    "background presence": "Background presence",
+    "study": "Background presence",
 }
 
 
@@ -46,6 +49,6 @@ def command_help(topic: str | None = None) -> str:
                 return f"{heading}\n\n{match.group('body').strip()}"
     return (
         "Modesty's command help\n\n"
-        "Available sections: Grand Library, Researcher, Librarian, Fishing Buddy, Briefings, Archivist, Local Library search, Conversation, Voice, Time zones, and Schedule and reminders.\n\n"
+        "Available sections: Grand Library, Researcher, Librarian, Fishing Buddy, Briefings, Archivist, Local Library search, Conversation, Voice, Background presence, Time zones, and Schedule and reminders.\n\n"
         "Ask, for example: Help with the Grand Library"
     )

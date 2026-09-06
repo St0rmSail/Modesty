@@ -1,7 +1,18 @@
 # Modesty Project Punch List
 
-**Current build:** 0.37.0 - Voice Foundation complete; Researcher, Librarian, and Fishing Buddy parked
-**Current focus:** Minimum background presence, then bounded Discord Communications
+**Current build:** 0.38.0 - Background Presence Foundation complete; Researcher, Librarian, and Fishing Buddy parked
+**Current focus:** Bounded Discord Communications
+
+## Build 0.38.0 - Background Presence Foundation - Complete
+
+- [x] Keep the local process and heartbeat alive while the visual Study is hidden.
+- [x] Make the Windows close button and `Hide the Study` enter truthful `background` presence.
+- [x] Provide a Windows tray restore surface for the same live session.
+- [x] Provide explicit tray **Show the Study** and **Quit Modesty** actions.
+- [x] Keep `Bye` as a clean full shutdown without a false background notification.
+- [x] Document that hiding starts no scheduled, online, Discord, or fictional work.
+- [x] Pass live close, tray restore, command hide, tray controls, and corrected goodbye tests.
+- [x] Pass all 173 automated tests and 113-file syntax validation.
 
 ## Build 0.37.0 - Voice Foundation - Complete
 

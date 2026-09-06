@@ -1,6 +1,6 @@
 # Time and Presence
 
-**Status:** Build 0.14 foundation complete and demonstrated
+**Status:** Build 0.38 background-presence foundation complete and demonstrated
 
 Time is an operational capability, not merely a moving clock face. Modesty must know the machine's local date, time, and timezone; distinguish a clean absence from an interrupted session; and truthfully represent whether she is offline, running in the background, present in the Study, or working.
 
@@ -22,7 +22,9 @@ Selected vignettes may become durable autobiographical episodes in [Modesty's Pe
 - **Present:** the Study is visible and no explicit duty is active.
 - **Working:** an explicit foreground or background duty is active.
 
-Build 0.14 begins with the state model and truthful `offline`/`present` session lifecycle. A background host, restore mechanism, scheduled duties, and tablet client require later implementation and security review.
+Build 0.14 established the state model and truthful `offline`/`present` session lifecycle. Build 0.38 adds the minimum Windows background host: closing or explicitly hiding the Study retains the same running local process and writes `background`; selecting the tray icon restores the same Study session and writes `present`. `Bye` and tray **Quit Modesty** remain clean transitions to `offline`.
+
+Background presence alone starts no duty. It does not imply research, maintenance, scheduling, network access, Discord access, or remote-device availability. Those require separately authorized services. Scheduled duties, a remote/tablet client, and richer background orchestration remain future work.
 
 ## Session ledger
 

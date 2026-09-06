@@ -63,6 +63,8 @@ The Fishing Buddy is now deliberately parked. Her remaining functional sequence 
 
 Build 0.37 is **Voice Foundation**. It uses the HD3000 desktop microphone, headphone playback, and shared on-screen/configurable-keyboard push-to-talk. Listening and speaking remain separate controls. The increment establishes explicit microphone activation and hard-off state, bounded local speech recognition, visible listening/transcribing/thinking/speaking state, immediate playback stop, a fresh voice turn, raw-audio discard by default, text fallback, and clean failure without making permanent voice selection a prerequisite. Local speech output uses a replaceable provisional engine so auditions can continue without rebuilding the conversation pipeline. See [VOICE.md](VOICE.md).
 
+The Voice adapter must use shared device access, leave Windows playback/recording/communications defaults unchanged, and release every stream cleanly. Live acceptance includes Discord and game audio already active on the headphones while Modesty listens and speaks; neither application may be rerouted, muted, disabled, degraded by a silent profile switch, or left locked afterward.
+
 ### Background presence and Discord Communications
 
 Discord follows the Voice foundation and the minimum background-presence host needed for Modesty to remain operational while the Study is hidden. Discord belongs to the dedicated Communications specialist, not the Researcher or Fishing Buddy. The first Discord duty is one explicitly approved server and channel: read a bounded recent window, identify mentions and actionable items, summarize them through Modesty, draft a reply, and send nothing until Drew explicitly approves that exact draft.

@@ -40,6 +40,10 @@ The on-screen control and keyboard shortcut must operate one shared state machin
 
 Listening begins only through deliberate push-to-talk. The first build has no wake word, always-listening mode, background recording, speaker identification, remote microphone, or Discord voice-channel authority. Headphone output reduces acoustic feedback but does not remove the requirement for clean cancellation and device-failure handling.
 
+Audio coexistence is a release requirement. Modesty must use ordinary shared audio streams, never request exclusive ownership of the headphones or microphone, and never change Windows' default playback, default recording, or default communications device. Starting or stopping Modesty must not reroute, mute, disable, or reconfigure Discord or a running game. Device selection belongs to Modesty's own configuration only. Streams must release cleanly on shutdown and recover visibly if Windows reports that a selected device was removed or changed.
+
+Bluetooth headsets require special caution because Windows may expose separate high-quality playback and hands-free communications profiles; opening a microphone can force a profile change that degrades or removes game audio. The hardware audit must record the actual headphone connection and endpoint names before an adapter is chosen. Modesty must not silently switch profiles to make voice work.
+
 Stopping speech and interrupting with a new turn are distinct operations. The first foundation must at least stop playback immediately and allow a fresh push-to-talk turn. Full-duplex overlap, echo cancellation, and conversational barge-in may follow only after the bounded path is stable.
 
 Modesty normally speaks the concise Return. Long Briefings, reports, citations, lists, and reading passages remain visual unless Drew explicitly asks her to read them. The Team headset retains its existing meaning—active communication with an unseen Team specialist—and must not double as the microphone/listening indicator.
@@ -91,6 +95,7 @@ The first build must:
 7. discard raw audio by default and record no hidden microphone history;
 8. retain typing as an uninterrupted fallback when capture, recognition, synthesis, or playback fails;
 9. remain responsive alongside the Study and local Ollama model;
-10. update local help, tests, architecture, privacy state, and recovery paperwork before closure.
+10. pass a live coexistence test with game audio and Discord already using the selected headphones, without taking exclusive control, changing a Windows default, rerouting another application, or leaving a device locked after shutdown;
+11. update local help, tests, architecture, privacy state, and recovery paperwork before closure.
 
 Wake words, always-listening operation, full duplex, remote clients, Discord, voice cloning, permanent voice selection, and elaborate mouth animation are outside Build 0.37.

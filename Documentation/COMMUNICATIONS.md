@@ -34,4 +34,6 @@ The first implementation follows Modesty's local Voice foundation and the minimu
 
 Later reviewed increments may add selected-channel notification rules, scheduled summaries, attachments with media quarantine, multi-channel triage, remote-device presentation, and narrowly scoped autonomous replies. Discord voice channels require the same explicit microphone and speaker controls as local Voice plus separate channel-entry, recording, disclosure, interruption and exit rules.
 
+Discord and games must retain uninterrupted access to Drew's headphones while Modesty runs. The Communications specialist may not change Windows audio defaults, claim exclusive device access, switch a headset profile silently, or treat successful Modesty playback as proof that Discord and game audio still work. Any future Discord voice build requires a live simultaneous Discord, game, and Modesty coexistence test.
+
 The specialist's moniker, office device, outfit and Bobblehead remain deliberately undecided. They do not block the functional contract.

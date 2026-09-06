@@ -12,8 +12,10 @@
 - [x] Separate local capture, recognition, turn control, conversation, synthesis, and playback.
 - [x] Keep raw audio ephemeral by default, retain typed fallback, and keep the Team headset's meaning unchanged.
 - [ ] Audit available local audio devices, runtime dependencies, and measured machine capacity.
+- [ ] Confirm headphone connection/profile and select shared-mode endpoints without changing any Windows default.
 - [ ] Select the smallest suitable local STT and provisional TTS adapters from evidence gathered on this machine.
 - [ ] Implement and test the bounded end-to-end voice turn.
+- [ ] Pass simultaneous game, Discord, and Modesty audio plus clean shutdown/restart without rerouting or device lock.
 
 ## Build 0.36.0 - RF4 Codex Questions - Complete
 

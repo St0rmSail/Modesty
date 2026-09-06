@@ -7,8 +7,18 @@ Ask Modesty **Help** or **What commands can I use?** for the short index. Ask **
 ## Fishing Buddy
 
 - `Ask the Fishing Buddy to inspect my simulators`
+- `Ask the Fishing Buddy to inspect The Angler save`
+- `Ask the Fishing Buddy to begin an Angler observation`
+- `Ask the Fishing Buddy to compare the Angler observation`
+- `Ask the Fishing Buddy to import the RF4 Almanac`
 
 This prepares the four private local codex foundations and performs a bounded, read-only installation check. Russian Fishing 4 is discovered as a standalone launcher installation. Steam manifests are used only for Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler. The check does not read or change saves, attach to a running game, contact the internet, or perform account actions.
+
+The Angler save inspection recognises only bounded local container files, signatures, sizes, hashes, and matching recovery snapshots. Its binary fields remain opaque until a separately reviewed format adapter can prove their meaning. It never prints the Steam account directory, modifies a save, or claims progress from unknown bytes.
+
+For a controlled change observation, close The Angler cleanly and begin an observation. Play normally, make one small memorable change such as catching one fish, then close the game cleanly again and compare the observation. Modesty reports only which relative containers changed, were added, or disappeared. The baseline contains hashes and sizes but no decoded save content or account-directory name.
+
+The RF4 Almanac import makes one bounded public retrieval from RF4 Tackle Box and populates only the Russian Fishing 4 codex with its fish catalogue, trophy thresholds, locations, baits, activity, time and hook guidance. Every claim retains the exact RF4 source at the weakest community-reference rank. It does not import live catches, hotspots or recipes, touch another game's tables, or access an account.
 
 ## Grand Library
 

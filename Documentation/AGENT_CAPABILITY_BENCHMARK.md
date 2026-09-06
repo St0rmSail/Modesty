@@ -103,6 +103,6 @@ Update the entry when a build begins, after live acceptance, and during every re
 | Archivist | Level 3 | No active build; local filing, retrieval, classification, and approval-gated curation are demonstrated, but broad autonomous collection governance is not. |
 | Researcher | Level 3 | Parked; Build 0.19 mixed Scribble Hub/YouTube synthesis is committed and tested, while Level 4 remains pending the postponed live report. |
 | Librarian | Level 2 | Parked after accepted Build 0.33 Reading Desk; autonomous bibliography, completeness analysis, conversion, and OCR remain absent. |
-| Fishing Buddy | Level 1 | Build 0.34 live-accepted: four private simulator codices, truthful standalone/Steam installation discovery, candidate-source classification, and one callable duty; no game-state interpretation yet. |
+| Fishing Buddy | Level 1 | Build 0.34 live-accepted; Build 0.35 now has a source-separated RF4 community catalogue and recommendation foundation, while The Angler parsing is parked. It does not yet observe personal RF4 state or automatically track catches, so the demonstrated level does not rise. |
 
 Future specialists enter this table when their role becomes canonical and receive a detailed section when implementation begins.

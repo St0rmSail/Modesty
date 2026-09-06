@@ -24,7 +24,11 @@ The repository is authoritative for Modesty's design and implementation. The pri
 
 ## Current build
 
-**0.34.0 - Fishing Buddy: First Cast (complete)**
+**0.35.0 - Fishing Codex Evidence Intake (complete)**
+
+The Angler's opaque save containers now have a safe content-free observation layer, but broad rewrites make field inference unsuitable for the first useful adapter. That path is parked. The active RF4 path has imported the full 251-species RF4 Tackle Box fish catalogue into the private RF4 codex with exact weakest-rank community provenance, stable bait and water relationships, no hotspots or recipes, and no cross-game writes. Dynamic hotspot evidence progresses from rumoured to locally known; favourite remains Drew's explicit choice only.
+
+Drew repeated and accepted the live Modesty import report. The next increment is Build 0.36, RF4 Codex Questions: concise natural answers drawn from the new source-ranked catalogue.
 
 Build 0.29 adds a bounded **Metadata Review Desk** for incomplete Intake records. It visibly separates embedded catalogue fields, filename suggestions, and Drew-confirmed corrections; requires both title and author plus explicit `save that`; binds corrections to the unchanged SHA-256 source; never rewrites a book; and sends corrected items back through the ordinary shelving preview. Live acceptance left the Sandstorm suggestion unchanged once, then confirmed `Sandstorm: Mastering the Perils of Fire and Sand` by Bruce R. Cordell and placed that exact unchanged source first in the ordinary shelving preview. All 135 tests passed.
 

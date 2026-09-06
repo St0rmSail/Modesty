@@ -1,7 +1,32 @@
 # Modesty Project Punch List
 
-**Current build:** 0.34.0 - Fishing Buddy: First Cast complete; Researcher and Librarian parked
-**Current focus:** Select and bound Build 0.35.0 - first read-only game adapter
+**Current build:** 0.35.0 - Fishing Codex Evidence Intake complete; Researcher and Librarian parked
+**Current focus:** Restore point before Build 0.36.0 - RF4 Codex Questions
+
+## Build 0.35.0 - Fishing Codex Evidence Intake - Complete
+
+- [x] Confirm the official local save location and inspect only bounded known files.
+- [x] Recognise the Avalanche ADF binary signature without treating unknown fields as progress.
+- [x] Hash current and recovery-slot containers and report matching snapshots without exposing the account directory.
+- [x] Refuse oversized files, symlinks, path escape, and files changing during inspection.
+- [x] Add a deterministic natural command, help entry, focused tests, and documentation.
+- [x] Add a content-free before/after observation that compares only relative paths, sizes, and hashes outside the save directory.
+- [x] Refine broad container changes into content-free 4 KiB changed-region fingerprints.
+- [x] Define an RF4-only weakest-rank Almanac intake with transactional provenance and structural refusal.
+- [x] Separate hotspot states into rumoured, locally known, and Drew-selected favourite.
+- [x] Demonstrate the first full RF4 fish-catalogue import in the live checkout: 251 species, 133 baits, 1,159 unique species-bait links, 18 waters, and 580 species-water links.
+- [x] Pass the live Modesty commands and accept the truthful opaque-format and RF4 import reports.
+
+Fishing codex foundation amendment:
+
+- [x] Require an explicit best-tackle entry, evidence basis, and source for every applicable game/species/fishing-style combination.
+- [x] Preserve uncertainty as `Not yet established` instead of inventing advice.
+- [x] Add linked schema foundations for versions, methods, structured setups, locations, contextual recommendations, sources, player state, and catch evidence before game adapters begin populating the codex.
+- [x] Model bait effectiveness and selectivity per game, species, fishing style, conditions, and evidence rather than assigning one universal bait-strength value.
+- [x] Add contextual groundbait recipes, component effects, compatibility, substitution, and location/method suitability without precomputing the endless permutation space.
+- [x] Keep numerical optimisation backstage and make Modesty's normal output concise, practical advice with substitutes and unsuitable-method warnings.
+- [x] Add a separate companion layer for scoped likes/dislikes, truth-labelled fishing memories, recall cooldowns, and recent-response fingerprints so advice can remain personal and varied without corrupting technical evidence.
+- [x] Implement the first semantic recommendation service: rank stored evidence, switch away from a poorly suited method, check owned substitutions, attach eligible preference/memory context, and fail unknown without guessing.
 
 The detailed project record now begins at [PROJECT_LEDGER.md](PROJECT_LEDGER.md). This file remains the short working checklist.
 

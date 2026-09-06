@@ -1,6 +1,6 @@
 # The Fishing Buddy
 
-**Status:** Canonical simulator-companion Team role; Build 0.34 First Cast complete
+**Status:** Canonical simulator-companion Team role; Build 0.35 Fishing Codex evidence intake live-accepted
 **Reviewed:** 2026-09-06
 
 The Fishing Buddy is the unseen Team specialist who helps Drew play and learn from fishing simulators. Real-world angling remains a later secondary mode. She is not a chat personality. Modesty consults her through the Team headset and presents the advice, observations, and companionship. The companion runs independently of a game window so the Study may occupy another monitor and a later remote client may use a tablet or phone.
@@ -11,6 +11,7 @@ The Fishing Buddy owns:
 
 - a separate private local codex for Russian Fishing 4, Fisher Online, Professional Fishing 2, and Call of the Wild: The Angler;
 - maps, locations, hotspots, species, baits, groundbait recipes, weather, time, behaviour, tackle, and shop economics;
+- explicit best-tackle entries for every game-specific species and applicable fishing-style combination, including evidence basis and source; feeder, float, spinning, bottom, trolling, and game-specific methods may therefore recommend different tackle for the same fish; unknown recommendations remain visibly `Not yet established` rather than being guessed;
 - Drew's game-specific level, unlocked waters, cash, equipment, catches, experiments, and confirmed observations;
 - suggestions for a fishing session based on access, budget, equipment, goals, and current evidence;
 - permitted read-only game progress and catch observation without manual catch entry where a trustworthy interface exists;
@@ -40,6 +41,32 @@ The live acceptance found standalone Russian Fishing 4 at `G:\RF42026` and found
 ## Growth path
 
 After First Cast, each game receives its own bounded adapter. Later builds may add read-only progress, automatic catches where genuinely observable, personal tackle and shop planning, maps/hotspots, sourced web and transcript intake, session recommendations, chat leads, humour, music, and remote display. Each source class must distinguish game state, Drew's observation, community report, and general reference knowledge.
+
+The private codex database separates species identity from tackle recommendations. Every applicable game/species/fishing-style combination carries a non-blank best-tackle value. A newly catalogued combination may begin as `Not yet established`; later evidence can replace it while retaining whether the recommendation came from Drew, observed game state, or an identified external source. “Best” is scoped to that game and style and should eventually account for progression, target size, location, and budget rather than pretending one universal rig is always optimal.
+
+The schema keeps independently changing facts linked rather than flattening them into the species row. It has foundations for games and versions; species and methods; structured tackle setups; waterbodies, spots, coordinates, cast presentation and depth; contextual recommendations covering target class, objective, conditions, level, skills, cost, expected return, ownership, confidence and freshness; identified sources; player state; and catch/session evidence. This structure is intentionally ready before parsers populate it, but an empty field is never evidence that Modesty knows the answer.
+
+Bait effectiveness is also relational. A bait such as redworm or nightcrawler has a stable game-specific identity, but its strength is recorded separately for each species and fishing style. The record may distinguish effectiveness, relative score, selectivity, presentation, compatible hook range, conditions, supporting catches, confidence, source, and game version. Modesty must not describe a bait as universally stronger merely because it outperforms another bait for one target.
+
+The same principle applies to groundbait and every tackle component without precomputing an endless matrix. Groundbait recipes retain ingredients, quantities, preparation, delivery, cost, attraction strength, selectivity, duration and overfeeding risk by species, method, location and conditions. Other component effects, compatibility rules, substitutions and location/method suitability are stored only when evidence exists. The recommendation engine may calculate and cache a result when needed; it does not create rows for every theoretical permutation.
+
+These scores are backstage evidence, not Drew's user interface. Modesty should normally give a concise direction such as “cheese is stronger than maggots for tench here,” “use sweetcorn as the best substitute you own,” or “this spot is poor for feeder fishing; float fishing is better.” She may explain the decisive reasons and uncertainty when useful, but should not expose a numerical optimisation grind unless Drew explicitly asks for it.
+
+Simple advice must not become a repeated sentence template with different nouns inserted. The codex therefore retains a separate companion layer for Drew's and Modesty's scoped likes and dislikes, fishing-memory links, emotional salience, recall cooldowns, and recent recommendation fingerprints. Actual observations, Drew-confirmed memories, shared narrative and fictional colour remain explicitly distinguishable. A lost fish may become a memorable shared episode; a preference for float fishing may provide warmth or break a genuine technical tie.
+
+Personality never contaminates evidence. Modesty may say she fancies trying the floats today when float and feeder options are both sound, or briefly remember the fish that escaped at this spot. She may not claim floats are technically stronger merely because she likes them, fabricate a shared catch, repeat one anecdote until it becomes tiresome, or sacrifice Drew's stated goal without saying so. Language remains generated from meaning and current context rather than selected from a small bank of canned answers.
+
+The first recommendation service now returns semantic guidance rather than a finished canned sentence. It ranks stored contextual evidence, can reject a poorly suited requested method in favour of a better evidenced one, checks an attached setup for unavailable components and looks for owned substitutes, then supplies separately labelled preference and eligible memory context. The eventual Modesty-facing presenter turns that meaning into natural language while recent-response history helps avoid repetition. If no stored recommendation exists, the service returns unknown rather than inventing tackle.
+
+Build 0.35 begins with The Angler because its local save directory is visible. The files use Avalanche ADF binary containers rather than a documented plain-text schema. The first adapter therefore inspects only bounded known filenames, sizes, signatures, SHA-256 identities, snapshot relationships and mid-read change. It does not decode internal fields or claim level, cash, inventory, unlocks or catches. A third-party ADF tool is evidence that the container family can be explored, not authority for The Angler's save-field meanings or permission to modify saves.
+
+A controlled observation may persist a content-free baseline outside the game directory, allow one ordinary play event, and later report which relative containers changed. The baseline contains hashes, sizes and format labels—not decoded bytes or the Steam account directory. This narrows future analysis without turning correlation into a claim about what any field means.
+
+The first live observation showed that a normal save cycle rewrites almost every active and recovery container. Build 0.35 therefore also records 4 KiB block hashes and reports bounded changed byte ranges without retaining raw save content. A changed range is correlation evidence only; it is not a named field and does not authorize save editing.
+
+RF4 Tackle Box may seed the RF4 codex as a distinct weakest-rank `community_reference` source. Stable catalogue intake includes species names, trophy thresholds, location associations, bait associations, activity, time and hook guidance. It cannot silently populate another game's records, overwrite stronger evidence, or masquerade as Drew's observation. Groundbait recipes are a later bounded intake capped at five per meaningful grouping.
+
+Dynamic hotspots have a separate evidence lifecycle. New community leads begin as **rumoured**. A spot becomes **known** only after local testing or equivalent stronger verification. **Favourite** is reserved exclusively for Drew's explicit personal selection from known spots; neither an importer nor repeated success may assign it automatically. Rumours remain available for fresh suggestions and refresh monitoring without displacing known local results.
 
 ## Visual representation
 

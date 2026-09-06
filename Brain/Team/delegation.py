@@ -656,6 +656,14 @@ class TeamDelegator:
         return {token for token in re.findall(r"[a-z0-9]+", value.casefold()) if token not in stop}
 
     def handle(self, message: str) -> DelegationResult:
+        if self.FISHING_BUDDY_RF4_ALMANAC_PATTERN.match(message.strip()):
+            return DelegationResult(True, self.fishing_buddy.import_rf4_almanac())
+        if self.FISHING_BUDDY_ANGLER_BEGIN_PATTERN.match(message.strip()):
+            return DelegationResult(True, self.fishing_buddy.begin_angler_observation())
+        if self.FISHING_BUDDY_ANGLER_COMPARE_PATTERN.match(message.strip()):
+            return DelegationResult(True, self.fishing_buddy.compare_angler_observation())
+        if self.FISHING_BUDDY_ANGLER_PATTERN.match(message.strip()):
+            return DelegationResult(True, self.fishing_buddy.inspect_angler_save())
         if self.FISHING_BUDDY_INSPECT_PATTERN.match(message.strip()):
             return DelegationResult(True, self.fishing_buddy.inspect_simulators())
         natural_help = self.NATURAL_HELP_PATTERN.match(message.strip())
@@ -1247,5 +1255,25 @@ class TeamDelegator:
     FISHING_BUDDY_INSPECT_PATTERN = re.compile(
         r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
         r"(?:inspect|check|find)\s+(?:my\s+)?(?:fishing\s+)?(?:games|simulators)\s*$",
+        re.IGNORECASE,
+    )
+    FISHING_BUDDY_RF4_ALMANAC_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
+        r"import\s+(?:the\s+)?rf4\s+(?:tackle\s+box\s+)?(?:almanac|catalogue)\s*$",
+        re.IGNORECASE,
+    )
+    FISHING_BUDDY_ANGLER_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
+        r"inspect\s+(?:my\s+)?(?:call\s+of\s+the\s+wild\s*:\s*)?the\s+angler\s+save\s*$",
+        re.IGNORECASE,
+    )
+    FISHING_BUDDY_ANGLER_BEGIN_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
+        r"begin\s+(?:an?\s+)?(?:the\s+)?angler\s+observation\s*$",
+        re.IGNORECASE,
+    )
+    FISHING_BUDDY_ANGLER_COMPARE_PATTERN = re.compile(
+        r"^(?:please\s+)?(?:ask\s+)?(?:the\s+)?fishing\s+buddy\s+to\s+"
+        r"compare\s+(?:the\s+)?angler\s+observation\s*$",
         re.IGNORECASE,
     )

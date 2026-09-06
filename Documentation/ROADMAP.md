@@ -1,6 +1,6 @@
 # Roadmap
 
-**Current marker:** Build 0.34.0 - First Cast complete; Researcher and Librarian parked
+**Current marker:** Build 0.35.0 - Fishing Codex Evidence Intake complete; Researcher and Librarian parked
 **Reviewed:** 2026-09-06
 
 ## Completed build line
@@ -47,11 +47,21 @@ Pause record, 2026-08-16: implementation and all 102 live automated tests pass. 
 
 ## Next build
 
-### 0.35.0 - First Read-only Game Adapter - Proposed
+### 0.36.0 - RF4 Codex Questions
 
-Inspect The Angler's candidate local save format without changing it, identify which facts can be extracted truthfully, and propose the smallest useful progress adapter. No parser is authorized until the format, stability, privacy, and failure behaviour are reviewed.
+Make the newly populated RF4 codex useful through short natural questions. Modesty should answer one-species enquiries with source-ranked trophy thresholds, waters, bait suggestions, activity and hook guidance; clearly distinguish community seed evidence from local knowledge; say when a field is unknown; and avoid dumping database internals. This build does not add live hotspots, personal progress, automated catches, recipes or background refresh.
 
 ## Recently completed
+
+### 0.35.0 - Fishing Codex Evidence Intake - Complete
+
+Inspect The Angler's candidate local save format without changing it, identify which facts can be extracted truthfully, and propose the smallest useful progress adapter. The implemented first pass recognises bounded Avalanche ADF containers, hashes them, identifies matching recovery snapshots, detects changes during inspection, and keeps internal fields opaque. A content-free before/after observation identifies both changed containers and 4 KiB changed byte regions during one controlled play event. No parser is authorized until the format, stability, privacy, and failure behaviour are reviewed and a field meaning can be independently proven.
+
+The Angler reverse-engineering path is parked after proving that normal saves broadly rewrite their containers. The active practical branch is an RF4-only community-reference intake from RF4 Tackle Box. Its fish catalogue enters at the weakest evidence rank with exact provenance. Dynamic hotspots remain separate: rumoured on arrival, known only after verification, and favourite only by Drew's explicit choice.
+
+The first live RF4 import succeeded on 2026-09-06 with 251 species, 133 distinct baits, 1,159 unique species-bait links, 18 waters and 580 species-water links. Five named species passed the extraction integrity check. One `9,999,999 g` apparent sentinel was retained as unknown rather than presented as a real European chimaera super-trophy threshold. No hotspots, recipes, personal progress or non-RF4 records were imported.
+
+Drew repeated the import through Modesty's live Study command and accepted the exact report. All 161 automated tests and syntax checks passed.
 
 ### 0.34.0 - First Cast - Complete
 

@@ -11,8 +11,10 @@
 - [x] Require shared on-screen and configurable-keyboard push-to-talk plus visible hard-off and activity states.
 - [x] Separate local capture, recognition, turn control, conversation, synthesis, and playback.
 - [x] Keep raw audio ephemeral by default, retain typed fallback, and keep the Team headset's meaning unchanged.
-- [ ] Audit available local audio devices, runtime dependencies, and measured machine capacity.
-- [ ] Confirm headphone connection/profile and select shared-mode endpoints without changing any Windows default.
+- [x] Audit available local audio devices, runtime dependencies, and machine capacity without opening an audio stream.
+- [x] Confirm separate HD3000 input, SG03 stereo output, and the SG03 hands-free/profile collision risk.
+- [x] Require replaceable descriptive device preferences, explicit rebinding, safe mic-off on input failure, and visible Realtek-speaker fallback on headphone failure.
+- [ ] Prove shared-mode capture and playback without changing any Windows default.
 - [ ] Select the smallest suitable local STT and provisional TTS adapters from evidence gathered on this machine.
 - [ ] Implement and test the bounded end-to-end voice turn.
 - [ ] Pass simultaneous game, Discord, and Modesty audio plus clean shutdown/restart without rerouting or device lock.

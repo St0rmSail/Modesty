@@ -36,6 +36,10 @@ The first operating assumptions are:
 - recognized text: shown and passed through the same conversation route as typed input;
 - text input: always remains available as the reliable fallback.
 
+These are preferred roles, not hardwired hardware identities. Modesty discovers currently available endpoints at startup, resolves the configured preference by user-readable device description and capability, and lets Drew choose a replacement. Windows endpoint IDs and numeric indices are observations only and must not become durable configuration because reinstalling Windows, changing ports, replacing hardware, or reinstalling a driver may change them.
+
+If the preferred microphone disappears, Voice returns to `MIC OFF` and requests a replacement rather than opening another microphone. If the preferred headphones disappear, Modesty falls back inside her own playback routing to the configured Realtek desktop speakers and displays a clear notice that speaker fallback is active. This does not change the Windows default device. Replacement headphones become preferred only after Drew selects them; the speakers remain the durable authorized fallback unless Drew changes that policy.
+
 The on-screen control and keyboard shortcut must operate one shared state machine. The interface must distinguish `MIC OFF`, `LISTENING`, `TRANSCRIBING`, `THINKING`, and `SPEAKING`, offer an immediate hard-off state, and fail back to text without trapping the Study. The initial keyboard shortcut must be configurable and must not become a system-wide hook until conflicts with games and other applications have been tested.
 
 Listening begins only through deliberate push-to-talk. The first build has no wake word, always-listening mode, background recording, speaker identification, remote microphone, or Discord voice-channel authority. Headphone output reduces acoustic feedback but does not remove the requirement for clean cancellation and device-failure handling.
@@ -99,3 +103,18 @@ The first build must:
 11. update local help, tests, architecture, privacy state, and recovery paperwork before closure.
 
 Wake words, always-listening operation, full duplex, remote clients, Discord, voice cloning, permanent voice selection, and elaborate mouth animation are outside Build 0.37.
+
+## 2026-09-06 read-only hardware audit
+
+- CPU: AMD Ryzen 5 7500X3D, 6 cores / 12 logical processors.
+- Memory: 31.2 GB available as installed system capacity.
+- GPU: NVIDIA GeForce RTX 4060 Ti with 8 GB VRAM confirmed by the NVIDIA management interface; integrated AMD graphics also present.
+- Preferred input visible to Qt: `Desktop Microphone (Microsoft LifeCam HD-3000)` and currently the default input.
+- Preferred output visible to Qt: `Headphones (2- Monster Airmars SG03)` and currently the default output.
+- Hazardous alternate input: `Headset (2- Monster Airmars SG03)`, corresponding to the headset communications path; Windows also exposes a separate `Monster Airmars SG03 Hands-Free` endpoint.
+- Authorized fallback output: `Speakers (Realtek(R) Audio)`. Modesty may use it automatically only when the preferred headphone endpoint is unavailable, must announce the fallback visually, and must not change any Windows default.
+- Current project Python: 3.14.6 with PySide6 and Qt Multimedia available.
+- Not currently installed in the project environment: sounddevice, PyAudio, NumPy, SciPy, Torch, ONNX Runtime, faster-whisper, OpenAI Whisper, Kokoro, Piper, or WebRTC VAD packages.
+- NVIDIA reported approximately 6.6 GB of 8 GB VRAM free during the audit; Ollama had no model loaded at that instant. The accepted `gemma4:e2b` model remains installed, so simultaneous loaded-model testing is still required.
+
+The existing Qt runtime can enumerate the correct microphone and headphone endpoints without opening a stream or installing another capture library. This makes a lean Qt shared-mode capture/playback adapter the preferred integration surface, subject to a live coexistence test. Engine selection remains open until current local STT/TTS runtime compatibility and measured combined load are reviewed.

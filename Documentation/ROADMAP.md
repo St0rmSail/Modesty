@@ -65,6 +65,8 @@ Build 0.37 is **Voice Foundation**. It uses the HD3000 desktop microphone, headp
 
 The Voice adapter must use shared device access, leave Windows playback/recording/communications defaults unchanged, and release every stream cleanly. Live acceptance includes Discord and game audio already active on the headphones while Modesty listens and speaks; neither application may be rerouted, muted, disabled, degraded by a silent profile switch, or left locked afterward.
 
+The initial audit confirms that Qt can distinguish the HD3000 microphone, SG03 stereo headphones, SG03 headset input/hands-free path, and Realtek speakers. Preferences are bound by descriptive identity and capability, never durable numeric indices. Missing preferred input fails to mic-off. Missing preferred headphones activate the explicitly authorized Realtek-speaker fallback inside Modesty with a visible notice and no Windows-default change. Replacement headphones remain Drew-selected, so equipment wear, port changes, driver reinstall, or Windows reinstall cannot promote an arbitrary new device.
+
 ### Background presence and Discord Communications
 
 Discord follows the Voice foundation and the minimum background-presence host needed for Modesty to remain operational while the Study is hidden. Discord belongs to the dedicated Communications specialist, not the Researcher or Fishing Buddy. The first Discord duty is one explicitly approved server and channel: read a bounded recent window, identify mentions and actionable items, summarize them through Modesty, draft a reply, and send nothing until Drew explicitly approves that exact draft.
